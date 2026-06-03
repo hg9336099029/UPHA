@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function RegistrationCards() {
   return (
-    <section className="py-16 px-6 max-w-7xl mx-auto">
+    <section id="database" className="py-16 px-6 max-w-7xl mx-auto">
       <div className="max-w-2xl mb-12">
         <p className="text-gray-500 text-lg leading-relaxed">
           Join the official roster of Uttar Pradesh&apos;s handball community. Whether you play, coach, or officiate — your registration unlocks access to events, accreditation, and grant programs.

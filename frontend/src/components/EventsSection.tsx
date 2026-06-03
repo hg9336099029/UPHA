@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function EventsSection() {
   return (
-    <section className="py-16 px-6 max-w-7xl mx-auto">
+    <section id="events" className="py-16 px-6 max-w-7xl mx-auto">
       <div className="flex flex-col md:flex-row justify-between items-end mb-12">
         <div>
           <div className="text-accent text-sm font-semibold tracking-widest uppercase mb-4 flex items-center gap-2">

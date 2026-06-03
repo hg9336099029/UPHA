@@ -1,7 +1,7 @@
 export default function MandateSection() {
   return (
     <section className="py-16 px-6 max-w-7xl mx-auto">
-      <div className="border border-blue-200 border-dashed p-8 lg:p-12 relative before:absolute before:-inset-2 before:border before:border-blue-100 before:border-dashed">
+      <div className="p-8 lg:p-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 relative z-10">
           
           <div>

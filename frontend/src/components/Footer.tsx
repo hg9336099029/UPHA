@@ -17,7 +17,7 @@ const Twitter = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function Footer() {
   return (
-    <footer className="bg-primary text-gray-400 py-16">
+    <footer id="contact" className="bg-primary text-gray-400 py-16">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
           

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function LeadershipSection() {
   const leaders = [
@@ -6,31 +7,36 @@ export default function LeadershipSection() {
       role: "CHAIRMAN",
       name: "DR. SUDHIR M. BOBDE",
       details: "Office: Lucknow",
-      bgColor: "bg-gray-200"
+      bgColor: "bg-gray-200",
+      image: "/leader-1.png"
     },
     {
       role: "PRESIDENT",
       name: "SMT. ALKA DAS",
       details: "Office: Lucknow",
-      bgColor: "bg-gray-300"
+      bgColor: "bg-gray-300",
+      image: "/leader-2.png"
     },
     {
       role: "TREASURER",
       name: "VINAY KUMAR SINGH",
       details: "+91 75700 99990",
-      bgColor: "bg-yellow-100"
+      bgColor: "bg-yellow-100",
+      image: "/leader-3.png"
     },
     {
       role: "EXEC. SECRETARY GENERAL",
       name: "AMIT PANDEY",
       details: "+91 70849 00009",
-      bgColor: "bg-pink-100"
+      bgColor: "bg-pink-100",
+      image: "/leader-4.png"
     },
     {
       role: "SECRETARY GENERAL",
       name: "DR. ANANDESHWAR PANDEY",
       details: "+91 94150 22230",
-      bgColor: "bg-gray-300"
+      bgColor: "bg-gray-300",
+      image: "/leader-5.png"
     }
   ];
 
@@ -57,8 +63,9 @@ export default function LeadershipSection() {
         {leaders.map((leader, index) => (
           <div key={index} className="border border-gray-100 rounded bg-white shadow-sm overflow-hidden flex flex-col">
             <div className={`h-48 ${leader.bgColor} w-full relative flex items-center justify-center`}>
-              {/* Placeholder for images */}
-              <div className="w-full h-full bg-black/5"></div>
+              <div className="w-full h-full relative">
+                 <Image src={leader.image} alt={leader.name} fill className="object-cover object-center" />
+              </div>
             </div>
             <div className="p-4 flex-1 flex flex-col justify-between border-t border-gray-100">
               <div>

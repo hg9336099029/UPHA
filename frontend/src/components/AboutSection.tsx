@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function AboutSection() {
   return (
-    <section className="py-24 px-6 max-w-7xl mx-auto">
+    <section id="about" className="py-24 px-6 max-w-7xl mx-auto">
       <div className="flex flex-col lg:flex-row gap-16 lg:gap-24">
         
         {/* Left Side */}
