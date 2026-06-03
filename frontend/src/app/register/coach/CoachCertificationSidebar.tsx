@@ -1,0 +1,78 @@
+"use client";
+
+import { QrCode, Check } from "lucide-react";
+
+export default function CoachCertificationSidebar() {
+  const handleCopyUPI = () => {
+    navigator.clipboard.writeText("uphandballassociation@sbi");
+  };
+
+  return (
+    <div className="space-y-6">
+      
+      {/* Payment Box */}
+      <div className="bg-white border border-gray-200 shadow-sm rounded-sm overflow-hidden">
+        <div className="bg-[#111827] text-white p-4 flex justify-between items-center text-[10px] font-bold tracking-widest uppercase">
+          <div className="flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent"></span> UPHA PAYMENT
+          </div>
+          <div className="text-gray-400">REF / 2026</div>
+        </div>
+        
+        <div className="p-6 text-center border-b border-gray-100">
+          <div className="text-[10px] font-bold tracking-widest text-accent uppercase mb-2">ANNUAL COACH CERTIFICATION</div>
+          <div className="font-heading text-5xl font-bold text-primary mb-2">₹ 300</div>
+          <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">VALID THROUGH 31 MAR 2027</div>
+        </div>
+        
+        <div className="p-6 bg-gray-50/50">
+          <div className="text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">PAY TO UPI ID</div>
+          <div className="flex border border-gray-200 rounded-sm bg-white overflow-hidden mb-6">
+            <div className="px-4 py-3 flex-1 font-mono text-sm text-gray-800">uphandballassociation@sbi</div>
+            <button 
+              onClick={handleCopyUPI}
+              className="px-4 py-3 bg-gray-50 text-accent text-[10px] font-bold tracking-widest uppercase hover:bg-gray-100 transition-colors border-l border-gray-200"
+            >
+              COPY
+            </button>
+          </div>
+          
+          <div className="bg-white border border-gray-200 p-6 flex flex-col items-center justify-center rounded-sm">
+            <QrCode className="w-32 h-32 text-gray-800 mb-4 stroke-[1]" />
+            <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">SCAN WITH ANY UPI APP</div>
+          </div>
+        </div>
+      </div>
+
+      {/* What You Get Box */}
+      <div className="bg-[#111827] text-white shadow-sm rounded-sm p-6">
+        <div className="text-[10px] font-bold tracking-widest text-accent uppercase mb-2">WHAT YOU GET</div>
+        <h3 className="font-heading text-xl font-bold uppercase tracking-wide mb-6">COACH CERTIFICATION INCLUDES</h3>
+        
+        <ul className="space-y-4">
+          <li className="flex gap-3 items-start">
+            <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+            <div className="text-xs text-gray-300 leading-relaxed">Official UPHA Coach ID and accreditation card</div>
+          </li>
+          <li className="flex gap-3 items-start">
+            <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+            <div className="text-xs text-gray-300 leading-relaxed">Inclusion in the certified coaches database</div>
+          </li>
+          <li className="flex gap-3 items-start">
+            <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+            <div className="text-xs text-gray-300 leading-relaxed">Eligibility for state & national coaching panels</div>
+          </li>
+          <li className="flex gap-3 items-start">
+            <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+            <div className="text-xs text-gray-300 leading-relaxed">Access to UPHA training workshops and clinics</div>
+          </li>
+          <li className="flex gap-3 items-start">
+            <Check className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+            <div className="text-xs text-gray-300 leading-relaxed">Annual federation newsletter and updates</div>
+          </li>
+        </ul>
+      </div>
+
+    </div>
+  );
+}

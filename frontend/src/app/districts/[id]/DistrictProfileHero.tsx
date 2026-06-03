@@ -1,0 +1,74 @@
+import Link from "next/link";
+import { CheckCircle2 } from "lucide-react";
+
+export default function DistrictProfileHero() {
+  return (
+    <div className="bg-[#111827] text-white pt-12 pb-32 relative">
+      <div className="max-w-7xl mx-auto px-6 relative z-10">
+        
+        {/* Breadcrumbs */}
+        <div className="text-[10px] font-bold tracking-[0.2em] text-gray-400 uppercase mb-6 flex items-center gap-2">
+          <Link href="/" className="hover:text-white transition-colors">HOME</Link>
+          <span>/</span>
+          <Link href="/districts" className="hover:text-white transition-colors">MEMBERS UNIT</Link>
+          <span>/</span>
+          <Link href="/districts" className="hover:text-white transition-colors">AFFILIATED DISTRICTS</Link>
+          <span>/</span>
+          <span className="text-white">ALIGARH</span>
+        </div>
+        
+        {/* Title */}
+        <h1 className="font-heading text-6xl md:text-7xl font-bold uppercase tracking-wide mb-6">
+          ALIGARH <span className="text-accent">HANDBALL ASSOCIATION</span>
+        </h1>
+        
+        {/* Tags */}
+        <div className="flex flex-wrap gap-4 mt-6">
+          <div className="flex items-center gap-2 border border-white/20 px-3 py-1.5 rounded-sm bg-white/5">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent"></span>
+            <span className="text-[9px] font-bold tracking-widest text-white uppercase">AFFILIATED</span>
+          </div>
+          <div className="border border-white/20 px-3 py-1.5 rounded-sm bg-white/5">
+            <span className="text-[9px] font-bold tracking-widest text-white uppercase">MEMBER UNIT &middot; 020</span>
+          </div>
+          <div className="border border-transparent px-3 py-1.5 text-[9px] font-bold tracking-widest text-gray-400 uppercase">
+            ALIGARH, UTTAR PRADESH
+          </div>
+        </div>
+        
+      </div>
+
+      {/* Overlapping Identity Card */}
+      <div className="absolute left-0 right-0 -bottom-20 w-full z-20 px-6">
+        <div className="max-w-5xl mx-auto bg-white shadow-2xl shadow-black/10 rounded-sm border border-gray-100 flex flex-col md:flex-row items-center relative overflow-hidden">
+          
+          <div className="p-8 md:p-12 shrink-0 border-b md:border-b-0 md:border-r border-gray-100">
+            <div className="w-24 h-24 rounded-full bg-[#111827] flex items-center justify-center border-4 border-white shadow-md">
+              <span className="font-heading text-2xl font-bold text-white tracking-wider">AHA</span>
+            </div>
+          </div>
+          
+          <div className="p-8 md:p-12 flex-1">
+            <div className="flex items-center gap-2 text-[10px] font-bold tracking-widest text-emerald-600 uppercase mb-3">
+              <CheckCircle2 className="w-3.5 h-3.5" /> OFFICIALLY RECOGNIZED BY UPHA
+            </div>
+            <h2 className="font-heading text-2xl font-bold uppercase tracking-wide text-primary mb-2">
+              ALIGARH HANDBALL ASSOCIATION
+            </h2>
+            <p className="font-serif italic text-gray-600 leading-relaxed text-sm max-w-xl">
+              An affiliated district unit of the Uttar Pradesh Handball Association, serving handball in the district of Aligarh.
+            </p>
+          </div>
+          
+          <div className="p-8 md:p-12 shrink-0 border-t md:border-t-0 md:border-l border-gray-100 flex flex-col items-center justify-center bg-gray-50/50 self-stretch">
+            <div className="text-[9px] font-bold tracking-widest text-gray-400 uppercase mb-1">MEMBER REF</div>
+            <div className="font-heading text-6xl font-bold text-accent leading-none">020</div>
+            <div className="text-[9px] text-gray-400 uppercase mt-2">of 60 affiliated</div>
+          </div>
+
+          <div className="absolute top-0 right-0 w-24 h-full bg-gradient-to-l from-gray-50 to-transparent pointer-events-none"></div>
+        </div>
+      </div>
+    </div>
+  );
+}
