@@ -1,5 +1,6 @@
 // ─── Base URL ────────────────────────────────────────────────────────────────
-const API_BASE = "http://127.0.0.1:8000/api";
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api";
 const ADMIN_BASE = `${API_BASE}/admin`;
 
 // ─── TypeScript Interfaces ────────────────────────────────────────────────────
@@ -133,6 +134,34 @@ async function apiFetch<T = unknown>(
   }
 
   return json as T;
+}
+
+async function multipartApiFetch<T = unknown>(
+  url: string,
+  formData: FormData
+): Promise<T> {
+  return apiFetch<T>(url, { method: "POST", body: formData });
+}
+
+export async function registerPlayer(formData: FormData) {
+  return multipartApiFetch<{ success: boolean; message: string; player: PlayerData }>(
+    `${API_BASE}/register/player/`,
+    formData
+  );
+}
+
+export async function registerCoach(formData: FormData) {
+  return multipartApiFetch<{ success: boolean; message: string; coach: CoachData }>(
+    `${API_BASE}/register/coach/`,
+    formData
+  );
+}
+
+export async function registerReferee(formData: FormData) {
+  return multipartApiFetch<{ success: boolean; message: string; referee: RefereeData }>(
+    `${API_BASE}/register/referee/`,
+    formData
+  );
 }
 
 // ─── Auth ─────────────────────────────────────────────────────────────────────
