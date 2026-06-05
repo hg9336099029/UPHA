@@ -1,4 +1,4 @@
-import { User, CheckCircle, Shield } from "lucide-react";
+import { User, CheckCircle, Shield, Building2 } from "lucide-react";
 import Link from "next/link";
 
 export default function RegistrationCards() {
@@ -6,11 +6,11 @@ export default function RegistrationCards() {
     <section id="database" className="py-16 px-6 max-w-7xl mx-auto">
       <div className="max-w-2xl mb-12">
         <p className="text-gray-500 text-lg leading-relaxed">
-          Join the official roster of Uttar Pradesh&apos;s handball community. Whether you play, coach, or officiate — your registration unlocks access to events, accreditation, and grant programs.
+          Join the official roster of Uttar Pradesh's handball community. Whether you play, coach, officiate, or manage a district unit — your registration unlocks access to events, accreditation, and grant programs.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {/* Card 1 */}
         <div className="bg-primary p-8 rounded-sm text-white flex flex-col items-start justify-between">
           <div>
@@ -59,6 +59,23 @@ export default function RegistrationCards() {
           </div>
           <Link href="/register/referee" className="text-accent text-sm font-bold tracking-widest uppercase hover:text-white transition-colors">
             Apply as Referee &rarr;
+          </Link>
+        </div>
+        
+        {/* Card 4 */}
+        <div className="bg-primary p-8 rounded-sm text-white flex flex-col items-start justify-between">
+          <div>
+            <div className="text-accent text-sm font-semibold tracking-widest mb-6">— 04</div>
+            <div className="w-12 h-12 rounded-full border border-gray-700 flex items-center justify-center mb-6">
+              <Building2 className="text-accent w-5 h-5" />
+            </div>
+            <h3 className="font-heading text-3xl font-bold uppercase tracking-wide mb-4">District Affiliation</h3>
+            <p className="text-gray-400 text-sm leading-relaxed mb-12">
+              For district handball associations. File for official affiliation, submit committee details, and become a recognized unit under UPHA's state-wide network.
+            </p>
+          </div>
+          <Link href="/register/district" className="text-accent text-sm font-bold tracking-widest uppercase hover:text-white transition-colors">
+            Apply as District &rarr;
           </Link>
         </div>
       </div>

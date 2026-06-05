@@ -38,7 +38,7 @@ export default function Navbar() {
             <Link href="/" className="text-accent border-b-2 border-accent pb-1">Home</Link>
             <Link href="/#about" className="hover:text-accent transition-colors">About</Link>
             <Link href="/#events" className="hover:text-accent transition-colors">Events</Link>
-            <Link href="/#database" className="hover:text-accent transition-colors">Database</Link>
+            <Link href="/database" className="hover:text-accent transition-colors">Database</Link>
             <Link href="/#achievements" className="hover:text-accent transition-colors">Achievements</Link>
             <Link href="/#gallery" className="hover:text-accent transition-colors">Gallery</Link>
             <Link href="/#contact" className="hover:text-accent transition-colors">Contact</Link>
