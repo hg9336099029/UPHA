@@ -1,21 +1,73 @@
 "use client";
 
 import { Clock, Image as ImageIcon, FileText, FileBadge } from "lucide-react";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+
+import { registerReferee } from "@/lib/api";
 
 export default function RefereeAccreditationForm() {
+  const router = useRouter();
   const [gender, setGender] = useState("");
   const [bloodGroup, setBloodGroup] = useState("");
   const [occupation, setOccupation] = useState("");
   const [grade, setGrade] = useState("");
+  const [transactionImageName, setTransactionImageName] = useState("");
+  const [transactionImagePreview, setTransactionImagePreview] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState("");
+  const [submitSuccess, setSubmitSuccess] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    return () => {
+      if (transactionImagePreview) {
+        URL.revokeObjectURL(transactionImagePreview);
+      }
+    };
+  }, [transactionImagePreview]);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Referee Form submitted");
+
+    const formData = new FormData(e.currentTarget);
+    formData.set("gender", gender);
+    formData.set("blood_group", bloodGroup);
+    formData.set("occupation", occupation === "Self-employed" ? "self_employed" : occupation.toLowerCase());
+    formData.set("grade_applying_for", grade);
+
+    const password = String(formData.get("password") || "");
+    const confirmPassword = String(formData.get("confirm_password") || "");
+
+    if (password !== confirmPassword) {
+      setSubmitError("Passwords do not match.");
+      setSubmitSuccess("");
+      return;
+    }
+
+    setIsSubmitting(true);
+    setSubmitError("");
+    setSubmitSuccess("");
+
+    try {
+      formData.delete("confirm_password");
+      await registerReferee(formData);
+      
+      window.location.href = "/login";
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : "Registration failed.");
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
+      {submitError ? (
+        <div className="border-l-4 border-red-500 bg-red-50 text-red-700 p-4 text-sm rounded-r-sm">{submitError}</div>
+      ) : null}
+      {submitSuccess ? (
+        <div className="border-l-4 border-green-500 bg-green-50 text-green-700 p-4 text-sm rounded-r-sm">{submitSuccess}</div>
+      ) : null}
       
       {/* Alert Banner */}
       <div className="border-l-4 border-accent bg-white shadow-sm p-6 rounded-r-sm">
@@ -44,29 +96,40 @@ export default function RefereeAccreditationForm() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">FULL NAME <span className="text-accent">*</span></label>
-              <input type="text" placeholder="As on Aadhar" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+              <input name="name" type="text" placeholder="As on Aadhar" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
             </div>
             <div>
               <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">FATHER&apos;S NAME <span className="text-accent">*</span></label>
-              <input type="text" placeholder="Full name" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+              <input name="father_name" type="text" placeholder="Full name" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
             </div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">EMAIL <span className="text-accent">*</span></label>
-              <input type="email" placeholder="email@example.com" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+              <input name="email" type="email" placeholder="email@example.com" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
             </div>
             <div>
               <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">MOBILE NUMBER <span className="text-accent">*</span></label>
-              <input type="tel" placeholder="+91" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+              <input name="phone_number" type="tel" placeholder="+91" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">PASSWORD <span className="text-accent">*</span></label>
+              <input name="password" type="password" placeholder="Create a password" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">CONFIRM PASSWORD <span className="text-accent">*</span></label>
+              <input name="confirm_password" type="password" placeholder="Repeat password" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
             </div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">DATE OF BIRTH <span className="text-accent">*</span></label>
-              <input type="date" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+              <input name="date_of_birth" type="date" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
             </div>
             <div>
               <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">GENDER <span className="text-accent">*</span></label>
@@ -107,7 +170,7 @@ export default function RefereeAccreditationForm() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">DISTRICT <span className="text-accent">*</span></label>
-              <select className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-gray-600" required>
+              <select name="district" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-gray-600" required>
                 <option value="">Select district</option>
                 <option value="Lucknow">Lucknow</option>
                 <option value="Varanasi">Varanasi</option>
@@ -142,11 +205,11 @@ export default function RefereeAccreditationForm() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
             <div>
               <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">YEARS OF OFFICIATING EXPERIENCE <span className="text-accent">*</span></label>
-              <input type="number" placeholder="e.g. 5" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+              <input name="year_of_officiating_experience" type="number" placeholder="e.g. 5" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
             </div>
             <div>
               <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">HIGHEST LEVEL OFFICIATED <span className="text-accent">*</span></label>
-              <select className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-gray-600" required>
+              <select name="highest_level_officiated" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-gray-600" required>
                 <option value="">Select level</option>
                 <option value="international">International Tournaments</option>
                 <option value="national">National Championships</option>
@@ -159,11 +222,11 @@ export default function RefereeAccreditationForm() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">TOURNAMENTS OFFICIATED <span className="text-gray-400 lowercase normal-case text-[10px] font-normal">(approx.)</span></label>
-              <input type="number" placeholder="e.g. 12" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
+              <input name="tournament_officiated" type="number" placeholder="e.g. 12" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
             </div>
             <div>
               <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">PREVIOUS REFEREE ID <span className="text-gray-400 lowercase normal-case text-[10px] font-normal">(if renewing/upgrading)</span></label>
-              <input type="text" placeholder="e.g. RFR-2024-00031" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
+              <input name="previous_referee_id" type="text" placeholder="e.g. RFR-2024-00031" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
             </div>
           </div>
         </div>
@@ -182,13 +245,14 @@ export default function RefereeAccreditationForm() {
         <div className="space-y-6">
           <div>
             <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">AADHAR NUMBER <span className="text-accent">*</span></label>
-            <input type="text" placeholder="XXXX XXXX XXXX" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+            <input name="adhar_number" type="text" placeholder="XXXX XXXX XXXX" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
             <div>
               <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">PASSPORT PHOTO <span className="text-accent">*</span></label>
               <div className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center justify-center gap-4 cursor-pointer hover:bg-gray-50 transition-colors">
+                <input name="passport_image" type="file" accept="image/*" className="sr-only" required />
                 <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0">
                   <ImageIcon className="w-4 h-4 text-gray-400" />
                 </div>
@@ -201,6 +265,7 @@ export default function RefereeAccreditationForm() {
             <div>
               <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">AADHAR CARD UPLOAD <span className="text-accent">*</span></label>
               <div className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center justify-center gap-4 cursor-pointer hover:bg-gray-50 transition-colors">
+                <input name="adhar_image" type="file" accept="image/*,.pdf" className="sr-only" required />
                 <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0">
                   <FileText className="w-4 h-4 text-gray-400" />
                 </div>
@@ -215,6 +280,7 @@ export default function RefereeAccreditationForm() {
           <div className="pt-2">
             <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">OFFICIATING CERTIFICATE / EXPERIENCE PROOF <span className="text-gray-400 lowercase normal-case text-[10px] font-normal">(recommended)</span></label>
             <div className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center gap-4 cursor-pointer hover:bg-gray-50 transition-colors">
+              <input name="certificate_image" type="file" accept="image/*,.pdf" className="sr-only" />
               <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0">
                 <FileBadge className="w-4 h-4 text-gray-400" />
               </div>
@@ -241,27 +307,66 @@ export default function RefereeAccreditationForm() {
         <div className="space-y-6">
           <div>
             <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">PAYMENT TRANSACTION ID <span className="text-accent">*</span></label>
-            <input type="text" placeholder="UPI reference / bank transaction ID" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+            <input name="transaction_id" type="text" placeholder="UPI reference / bank transaction ID" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
             <div className="text-[10px] text-gray-400 mt-2">Found in your UPI app&apos;s transaction history.</div>
           </div>
           
           <div className="pt-2">
             <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">PAYMENT SCREENSHOT <span className="text-accent">*</span></label>
-            <div className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center gap-4 cursor-pointer hover:bg-gray-50 transition-colors">
+            <label className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center gap-4 cursor-pointer hover:bg-gray-50 transition-colors relative overflow-hidden">
+              <input
+                name="transaction_image"
+                type="file"
+                accept="image/*"
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                required
+                onChange={(event) => {
+                  const file = event.target.files?.[0];
+                  if (!file) {
+                    setTransactionImageName("");
+                    setTransactionImagePreview("");
+                    return;
+                  }
+
+                  setTransactionImageName(file.name);
+                  setTransactionImagePreview((currentPreview) => {
+                    if (currentPreview) {
+                      URL.revokeObjectURL(currentPreview);
+                    }
+                    return URL.createObjectURL(file);
+                  });
+                }}
+              />
               <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0">
                 <ImageIcon className="w-4 h-4 text-gray-400" />
               </div>
               <div>
                 <div className="text-sm font-semibold text-gray-800">Upload payment screenshot</div>
                 <div className="text-[10px] text-gray-500">JPG or PNG · max 2 MB · must show transaction ID and amount</div>
+                {transactionImageName ? (
+                  <div className="text-[10px] text-primary mt-1 break-all">Selected: {transactionImageName}</div>
+                ) : null}
               </div>
-            </div>
+            </label>
+            {transactionImagePreview ? (
+              <div className="mt-4 w-full md:w-[calc(50%-12px)] overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm">
+                <img
+                  src={transactionImagePreview}
+                  alt="Payment screenshot preview"
+                  className="h-56 w-full object-cover"
+                />
+              </div>
+            ) : null}
           </div>
         </div>
       </div>
 
       {/* Submit Box */}
       <div className="bg-[#111827] rounded-sm p-6 sm:p-8 flex flex-col gap-8 shadow-md">
+        <input type="hidden" name="gender" value={gender} />
+        <input type="hidden" name="blood_group" value={bloodGroup} />
+        <input type="hidden" name="occupation" value={occupation === "Self-employed" ? "self_employed" : occupation.toLowerCase()} />
+        <input type="hidden" name="grade_applying_for" value={grade} />
         <label className="flex items-start gap-4 cursor-pointer group">
           <div className="relative flex items-center justify-center shrink-0 mt-1">
             <input type="checkbox" className="appearance-none w-5 h-5 border border-gray-600 rounded-sm bg-transparent checked:bg-accent checked:border-accent transition-colors cursor-pointer peer" required />
@@ -276,8 +381,8 @@ export default function RefereeAccreditationForm() {
           <div className="text-[10px] font-bold tracking-widest text-gray-500 uppercase">
             Form REF / RFR-2026 · Reviewed by the UPHA Referee Board
           </div>
-          <button type="submit" className="w-full sm:w-auto bg-accent text-white px-8 py-4 text-sm font-bold tracking-widest uppercase hover:bg-accent/90 transition-colors rounded-sm">
-            SUBMIT APPLICATION &rarr;
+          <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-accent text-white px-8 py-4 text-sm font-bold tracking-widest uppercase hover:bg-accent/90 transition-colors rounded-sm disabled:opacity-60 disabled:cursor-not-allowed">
+            {isSubmitting ? "SUBMITTING..." : "SUBMIT APPLICATION &rarr;"}
           </button>
         </div>
       </div>

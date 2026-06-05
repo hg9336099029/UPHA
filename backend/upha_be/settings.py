@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-load_dotenv(BASE_DIR / '.env')
+load_dotenv(BASE_DIR / '.env', override=True)
 
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-fallback-key')
 DEBUG = os.environ.get('DEBUG', 'True') == 'True'
@@ -65,7 +65,7 @@ WSGI_APPLICATION = 'upha_be.wsgi.application'
 # ─── Database ──────────────────────────────────────────────────────────────────
 # Uses SQLite by default (matches db.sqlite3 in repo).
 # For MySQL, set DB_NAME, DB_USER, DB_PASSWORD etc. in .env
-DB_NAME = os.environ.get('DB_NAME')
+DB_NAME = (os.environ.get('DB_NAME') or '').strip()
 if DB_NAME:
     DATABASES = {
         'default': {
