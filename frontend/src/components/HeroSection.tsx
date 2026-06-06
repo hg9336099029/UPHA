@@ -33,7 +33,7 @@ export default function HeroSection() {
             <Link href="/register" className="bg-accent text-white px-8 py-4 text-sm font-bold tracking-widest uppercase hover:bg-accent/90 transition-colors inline-flex items-center justify-center rounded-sm">
               BECOME A MEMBER &rarr;
             </Link>
-            <Link href="/events" className="bg-transparent border border-gray-600 text-white px-8 py-4 text-sm font-bold tracking-widest uppercase hover:bg-white/5 transition-colors inline-flex items-center justify-center rounded-sm">
+            <Link href="/#events" className="bg-transparent border border-gray-600 text-white px-8 py-4 text-sm font-bold tracking-widest uppercase hover:bg-white/5 transition-colors inline-flex items-center justify-center rounded-sm">
               UPCOMING TOURNAMENTS
             </Link>
           </div>
