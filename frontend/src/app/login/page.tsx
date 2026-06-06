@@ -18,7 +18,18 @@ export default function LoginPage() {
     try {
       await login(email, password);
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Login failed.");
+      let msg = err instanceof Error ? err.message : "Login failed.";
+      
+      // Translate technical or generic errors into user-friendly messages
+      if (msg.toLowerCase().includes("invalid login credentials") || msg.includes("401")) {
+        msg = "The email or password you entered is incorrect. Please try again.";
+      } else if (msg.toLowerCase().includes("failed to fetch") || msg.includes("NetworkError")) {
+        msg = "Unable to connect to the server. Please check your internet connection.";
+      } else if (msg.includes("Unexpected token") || msg.includes("500") || msg.includes("SyntaxError")) {
+        msg = "We're experiencing technical difficulties. Please try again in a few minutes.";
+      }
+      
+      setError(msg);
     } finally {
       setLoading(false);
     }
