@@ -113,6 +113,7 @@ FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000').rstrip('/
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "https://upha.vercel.app",
     FRONTEND_URL,
 ]
 CORS_ALLOW_CREDENTIALS = True
@@ -126,6 +127,7 @@ CSRF_COOKIE_SECURE = not DEBUG
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    "https://upha.vercel.app",
     FRONTEND_URL,
 ]
 
