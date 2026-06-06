@@ -5,10 +5,10 @@ import Image from "next/image";
 export default function HeroSection() {
   return (
     <section className="bg-[#151e2b] text-white relative overflow-hidden">
-      <div className="max-w-7xl mx-auto px-6 py-12 lg:py-16 flex flex-col lg:flex-row items-center relative z-10">
+      <div className="max-w-7xl mx-auto px-6 pt-12 lg:pt-16 flex flex-col lg:flex-row items-end relative z-10">
 
         {/* Left Content */}
-        <div className="w-full lg:w-1/2 lg:pr-12">
+        <div className="w-full lg:w-1/2 lg:pr-12 pb-12 lg:pb-16 z-20">
           <div className="flex items-center gap-4 mb-6">
             <span className="w-8 h-[1px] bg-accent inline-block"></span>
             <div className="text-accent text-xs font-semibold tracking-widest uppercase">
@@ -62,10 +62,10 @@ export default function HeroSection() {
         </div>
 
         {/* Right Content / Graphic */}
-        <div className="w-full lg:w-1/2 mt-16 lg:mt-0 relative flex justify-center opacity-90">
+        <div className="w-full lg:w-1/2 mt-8 lg:mt-0 relative flex justify-center lg:justify-end opacity-90 z-10">
           {/* Abstract silhouette of handball player */}
-          <div className="relative z-10 w-full max-w-lg flex justify-center items-center">
-            <Image src="/hero-section.png" alt="Handball Player Silhouette" width={600} height={600} className="object-contain" priority />
+          <div className="relative w-full max-w-xl lg:max-w-2xl flex justify-center lg:justify-end items-end">
+            <Image src="/hero-section.png" alt="Handball Player Silhouette" width={800} height={800} className="object-contain object-bottom w-full h-auto max-h-[500px] lg:max-h-[750px]" priority />
           </div>
         </div>
       </div>
