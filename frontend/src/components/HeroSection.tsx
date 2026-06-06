@@ -55,7 +55,7 @@ export default function HeroSection() {
               <div className="font-bold text-sm">UP Olympic Association</div>
               {/* UPOA Logo */}
               <div className="mt-2 text-blue-400 text-xl font-heading flex items-center gap-2">
-                <Image src="/UPOA.png" alt="UPOA Logo" width={0} height={0} className="object-contain" />
+                <Image src="/UPOA.png" alt="UPOA Logo" width={80} height={80} className="object-contain" />
               </div>
             </div>
           </div>
