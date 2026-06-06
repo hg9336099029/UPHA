@@ -73,8 +73,8 @@ DATABASES = {
         "NAME": os.environ.get("MYSQLDATABASE"),
         "USER": os.environ.get("MYSQLUSER"),
         "PASSWORD": os.environ.get("MYSQLPASSWORD"),
-        "HOST": os.environ.get("MYSQLHOST"),
-        "PORT": os.environ.get("MYSQLPORT"),
+        "HOST": os.environ.get("MYSQLHOST", "127.0.0.1"),
+        "PORT": os.environ.get("MYSQLPORT", "3306"),
         "OPTIONS": {
             "init_command": "SET sql_mode='STRICT_TRANS_TABLES'",
         },
