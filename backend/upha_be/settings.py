@@ -5,6 +5,7 @@ Django settings for UPHA project.
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import dj_database_url
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -33,6 +34,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -63,11 +65,19 @@ TEMPLATES = [
 WSGI_APPLICATION = 'upha_be.wsgi.application'
 
 # ─── Database ──────────────────────────────────────────────────────────────────
-# Uses SQLite by default (matches db.sqlite3 in repo).
-# For PostgreSQL, set DB_NAME, DB_USER, DB_PASSWORD etc. in .env
-
+# Use dj_database_url for Render PostgreSQL if DATABASE_URL is set, else local fallback
 DB_NAME = (os.environ.get('DB_NAME') or '').strip()
-if DB_NAME:
+database_url = os.environ.get('DATABASE_URL')
+
+if database_url:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=database_url,
+            conn_max_age=600,
+            conn_health_checks=True,
+        )
+    }
+elif DB_NAME:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
@@ -127,6 +137,7 @@ USE_TZ = True
 
 # ─── Static / Media ───────────────────────────────────────────────────────────
 STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
