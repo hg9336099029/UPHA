@@ -64,21 +64,18 @@ WSGI_APPLICATION = 'upha_be.wsgi.application'
 
 # ─── Database ──────────────────────────────────────────────────────────────────
 # Uses SQLite by default (matches db.sqlite3 in repo).
-# For MySQL, set DB_NAME, DB_USER, DB_PASSWORD etc. in .env
+# For PostgreSQL, set DB_NAME, DB_USER, DB_PASSWORD etc. in .env
 
 DB_NAME = (os.environ.get('DB_NAME') or '').strip()
 if DB_NAME:
     DATABASES = {
         'default': {
-            'ENGINE': 'django.db.backends.mysql',
+            'ENGINE': 'django.db.backends.postgresql',
             'NAME': DB_NAME,
-            'USER': os.environ.get('DB_USER', 'root'),
+            'USER': os.environ.get('DB_USER', 'postgres'),
             'PASSWORD': os.environ.get('DB_PASSWORD', ''),
             'HOST': os.environ.get('DB_HOST', '127.0.0.1'),
-            'PORT': os.environ.get('DB_PORT', '3306'),
-            'OPTIONS': {
-                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-            },
+            'PORT': os.environ.get('DB_PORT', '5432'),
         }
     }
 else:
