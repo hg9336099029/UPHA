@@ -25,8 +25,8 @@ export default function Footer() {
           {/* Logo & About */}
           <div>
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center p-1 shrink-0">
-                <Image src="/upha.png" alt="UPHA Logo" width={64} height={64} className="w-full h-full object-contain rounded-full" />
+              <div className="w-16 h-16 flex items-center justify-center shrink-0">
+                <Image src="/upha.png" alt="UPHA Logo" width={64} height={64} className="w-full h-full object-contain" />
               </div>
               <div>
                 <h4 className="text-white font-heading text-xl font-bold tracking-wide">UPHA</h4>

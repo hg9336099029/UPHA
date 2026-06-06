@@ -30,8 +30,8 @@ export default function LoginPage() {
 
         {/* Logo + Title */}
         <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-white rounded-full mb-5 shadow-lg p-1">
-            <Image src="/upha.png" alt="UPHA Logo" width={80} height={80} className="object-contain w-full h-full rounded-full" />
+          <div className="inline-flex items-center justify-center w-24 h-24 mb-5">
+            <Image src="/upha.png" alt="UPHA Logo" width={96} height={96} className="object-contain w-full h-full" />
           </div>
           <div className="text-[10px] font-bold tracking-widest text-accent uppercase mb-2">
             Member Portal
