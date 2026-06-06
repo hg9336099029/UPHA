@@ -1,5 +1,6 @@
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { MapPin, Phone, Mail } from "lucide-react";
 
 const Facebook = (props: React.SVGProps<SVGSVGElement>) => (
@@ -24,11 +25,8 @@ export default function Footer() {
           {/* Logo & About */}
           <div>
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center p-1">
-                {/* Logo Placeholder */}
-                <div className="w-full h-full rounded-full border border-primary flex items-center justify-center text-primary font-bold text-xs">
-                  LOGO
-                </div>
+              <div className="w-16 h-16 rounded-full bg-white flex items-center justify-center p-1 shrink-0">
+                <Image src="/upha.png" alt="UPHA Logo" width={64} height={64} className="w-full h-full object-contain rounded-full" />
               </div>
               <div>
                 <h4 className="text-white font-heading text-xl font-bold tracking-wide">UPHA</h4>
