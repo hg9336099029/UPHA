@@ -65,28 +65,22 @@ WSGI_APPLICATION = 'upha_be.wsgi.application'
 # ─── Database ──────────────────────────────────────────────────────────────────
 # Uses SQLite by default (matches db.sqlite3 in repo).
 # For MySQL, set DB_NAME, DB_USER, DB_PASSWORD etc. in .env
-DB_NAME = (os.environ.get('DB_NAME') or '').strip()
-if DB_NAME:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.mysql',
-            'NAME': DB_NAME,
-            'USER': os.environ.get('DB_USER', 'root'),
-            'PASSWORD': os.environ.get('DB_PASSWORD', ''),
-            'HOST': os.environ.get('DB_HOST', '127.0.0.1'),
-            'PORT': os.environ.get('DB_PORT', '3306'),
-            'OPTIONS': {
-                'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
-            },
-        }
+DB_NAME = os.environ.get('DB_NAME', 'upha_db')
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': DB_NAME,
+        'USER': os.environ.get('DB_USER', 'root'),
+        'PASSWORD': os.environ.get('DB_PASSWORD', ''),
+        'HOST': os.environ.get('DB_HOST', '127.0.0.1'),
+        'PORT': os.environ.get('DB_PORT', '3306'),
+        'OPTIONS': {
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",
+        },
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+}
+
 
 # ─── Auth ──────────────────────────────────────────────────────────────────────
 AUTH_USER_MODEL = 'users.User'
@@ -99,21 +93,25 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 # ─── CORS ──────────────────────────────────────────────────────────────────────
+FRONTEND_URL = os.environ.get('FRONTEND_URL', 'http://localhost:3000').rstrip('/')
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    FRONTEND_URL,
 ]
 CORS_ALLOW_CREDENTIALS = True
 CORS_ALLOW_ALL_ORIGINS = False
 
 # ─── Session / CSRF (cross-origin in dev) ─────────────────────────────────────
 SESSION_COOKIE_SAMESITE = "Lax"
-SESSION_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = not DEBUG
 CSRF_COOKIE_SAMESITE = "Lax"
-CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = not DEBUG
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
+    FRONTEND_URL,
 ]
 
 # ─── Internationalization ──────────────────────────────────────────────────────

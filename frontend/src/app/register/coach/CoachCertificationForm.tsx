@@ -3,8 +3,8 @@
 import { Clock, Image as ImageIcon, FileText } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
 import { registerCoach } from "@/lib/api";
+import ErrorBanner from "@/components/ErrorBanner";
 
 export default function CoachCertificationForm() {
   const router = useRouter();
@@ -71,9 +71,7 @@ export default function CoachCertificationForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
-      {submitError ? (
-        <div className="border-l-4 border-red-500 bg-red-50 text-red-700 p-4 text-sm rounded-r-sm">{submitError}</div>
-      ) : null}
+      <ErrorBanner message={submitError} onDismiss={() => setSubmitError("")} />
       {submitSuccess ? (
         <div className="border-l-4 border-green-500 bg-green-50 text-green-700 p-4 text-sm rounded-r-sm">{submitSuccess}</div>
       ) : null}
@@ -228,9 +226,9 @@ export default function CoachCertificationForm() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-            <label className="block">
-              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">PASSPORT PHOTO <span className="text-accent">*</span></label>
-              <div className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center justify-center gap-4 cursor-pointer hover:bg-gray-50 transition-colors">
+            <label className="block cursor-pointer">
+              <span className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">PASSPORT PHOTO <span className="text-accent">*</span></span>
+              <div className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center justify-center gap-4 hover:bg-gray-50 transition-colors relative overflow-hidden">
                 <input
                   name="passport_image"
                   type="file"
@@ -272,9 +270,9 @@ export default function CoachCertificationForm() {
                 </div>
               </div>
             </label>
-            <label className="block">
-              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">AADHAR CARD SCAN <span className="text-accent">*</span></label>
-              <div className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center justify-center gap-4 cursor-pointer hover:bg-gray-50 transition-colors">
+            <label className="block cursor-pointer">
+              <span className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">AADHAR CARD SCAN <span className="text-accent">*</span></span>
+              <div className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center justify-center gap-4 hover:bg-gray-50 transition-colors relative overflow-hidden">
                 <input
                   name="adhar_image"
                   type="file"
@@ -412,7 +410,7 @@ export default function CoachCertificationForm() {
             Form REF / CCH-2026 · Powered by UPHA
           </div>
           <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-accent text-white px-8 py-4 text-sm font-bold tracking-widest uppercase hover:bg-accent/90 transition-colors rounded-sm disabled:opacity-60 disabled:cursor-not-allowed">
-            {isSubmitting ? "SUBMITTING..." : "SUBMIT APPLICATION &rarr;"}
+            {isSubmitting ? "SUBMITTING..." : "SUBMIT APPLICATION \u2192"}
           </button>
         </div>
       </div>

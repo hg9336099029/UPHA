@@ -3,8 +3,8 @@
 import { Clock, Image as ImageIcon, FileText, FileBadge } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
 import { registerReferee } from "@/lib/api";
+import ErrorBanner from "@/components/ErrorBanner";
 
 export default function RefereeAccreditationForm() {
   const router = useRouter();
@@ -14,6 +14,8 @@ export default function RefereeAccreditationForm() {
   const [grade, setGrade] = useState("");
   const [transactionImageName, setTransactionImageName] = useState("");
   const [transactionImagePreview, setTransactionImagePreview] = useState("");
+  const [passportImageName, setPassportImageName] = useState("");
+  const [adharImageName, setAdharImageName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState("");
@@ -62,9 +64,7 @@ export default function RefereeAccreditationForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
-      {submitError ? (
-        <div className="border-l-4 border-red-500 bg-red-50 text-red-700 p-4 text-sm rounded-r-sm">{submitError}</div>
-      ) : null}
+      <ErrorBanner message={submitError} onDismiss={() => setSubmitError("")} />
       {submitSuccess ? (
         <div className="border-l-4 border-green-500 bg-green-50 text-green-700 p-4 text-sm rounded-r-sm">{submitSuccess}</div>
       ) : null}
@@ -249,38 +249,60 @@ export default function RefereeAccreditationForm() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-            <div>
-              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">PASSPORT PHOTO <span className="text-accent">*</span></label>
-              <div className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center justify-center gap-4 cursor-pointer hover:bg-gray-50 transition-colors">
-                <input name="passport_image" type="file" accept="image/*" className="sr-only" required />
+            <label className="block cursor-pointer">
+              <span className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">PASSPORT PHOTO <span className="text-accent">*</span></span>
+              <div className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center justify-center gap-4 hover:bg-gray-50 transition-colors relative overflow-hidden">
+                <input
+                  name="passport_image"
+                  type="file"
+                  accept="image/*"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  required
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    setPassportImageName(f ? f.name : "");
+                  }}
+                />
                 <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0">
                   <ImageIcon className="w-4 h-4 text-gray-400" />
                 </div>
                 <div>
                   <div className="text-sm font-semibold text-gray-800">Passport-style photo</div>
                   <div className="text-[10px] text-gray-500">JPG or PNG · max 2 MB</div>
+                  {passportImageName && <div className="text-[10px] text-primary mt-1 break-all">Selected: {passportImageName}</div>}
                 </div>
               </div>
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">AADHAR CARD UPLOAD <span className="text-accent">*</span></label>
-              <div className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center justify-center gap-4 cursor-pointer hover:bg-gray-50 transition-colors">
-                <input name="adhar_image" type="file" accept="image/*,.pdf" className="sr-only" required />
+            </label>
+            <label className="block cursor-pointer">
+              <span className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">AADHAR CARD UPLOAD <span className="text-accent">*</span></span>
+              <div className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center justify-center gap-4 hover:bg-gray-50 transition-colors relative overflow-hidden">
+                <input
+                  name="adhar_image"
+                  type="file"
+                  accept="image/*,.pdf"
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  required
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    setAdharImageName(f ? f.name : "");
+                  }}
+                />
                 <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0">
                   <FileText className="w-4 h-4 text-gray-400" />
                 </div>
                 <div>
                   <div className="text-sm font-semibold text-gray-800">Aadhar (front + back)</div>
                   <div className="text-[10px] text-gray-500">JPG, PNG or PDF · max 5 MB</div>
+                  {adharImageName && <div className="text-[10px] text-primary mt-1 break-all">Selected: {adharImageName}</div>}
                 </div>
               </div>
-            </div>
+            </label>
           </div>
           
           <div className="pt-2">
             <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">OFFICIATING CERTIFICATE / EXPERIENCE PROOF <span className="text-gray-400 lowercase normal-case text-[10px] font-normal">(recommended)</span></label>
-            <div className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center gap-4 cursor-pointer hover:bg-gray-50 transition-colors">
-              <input name="certificate_image" type="file" accept="image/*,.pdf" className="sr-only" />
+            <label className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center gap-4 cursor-pointer hover:bg-gray-50 transition-colors relative overflow-hidden">
+              <input name="certificate_image" type="file" accept="image/*,.pdf" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
               <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0">
                 <FileBadge className="w-4 h-4 text-gray-400" />
               </div>
@@ -288,7 +310,7 @@ export default function RefereeAccreditationForm() {
                 <div className="text-sm font-semibold text-gray-800">Upload certificate or experience proof</div>
                 <div className="text-[10px] text-gray-500">Prior accreditation, tournament letters, or course certificates · PDF preferred · max 5 MB</div>
               </div>
-            </div>
+            </label>
             <div className="text-[10px] text-gray-400 mt-3">Strengthens your application — especially for State, National, or International grades.</div>
           </div>
         </div>
@@ -382,7 +404,7 @@ export default function RefereeAccreditationForm() {
             Form REF / RFR-2026 · Reviewed by the UPHA Referee Board
           </div>
           <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-accent text-white px-8 py-4 text-sm font-bold tracking-widest uppercase hover:bg-accent/90 transition-colors rounded-sm disabled:opacity-60 disabled:cursor-not-allowed">
-            {isSubmitting ? "SUBMITTING..." : "SUBMIT APPLICATION &rarr;"}
+            {isSubmitting ? "SUBMITTING..." : "SUBMIT APPLICATION \u2192"}
           </button>
         </div>
       </div>

@@ -1,7 +1,12 @@
+# pyrefly: ignore [missing-import]
 from django.contrib.auth import authenticate, login, logout
+# pyrefly: ignore [missing-import]
 from django.db import transaction
+# pyrefly: ignore [missing-import]
 from django.views.decorators.csrf import csrf_exempt
+# pyrefly: ignore [missing-import]
 from django.views.decorators.http import require_http_methods
+# pyrefly: ignore [missing-import]
 from django.db.models import Q
 
 from .models import Coach, Player, Referee, User
@@ -14,7 +19,22 @@ def _create_user_account(request, data, role, is_staff=False):
 	name = data.get('name', '').strip()
 
 	if not email or not password or not name:
-		return None, json_error('email, password, and name are required.')
+		return None, json_error('Full Name, Email, and Password are required fields. Please fill them in and try again.')
+
+	if User.objects.filter(email=email).exists():
+		return None, json_error(
+			f'The email address "{email}" is already registered. '
+			'Each person can only have one account. '
+			'Please use a different email address, or log in if you have already registered.'
+		)
+
+	adhar_number = data.get('adhar_number')
+	if adhar_number and User.objects.filter(adhar_number=adhar_number).exists():
+		return None, json_error(
+			f'The Aadhar number "{adhar_number}" is already linked to an existing account. '
+			'Each person can only register once. '
+			'If you believe this is a mistake, please contact UPHA support.'
+		)
 
 	files = request.FILES
 	user = User.objects.create_user(
@@ -73,6 +93,14 @@ def register_player(request):
 			if error_response:
 				return error_response
 
+			transaction_id = data.get('transaction_id', '')
+			if transaction_id and Player.objects.filter(transaction_id=transaction_id).exists():
+				return json_error(
+					f'The UPI Transaction ID "{transaction_id}" has already been used in another registration. '
+					'Please check your payment details — each transaction ID can only be used once. '
+					'If you made a new payment, please enter the correct transaction ID from that payment.'
+				)
+
 			player = Player.objects.create(
 				user=user,
 				district=data.get('district', ''),
@@ -103,6 +131,14 @@ def register_coach(request):
 			if error_response:
 				return error_response
 
+			transaction_id = data.get('transaction_id', '')
+			if transaction_id and Coach.objects.filter(transaction_id=transaction_id).exists():
+				return json_error(
+					f'The UPI Transaction ID "{transaction_id}" has already been used in another registration. '
+					'Please check your payment details — each transaction ID can only be used once. '
+					'If you made a new payment, please enter the correct transaction ID from that payment.'
+				)
+
 			coach = Coach.objects.create(
 				user=user,
 				district=data.get('district', ''),
@@ -129,6 +165,21 @@ def register_referee(request):
 			if error_response:
 				return error_response
 
+			transaction_id = data.get('transaction_id', '')
+			if transaction_id and Referee.objects.filter(transaction_id=transaction_id).exists():
+				return json_error(
+					f'The UPI Transaction ID "{transaction_id}" has already been used in another registration. '
+					'Please check your payment details — each transaction ID can only be used once. '
+					'If you made a new payment, please enter the correct transaction ID from that payment.'
+				)
+
+			previous_referee_id = data.get('previous_referee_id', '')
+			if previous_referee_id and Referee.objects.filter(previous_referee_id=previous_referee_id).exists():
+				return json_error(
+					f'The Previous Referee ID "{previous_referee_id}" is already linked to another application. '
+					'If you are renewing your accreditation, please contact UPHA to avoid duplicate entries.'
+				)
+
 			referee = Referee.objects.create(
 				user=user,
 				district=data.get('district', ''),
@@ -146,6 +197,7 @@ def register_referee(request):
 		return json_error(str(exc))
 
 	return json_success('Referee registered successfully.', referee=serialize_referee(request, referee))
+
 
 
 @csrf_exempt

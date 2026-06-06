@@ -3,8 +3,8 @@
 import { Clock, Image as ImageIcon, FileText } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
 import { registerPlayer } from "@/lib/api";
+import ErrorBanner from "@/components/ErrorBanner";
 
 export default function PlayerRegistrationForm() {
   const router = useRouter();
@@ -70,11 +70,7 @@ window.location.href = "/login";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
-      {submitError ? (
-        <div className="border-l-4 border-red-500 bg-red-50 text-red-700 p-4 text-sm rounded-r-sm">
-          {submitError}
-        </div>
-      ) : null}
+      <ErrorBanner message={submitError} onDismiss={() => setSubmitError("")} />
       {submitSuccess ? (
         <div className="border-l-4 border-green-500 bg-green-50 text-green-700 p-4 text-sm rounded-r-sm">
           {submitSuccess}
@@ -437,7 +433,7 @@ window.location.href = "/login";
             Form REF / PLR-2026 · Powered by UPHA
           </div>
           <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-accent text-white px-8 py-4 text-sm font-bold tracking-widest uppercase hover:bg-accent/90 transition-colors rounded-sm disabled:opacity-60 disabled:cursor-not-allowed">
-            {isSubmitting ? "SUBMITTING..." : "SUBMIT REGISTRATION &rarr;"}
+            {isSubmitting ? "SUBMITTING..." : "SUBMIT REGISTRATION \u2192"}
           </button>
         </div>
       </div>

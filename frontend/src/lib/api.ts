@@ -85,6 +85,28 @@ export interface AcademyData {
   paid: boolean;
 }
 
+export interface DistrictData {
+  id: number;
+  name: string;
+  district: string;
+  year_of_establishment: number;
+  logo: string | null;
+  trust_registration_number: string;
+  office_address: string;
+  office_phone_number: string;
+  email: string;
+  website: string | null;
+  no_of_players: number;
+  adhyaksha: UserData | null;
+  sachiv: UserData | null;
+  koshadhyaksha: UserData | null;
+  registration_certificate: string | null;
+  transaction_id: string;
+  transaction_image: string | null;
+  paid: boolean;
+}
+
+
 export interface EventData {
   id: number;
   name: string;
@@ -159,6 +181,13 @@ export async function registerCoach(formData: FormData) {
 export async function registerReferee(formData: FormData) {
   return multipartApiFetch<{ success: boolean; message: string; referee: RefereeData }>(
     `${API_BASE}/register/referee/`,
+    formData
+  );
+}
+
+export async function registerDistrict(formData: FormData) {
+  return multipartApiFetch<{ success: boolean; message: string; district: DistrictData }>(
+    `${API_BASE}/register/district/`,
     formData
   );
 }

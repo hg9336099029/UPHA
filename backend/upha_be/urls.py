@@ -19,4 +19,5 @@ urlpatterns = [
     path('api/admin/', include('users.admin_urls')),
     path('api/admin/', include('academy.admin_urls')),
     path('api/admin/', include('events.admin_urls')),
+    path('api/', include('district.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
