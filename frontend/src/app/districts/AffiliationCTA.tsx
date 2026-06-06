@@ -1,8 +1,14 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export default function AffiliationCTA() {
   return (
     <div className="bg-gradient-to-br from-[#d97c55] to-[#c16744] rounded-sm p-12 md:p-16 mb-24 relative overflow-hidden shadow-lg">
+      {/* Handball Ground Background */}
+      <div className="absolute inset-0 z-0 opacity-30 mix-blend-multiply pointer-events-none">
+        <Image src="/handball-ground.png" alt="Handball Ground Background" fill className="object-cover object-center" />
+      </div>
+
       <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-12">
         <div className="text-white max-w-2xl">
           <div className="text-[10px] font-bold tracking-widest uppercase mb-4 opacity-80">
