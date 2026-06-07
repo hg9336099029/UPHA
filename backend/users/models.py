@@ -110,3 +110,13 @@ class Referee(models.Model):
     transaction_id = models.CharField(max_length=255, unique=True)
     transaction_image = models.ImageField(upload_to='transaction_images/')
     paid = models.BooleanField(default=False)
+
+class DecisionLog(models.Model):
+    applicant_type = models.CharField(max_length=50)
+    applicant_id = models.IntegerField()
+    action = models.CharField(max_length=50)
+    applicant_name_ref = models.CharField(max_length=255)
+    details = models.CharField(max_length=500, blank=True)
+    admin = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='decisions')
+    notes = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)

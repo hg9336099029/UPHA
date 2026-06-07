@@ -306,6 +306,14 @@ def update_player_payment_status(request, player_id):
 	paid = _parse_paid_flag(data)
 	player.paid = paid
 	player.save(update_fields=['paid'])
+	if paid:
+		from users.utils import log_decision
+		log_decision(
+			request, 'player', player.id, 'Approved',
+			f"{player.user.name} (APP-PLR-{player.id:05d})",
+			f"Player ID PLR-2026-{player.id:05d} issued",
+			data.get('notes', '')
+		)
 	return json_success('Player payment status updated successfully.', player=serialize_player(request, player))
 
 
@@ -320,6 +328,14 @@ def update_coach_payment_status(request, coach_id):
 	paid = _parse_paid_flag(data)
 	coach.paid = paid
 	coach.save(update_fields=['paid'])
+	if paid:
+		from users.utils import log_decision
+		log_decision(
+			request, 'coach', coach.id, 'Approved',
+			f"{coach.user.name} (APP-CCH-{coach.id:05d})",
+			f"Coach ID CCH-2026-{coach.id:05d} issued",
+			data.get('notes', '')
+		)
 	return json_success('Coach payment status updated successfully.', coach=serialize_coach(request, coach))
 
 
@@ -334,7 +350,57 @@ def update_referee_payment_status(request, referee_id):
 	paid = _parse_paid_flag(data)
 	referee.paid = paid
 	referee.save(update_fields=['paid'])
+	if paid:
+		from users.utils import log_decision
+		log_decision(
+			request, 'referee', referee.id, 'Approved',
+			f"{referee.user.name} (APP-REF-{referee.id:05d})",
+			f"Referee ID REF-2026-{referee.id:05d} issued",
+			data.get('notes', '')
+		)
 	return json_success('Referee payment status updated successfully.', referee=serialize_referee(request, referee))
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def reject_application(request):
+	data = get_request_data(request)
+	app_type = data.get('type')
+	app_id = data.get('id')
+	notes = data.get('notes', 'Application rejected')
+	
+	if not app_type or not app_id:
+		return json_error('Type and ID are required.')
+
+	from users.utils import log_decision
+	name_ref = ""
+	
+	if app_type == 'player':
+		obj = Player.objects.select_related('user').filter(pk=app_id).first()
+		if not obj: return json_error('Not found', status=404)
+		name_ref = f"{obj.user.name} (APP-PLR-{obj.id:05d})"
+	elif app_type == 'coach':
+		obj = Coach.objects.select_related('user').filter(pk=app_id).first()
+		if not obj: return json_error('Not found', status=404)
+		name_ref = f"{obj.user.name} (APP-CCH-{obj.id:05d})"
+	elif app_type == 'referee':
+		obj = Referee.objects.select_related('user').filter(pk=app_id).first()
+		if not obj: return json_error('Not found', status=404)
+		name_ref = f"{obj.user.name} (APP-REF-{obj.id:05d})"
+	elif app_type == 'academy':
+		from academy.models import Academy
+		obj = Academy.objects.filter(pk=app_id).first()
+		if not obj: return json_error('Not found', status=404)
+		name_ref = f"{obj.name} (APP-ACA-{obj.id:05d})"
+	else:
+		return json_error('Invalid application type.')
+		
+	log_decision(
+		request, app_type, app_id, 'Rejected',
+		name_ref,
+		notes,
+		notes
+	)
+	return json_success('Application rejected successfully.')
 
 
 @csrf_exempt
@@ -374,3 +440,250 @@ def get_my_certificate(request):
 			'certificate_image': request.build_absolute_uri(player.certificate_image.url),
 		},
 	)
+
+@require_http_methods(['GET'])
+def get_admin_stats(request):
+	from django.utils import timezone
+	from datetime import timedelta
+	from users.models import DecisionLog, Player, Coach, Referee
+	from academy.models import Academy
+
+	now = timezone.now()
+	today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+	week_start = today_start - timedelta(days=today_start.weekday())
+	month_start = today_start.replace(day=1)
+	if phone_query:
+		filter |= Q(user__phone_number__icontains=phone_query)
+	if not filter:
+		return json_error('At least one search criteria is required.')
+
+	players = Player.objects.select_related('user').filter(filter).order_by('id')
+	if not players.exists():
+		return json_error('No players found matching the search criteria.', status=404)
+	return json_success('Players retrieved successfully.', players=[serialize_player(request, player) for player in players])
+
+
+@require_http_methods(['GET'])
+def me_view(request):
+	user = getattr(request, 'user', None)
+	if not user or not user.is_authenticated:
+		return json_error('Authentication required.', status=401)
+
+	if user.role == 'player':
+		player = Player.objects.select_related('user').filter(user=user).first()
+		if not player:
+			return json_error('Player profile not found.', status=404)
+		return json_success('Current player profile retrieved successfully.', user=serialize_player(request, player))
+
+	if user.role == 'coach':
+		coach = Coach.objects.select_related('user').filter(user=user).first()
+		if not coach:
+			return json_error('Coach profile not found.', status=404)
+		return json_success('Current coach profile retrieved successfully.', user=serialize_coach(request, coach))
+
+	if user.role == 'referee':
+		referee = Referee.objects.select_related('user').filter(user=user).first()
+		if not referee:
+			return json_error('Referee profile not found.', status=404)
+		return json_success('Current referee profile retrieved successfully.', user=serialize_referee(request, referee))
+
+	return json_error('Only coach, referee, and player accounts can access this endpoint.', status=403)
+
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def update_player_payment_status(request, player_id):
+	player = Player.objects.select_related('user').filter(pk=player_id).first()
+	if not player:
+		return json_error('Player not found.', status=404)
+
+	data = get_request_data(request)
+	paid = _parse_paid_flag(data)
+	player.paid = paid
+	player.save(update_fields=['paid'])
+	if paid:
+		from users.utils import log_decision
+		log_decision(
+			request, 'player', player.id, 'Approved',
+			f"{player.user.name} (APP-PLR-{player.id:05d})",
+			f"Player ID PLR-2026-{player.id:05d} issued",
+			data.get('notes', '')
+		)
+	return json_success('Player payment status updated successfully.', player=serialize_player(request, player))
+
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def update_coach_payment_status(request, coach_id):
+	coach = Coach.objects.select_related('user').filter(pk=coach_id).first()
+	if not coach:
+		return json_error('Coach not found.', status=404)
+
+	data = get_request_data(request)
+	paid = _parse_paid_flag(data)
+	coach.paid = paid
+	coach.save(update_fields=['paid'])
+	if paid:
+		from users.utils import log_decision
+		log_decision(
+			request, 'coach', coach.id, 'Approved',
+			f"{coach.user.name} (APP-CCH-{coach.id:05d})",
+			f"Coach ID CCH-2026-{coach.id:05d} issued",
+			data.get('notes', '')
+		)
+	return json_success('Coach payment status updated successfully.', coach=serialize_coach(request, coach))
+
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def update_referee_payment_status(request, referee_id):
+	referee = Referee.objects.select_related('user').filter(pk=referee_id).first()
+	if not referee:
+		return json_error('Referee not found.', status=404)
+
+	data = get_request_data(request)
+	paid = _parse_paid_flag(data)
+	referee.paid = paid
+	referee.save(update_fields=['paid'])
+	if paid:
+		from users.utils import log_decision
+		log_decision(
+			request, 'referee', referee.id, 'Approved',
+			f"{referee.user.name} (APP-REF-{referee.id:05d})",
+			f"Referee ID REF-2026-{referee.id:05d} issued",
+			data.get('notes', '')
+		)
+	return json_success('Referee payment status updated successfully.', referee=serialize_referee(request, referee))
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def reject_application(request):
+	data = get_request_data(request)
+	app_type = data.get('type')
+	app_id = data.get('id')
+	notes = data.get('notes', 'Application rejected')
+	
+	if not app_type or not app_id:
+		return json_error('Type and ID are required.')
+
+	from users.utils import log_decision
+	name_ref = ""
+	
+	if app_type == 'player':
+		obj = Player.objects.select_related('user').filter(pk=app_id).first()
+		if not obj: return json_error('Not found', status=404)
+		name_ref = f"{obj.user.name} (APP-PLR-{obj.id:05d})"
+	elif app_type == 'coach':
+		obj = Coach.objects.select_related('user').filter(pk=app_id).first()
+		if not obj: return json_error('Not found', status=404)
+		name_ref = f"{obj.user.name} (APP-CCH-{obj.id:05d})"
+	elif app_type == 'referee':
+		obj = Referee.objects.select_related('user').filter(pk=app_id).first()
+		if not obj: return json_error('Not found', status=404)
+		name_ref = f"{obj.user.name} (APP-REF-{obj.id:05d})"
+	elif app_type == 'academy':
+		from academy.models import Academy
+		obj = Academy.objects.filter(pk=app_id).first()
+		if not obj: return json_error('Not found', status=404)
+		name_ref = f"{obj.name} (APP-ACA-{obj.id:05d})"
+	else:
+		return json_error('Invalid application type.')
+		
+	log_decision(
+		request, app_type, app_id, 'Rejected',
+		name_ref,
+		notes,
+		notes
+	)
+	return json_success('Application rejected successfully.')
+
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def upload_player_certificate(request, player_id):
+	player = Player.objects.select_related('user').filter(pk=player_id).first()
+	if not player:
+		return json_error('Player not found.', status=404)
+
+	certificate_image = request.FILES.get('certificate_image')
+	if not certificate_image:
+		return json_error('certificate_image is required.')
+
+	player.certificate_image = certificate_image
+	player.save(update_fields=['certificate_image'])
+	return json_success('Player certificate uploaded successfully.', player=serialize_player(request, player))
+
+
+@require_http_methods(['GET'])
+def get_my_certificate(request):
+	user = getattr(request, 'user', None)
+	if not user or not user.is_authenticated:
+		return json_error('Authentication required.', status=401)
+	if user.role != 'player':
+		return json_error('Only player accounts can access this endpoint.', status=403)
+
+	player = Player.objects.select_related('user').filter(user=user).first()
+	if not player:
+		return json_error('Player profile not found.', status=404)
+	if not player.certificate_image:
+		return json_error('Certificate not uploaded yet.', status=404)
+
+	return json_success(
+		'Player certificate retrieved successfully.',
+		certificate={
+			'player_id': player.id,
+			'certificate_image': request.build_absolute_uri(player.certificate_image.url),
+		},
+	)
+
+@require_http_methods(['GET'])
+def get_admin_stats(request):
+	from django.utils import timezone
+	from datetime import timedelta
+	from users.models import DecisionLog, Player, Coach, Referee
+	from academy.models import Academy
+
+	now = timezone.now()
+	today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+	week_start = today_start - timedelta(days=today_start.weekday())
+	month_start = today_start.replace(day=1)
+
+	approved_today = DecisionLog.objects.filter(action='Approved', created_at__gte=today_start).count()
+	approved_this_week = DecisionLog.objects.filter(action='Approved', created_at__gte=week_start).count()
+	rejected_this_month = DecisionLog.objects.filter(action='Rejected', created_at__gte=month_start).count()
+
+	pending_p = Player.objects.filter(paid=False).count()
+	pending_c = Coach.objects.filter(paid=False).count()
+	pending_r = Referee.objects.filter(paid=False).count()
+	pending_a = Academy.objects.filter(paid=False).count()
+	total_pending = pending_p + pending_c + pending_r + pending_a
+
+	return json_success('Stats retrieved successfully.', stats={
+		'approved_today': approved_today,
+		'approved_this_week': approved_this_week,
+		'rejected_this_month': rejected_this_month,
+		'total_pending': total_pending,
+		'pending_players': pending_p,
+		'pending_coaches': pending_c,
+		'pending_referees': pending_r,
+		'pending_academies': pending_a,
+	})
+
+@require_http_methods(['GET'])
+def get_recent_decisions(request):
+	from users.models import DecisionLog
+	decisions = DecisionLog.objects.select_related('admin').order_by('-created_at')[:20]
+	data = []
+	for d in decisions:
+		data.append({
+			'id': d.id,
+			'applicant_type': d.applicant_type,
+			'applicant_id': d.applicant_id,
+			'action': d.action,
+			'applicant_name_ref': d.applicant_name_ref,
+			'details': d.details,
+			'admin_name': d.admin.name if d.admin else 'System',
+			'notes': d.notes,
+			'created_at': d.created_at.isoformat(),
+		})
+	return json_success('Decisions retrieved successfully.', decisions=data)

@@ -1,6 +1,13 @@
+"use client";
+
 import React from "react";
+import { useAuth } from "@/context/AuthContext";
+import { AcademyData } from "@/lib/api";
 
 export default function AcademyRecord() {
+  const { meData } = useAuth();
+  const academy = meData as AcademyData | null;
+
   return (
     <div className="bg-[#111827] rounded-sm p-8 md:p-10 mb-6 shadow-md relative overflow-hidden border border-blue-500">
       
@@ -10,7 +17,7 @@ export default function AcademyRecord() {
           TOURNAMENT RECORD
         </h2>
         <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mt-2 md:mt-0">
-          ACADEMY &middot; SINCE <span className="text-accent">2014</span>
+          ACADEMY &middot; SINCE <span className="text-accent">{academy?.year_of_establishment ?? "—"}</span>
         </div>
       </div>
 
@@ -19,30 +26,30 @@ export default function AcademyRecord() {
         
         {/* Stat 1 */}
         <div className="flex flex-col items-center justify-center text-center py-4 lg:py-0">
-          <div className="font-heading text-6xl md:text-7xl font-bold text-accent mb-2 tracking-tight">31</div>
+          <div className="font-heading text-6xl md:text-7xl font-bold text-accent mb-2 tracking-tight">—</div>
           <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-1">TOURNAMENTS ENTERED</div>
           <div className="text-[10px] text-gray-500">teams fielded</div>
         </div>
 
         {/* Stat 2 */}
         <div className="flex flex-col items-center justify-center text-center py-4 lg:py-0">
-          <div className="font-heading text-6xl md:text-7xl font-bold text-accent mb-2 tracking-tight">24</div>
+          <div className="font-heading text-6xl md:text-7xl font-bold text-accent mb-2 tracking-tight">—</div>
           <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-1">MEDALS WON</div>
           <div className="text-[10px] text-gray-500">across age groups</div>
         </div>
 
         {/* Stat 3 */}
         <div className="flex flex-col items-center justify-center text-center py-4 lg:py-0">
-          <div className="font-heading text-6xl md:text-7xl font-bold text-accent mb-2 tracking-tight">09</div>
+          <div className="font-heading text-6xl md:text-7xl font-bold text-accent mb-2 tracking-tight">—</div>
           <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-1">STATE SELECTIONS</div>
           <div className="text-[10px] text-gray-500">players advanced</div>
         </div>
 
         {/* Stat 4 */}
         <div className="flex flex-col items-center justify-center text-center py-4 lg:py-0">
-          <div className="font-heading text-6xl md:text-7xl font-bold text-accent mb-2 tracking-tight">12</div>
+          <div className="font-heading text-6xl md:text-7xl font-bold text-accent mb-2 tracking-tight">—</div>
           <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-1">YEARS ACTIVE</div>
-          <div className="text-[10px] text-gray-500">since 2014</div>
+          <div className="text-[10px] text-gray-500">since {academy?.year_of_establishment ?? "—"}</div>
         </div>
 
       </div>

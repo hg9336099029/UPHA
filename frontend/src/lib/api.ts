@@ -257,31 +257,69 @@ export async function listEventResults() {
 
 // ─── Admin: Payment Approvals ─────────────────────────────────────────────────
 
-export async function approvePlayerPayment(playerId: number | string) {
+export async function approvePlayerPayment(playerId: number | string, notes?: string) {
   return apiFetch<{ success: boolean; message: string; player: PlayerData }>(
     `${ADMIN_BASE}/players/${playerId}/payment/`,
-    { method: "POST", body: JSON.stringify({ paid: true }) }
+    { method: "POST", body: JSON.stringify({ paid: true, notes }) }
   );
 }
 
-export async function approveCoachPayment(coachId: number | string) {
+export async function approveCoachPayment(coachId: number | string, notes?: string) {
   return apiFetch<{ success: boolean; message: string; coach: CoachData }>(
     `${ADMIN_BASE}/coaches/${coachId}/payment/`,
-    { method: "POST", body: JSON.stringify({ paid: true }) }
+    { method: "POST", body: JSON.stringify({ paid: true, notes }) }
   );
 }
 
-export async function approveRefereePayment(refereeId: number | string) {
+export async function approveRefereePayment(refereeId: number | string, notes?: string) {
   return apiFetch<{ success: boolean; message: string; referee: RefereeData }>(
     `${ADMIN_BASE}/referees/${refereeId}/payment/`,
-    { method: "POST", body: JSON.stringify({ paid: true }) }
+    { method: "POST", body: JSON.stringify({ paid: true, notes }) }
   );
 }
 
-export async function approveAcademyPayment(academyId: number | string) {
+export async function approveAcademyPayment(academyId: number | string, notes?: string) {
   return apiFetch<{ success: boolean; message: string; academy: AcademyData }>(
     `${ADMIN_BASE}/academies/${academyId}/payment/`,
-    { method: "POST", body: JSON.stringify({ paid: true }) }
+    { method: "POST", body: JSON.stringify({ paid: true, notes }) }
+  );
+}
+
+export async function rejectApplication(type: string, id: number | string, notes: string) {
+  return apiFetch<{ success: boolean; message: string }>(
+    `${ADMIN_BASE}/reject/`,
+    { method: "POST", body: JSON.stringify({ type, id, notes }) }
+  );
+}
+
+export interface AdminStatsData {
+  approved_today: number;
+  approved_this_week: number;
+  rejected_this_month: number;
+  total_pending: number;
+}
+
+export async function getAdminStats() {
+  return apiFetch<{ success: boolean; stats: AdminStatsData }>(
+    `${ADMIN_BASE}/stats/`
+  );
+}
+
+export interface DecisionLogData {
+  id: number;
+  applicant_type: string;
+  applicant_id: number;
+  action: string;
+  applicant_name_ref: string;
+  details: string;
+  admin_name: string;
+  notes: string;
+  created_at: string;
+}
+
+export async function getDecisionLog() {
+  return apiFetch<{ success: boolean; decisions: DecisionLogData[] }>(
+    `${ADMIN_BASE}/decisions/`
   );
 }
 

@@ -12,11 +12,11 @@ export default function DigitalIdCard() {
 
   const initials = authUser?.name
     ? authUser.name
-        .split(" ")
-        .map((p) => p[0])
-        .join("")
-        .slice(0, 2)
-        .toUpperCase()
+      .split(" ")
+      .map((p) => p[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase()
     : "?";
 
   if (loading) {
@@ -34,7 +34,7 @@ export default function DigitalIdCard() {
         <div className="p-6 md:p-8 pb-4 flex justify-between items-start border-b border-gray-800/50">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center p-1 shrink-0 shadow-inner">
-              <Image src="/logo.png" alt="UPHA" width={32} height={32} className="object-contain" />
+              <Image src="/upha.png" alt="UPHA" width={32} height={32} className="object-contain" />
             </div>
             <div>
               <div className="font-heading text-lg font-bold text-white uppercase leading-none tracking-wide">UPHA</div>
@@ -51,40 +51,50 @@ export default function DigitalIdCard() {
         <div className="p-6 md:p-8 flex flex-col md:flex-row gap-8 flex-1">
           {/* Avatar Block */}
           {authUser?.passport_image ? (
-            <div className="w-28 h-32 bg-[#0f172a] border border-gray-800 rounded-sm overflow-hidden shrink-0">
+            <div className="w-28 h-32 bg-[#0f172a] border border-gray-800 rounded-sm overflow-hidden shrink-0 z-10">
               <Image src={authUser.passport_image} alt="Photo" width={112} height={128} className="object-cover w-full h-full" />
             </div>
           ) : (
-            <div className="w-28 h-32 bg-[#0f172a] border border-gray-800 rounded-sm flex items-center justify-center shrink-0 shadow-inner">
+            <div className="w-28 h-32 bg-[#0f172a] border border-gray-800 rounded-sm flex items-center justify-center shrink-0 shadow-inner z-10">
               <span className="font-heading text-4xl font-bold text-white tracking-wider">{initials}</span>
             </div>
           )}
 
           {/* Details Grid */}
-          <div className="flex-1 flex flex-col justify-center gap-5">
-            <div>
-              <div className="text-[9px] font-bold tracking-widest text-gray-400 uppercase mb-1">FULL NAME</div>
-              <div className="font-heading text-2xl font-bold text-white uppercase tracking-wide">{authUser?.name ?? "—"}</div>
-            </div>
+          <div className="flex-1 flex flex-col justify-center gap-5 z-10">
+            {authUser?.name && (
+              <div>
+                <div className="text-[9px] font-bold tracking-widest text-gray-400 uppercase mb-1">FULL NAME</div>
+                <div className="font-heading text-2xl font-bold text-white uppercase tracking-wide">{authUser.name}</div>
+              </div>
+            )}
 
             <div className="grid grid-cols-2 gap-4">
-              <div>
-                <div className="text-[8px] font-bold tracking-widest text-gray-500 uppercase mb-1">PLAYER ID</div>
-                <div className="text-sm font-medium text-white">UPHA-PLR-{String(player?.id ?? 0).padStart(5, "0")}</div>
-              </div>
-              <div>
-                <div className="text-[8px] font-bold tracking-widest text-gray-500 uppercase mb-1">DISTRICT</div>
-                <div className="text-sm font-medium text-white">{player?.district ?? "—"}</div>
-              </div>
+              {player?.id && (
+                <div>
+                  <div className="text-[8px] font-bold tracking-widest text-gray-500 uppercase mb-1">PLAYER ID</div>
+                  <div className="text-sm font-medium text-white">UPHA-PLR-{String(player.id).padStart(5, "0")}</div>
+                </div>
+              )}
+              {player?.district && (
+                <div>
+                  <div className="text-[8px] font-bold tracking-widest text-gray-500 uppercase mb-1">DISTRICT</div>
+                  <div className="text-sm font-medium text-white">{player.district}</div>
+                </div>
+              )}
 
-              <div>
-                <div className="text-[8px] font-bold tracking-widest text-gray-500 uppercase mb-1">GENDER</div>
-                <div className="text-sm font-medium text-white capitalize">{authUser?.gender ?? "—"}</div>
-              </div>
-              <div>
-                <div className="text-[8px] font-bold tracking-widest text-gray-500 uppercase mb-1">BLOOD GROUP</div>
-                <div className="text-sm font-medium text-white">{authUser?.blood_group ?? "—"}</div>
-              </div>
+              {authUser?.gender && (
+                <div>
+                  <div className="text-[8px] font-bold tracking-widest text-gray-500 uppercase mb-1">GENDER</div>
+                  <div className="text-sm font-medium text-white capitalize">{authUser.gender}</div>
+                </div>
+              )}
+              {authUser?.blood_group && (
+                <div>
+                  <div className="text-[8px] font-bold tracking-widest text-gray-500 uppercase mb-1">BLOOD GROUP</div>
+                  <div className="text-sm font-medium text-white">{authUser.blood_group}</div>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -92,7 +102,6 @@ export default function DigitalIdCard() {
         {/* Bottom Strip */}
         <div className="bg-[#0f172a] px-6 md:px-8 py-4 flex justify-between items-center border-t border-gray-800">
           <div className="font-serif italic text-gray-400 text-sm">Khelo India Toh Khilega India</div>
-          <div className="text-[9px] font-bold tracking-widest text-gray-500 uppercase">VALID THROUGH <span className="text-white">31 MAR 2027</span></div>
         </div>
 
         {/* Subtle decorative */}
@@ -101,7 +110,16 @@ export default function DigitalIdCard() {
 
       {/* Actions */}
       <div className="flex gap-4 mt-4">
-        <button className="flex-1 bg-[#d97c55] hover:bg-[#c16744] text-white flex items-center justify-center gap-2 py-4 rounded-sm transition-colors shadow-sm">
+        <button 
+          onClick={() => {
+            if (!player?.paid) {
+              alert("Not approved by Admin. You can download your ID card after your profile is approved.");
+            } else {
+              window.print(); // or any other download logic
+            }
+          }}
+          className="flex-1 bg-[#d97c55] hover:bg-[#c16744] text-white flex items-center justify-center gap-2 py-4 rounded-sm transition-colors shadow-sm"
+        >
           <Download className="w-4 h-4" />
           <span className="text-[10px] font-bold tracking-widest uppercase">DOWNLOAD ID CARD</span>
         </button>

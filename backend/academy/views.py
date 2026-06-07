@@ -63,4 +63,12 @@ def update_academy_payment_status(request, academy_id):
 	paid = str(data.get('paid', 'true')).lower() in {'true', '1', 'yes', 'on'}
 	academy.paid = paid
 	academy.save(update_fields=['paid'])
+	if paid:
+		from users.utils import log_decision
+		log_decision(
+			request, 'academy', academy.id, 'Approved',
+			f"{academy.name} (APP-ACA-{academy.id:05d})",
+			f"Academy ID ACA-2026-{academy.id:05d} issued",
+			data.get('notes', '')
+		)
 	return json_success('Academy payment status updated successfully.', academy=serialize_academy(request, academy))

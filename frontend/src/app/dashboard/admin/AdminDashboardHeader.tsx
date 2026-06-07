@@ -1,15 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import {
-  listPlayers,
-  listCoaches,
-  listReferees,
-  listAcademies,
-} from "@/lib/api";
+import { getAdminStats, AdminStatsData } from "@/lib/api";
 
 export default function AdminDashboardHeader() {
-  const [counts, setCounts] = useState({ players: 0, coaches: 0, referees: 0, academies: 0, approved: 0 });
+  const [stats, setStats] = useState<AdminStatsData | null>(null);
   const [loading, setLoading] = useState(true);
 
   const today = new Date();
@@ -17,33 +12,18 @@ export default function AdminDashboardHeader() {
   const dateStr = today.toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }).toUpperCase();
 
   useEffect(() => {
-    Promise.all([listPlayers(), listCoaches(), listReferees(), listAcademies()])
-      .then(([p, c, r, a]) => {
-        const pendingP = p.players.filter((x) => !x.paid).length;
-        const pendingC = c.coaches.filter((x) => !x.paid).length;
-        const pendingR = r.referees.filter((x) => !x.paid).length;
-        const pendingA = a.academies.filter((x) => !x.paid).length;
-        const approvedP = p.players.filter((x) => x.paid).length;
-        const approvedC = c.coaches.filter((x) => x.paid).length;
-        const approvedR = r.referees.filter((x) => x.paid).length;
-        const approvedAc = a.academies.filter((x) => x.paid).length;
-        setCounts({
-          players: pendingP,
-          coaches: pendingC,
-          referees: pendingR,
-          academies: pendingA,
-          approved: approvedP + approvedC + approvedR + approvedAc,
-        });
+    getAdminStats()
+      .then((res) => {
+        if (res.success) {
+          setStats(res.stats);
+        }
       })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, []);
 
-  const totalPending = counts.players + counts.coaches + counts.referees + counts.academies;
-
   return (
     <div className="mb-8">
-
       {/* Welcome Title area */}
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 border-b border-gray-200 pb-4">
         <div>
@@ -63,41 +43,75 @@ export default function AdminDashboardHeader() {
         </div>
       </div>
 
-      {/* 4 Status Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-
+      {/* Row 1: Status Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         <div className="bg-white border border-gray-200 shadow-sm rounded-sm p-6 flex flex-col justify-center">
           <div className="text-[9px] font-bold tracking-widest text-gray-400 uppercase mb-2">TOTAL PENDING</div>
           <div className="font-heading text-4xl font-bold text-primary mb-1">
-            {loading ? "—" : totalPending}
+            {loading ? "—" : stats?.total_pending ?? 0}
           </div>
           <div className="text-[11px] text-gray-500">Across all application types</div>
         </div>
 
         <div className="bg-white border border-gray-200 shadow-sm rounded-sm p-6 flex flex-col justify-center">
-          <div className="text-[9px] font-bold tracking-widest text-gray-400 uppercase mb-2">PENDING PLAYERS</div>
-          <div className="font-heading text-4xl font-bold text-primary mb-1">
-            {loading ? "—" : counts.players}
-          </div>
-          <div className="text-[11px] text-gray-500">Payment not verified</div>
-        </div>
-
-        <div className="bg-white border border-gray-200 shadow-sm rounded-sm p-6 flex flex-col justify-center">
-          <div className="text-[9px] font-bold tracking-widest text-gray-400 uppercase mb-2">PENDING COACHES</div>
-          <div className="font-heading text-4xl font-bold text-primary mb-1">
-            {loading ? "—" : counts.coaches}
-          </div>
-          <div className="text-[11px] text-gray-500">Coaches + Referees: {loading ? "—" : counts.coaches + counts.referees}</div>
-        </div>
-
-        <div className="bg-white border border-gray-200 shadow-sm rounded-sm p-6 flex flex-col justify-center">
-          <div className="text-[9px] font-bold tracking-widest text-gray-400 uppercase mb-2">TOTAL APPROVED</div>
+          <div className="text-[9px] font-bold tracking-widest text-gray-400 uppercase mb-2">APPROVED TODAY</div>
           <div className="font-heading text-4xl font-bold text-emerald-600 mb-1">
-            {loading ? "—" : counts.approved}
+            {loading ? "—" : stats?.approved_today ?? 0}
           </div>
-          <div className="text-[11px] text-gray-500">All paid members</div>
+          <div className="text-[11px] text-emerald-600/80">Since midnight today</div>
         </div>
 
+        <div className="bg-white border border-gray-200 shadow-sm rounded-sm p-6 flex flex-col justify-center">
+          <div className="text-[9px] font-bold tracking-widest text-gray-400 uppercase mb-2">APPROVED THIS WEEK</div>
+          <div className="font-heading text-4xl font-bold text-emerald-600 mb-1">
+            {loading ? "—" : stats?.approved_this_week ?? 0}
+          </div>
+          <div className="text-[11px] text-emerald-600/80">Since Monday</div>
+        </div>
+
+        <div className="bg-white border border-gray-200 shadow-sm rounded-sm p-6 flex flex-col justify-center">
+          <div className="text-[9px] font-bold tracking-widest text-gray-400 uppercase mb-2">REJECTED THIS MONTH</div>
+          <div className="font-heading text-4xl font-bold text-red-600 mb-1">
+            {loading ? "—" : stats?.rejected_this_month ?? 0}
+          </div>
+          <div className="text-[11px] text-red-600/80">Applications declined</div>
+        </div>
+      </div>
+
+      {/* Row 2: Type Breakdown Cards */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+        <div className="bg-gray-50 border border-gray-100 rounded-sm p-4 flex flex-col items-center text-center">
+          <div className="font-heading text-2xl font-bold text-primary mb-1">
+            {loading ? "—" : (stats as any)?.pending_players ?? 0}
+          </div>
+          <div className="text-[9px] font-bold tracking-widest text-gray-500 uppercase">PLAYERS</div>
+        </div>
+
+        <div className="bg-gray-50 border border-gray-100 rounded-sm p-4 flex flex-col items-center text-center">
+          <div className="font-heading text-2xl font-bold text-primary mb-1">
+            {loading ? "—" : (stats as any)?.pending_coaches ?? 0}
+          </div>
+          <div className="text-[9px] font-bold tracking-widest text-gray-500 uppercase">COACHES</div>
+        </div>
+
+        <div className="bg-gray-50 border border-gray-100 rounded-sm p-4 flex flex-col items-center text-center">
+          <div className="font-heading text-2xl font-bold text-primary mb-1">
+            {loading ? "—" : (stats as any)?.pending_referees ?? 0}
+          </div>
+          <div className="text-[9px] font-bold tracking-widest text-gray-500 uppercase">REFEREES</div>
+        </div>
+
+        <div className="bg-gray-50 border border-gray-100 rounded-sm p-4 flex flex-col items-center text-center">
+          <div className="font-heading text-2xl font-bold text-primary mb-1">
+            {loading ? "—" : (stats as any)?.pending_academies ?? 0}
+          </div>
+          <div className="text-[9px] font-bold tracking-widest text-gray-500 uppercase">ACADEMIES</div>
+        </div>
+
+        <div className="bg-gray-50 border border-gray-100 rounded-sm p-4 flex flex-col items-center text-center">
+          <div className="font-heading text-2xl font-bold text-primary mb-1">0</div>
+          <div className="text-[9px] font-bold tracking-widest text-gray-500 uppercase">DISTRICTS</div>
+        </div>
       </div>
     </div>
   );

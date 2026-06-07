@@ -1,6 +1,7 @@
 import AdminDashboardHeader from "./AdminDashboardHeader";
 import PendingReviewsTable from "./PendingReviewsTable";
 import AdminEventsManager from "./AdminEventsManager";
+import RecentDecisionsLog from "./RecentDecisionsLog";
 
 export default function AdminDashboardPage() {
   return (
@@ -13,6 +14,11 @@ export default function AdminDashboardPage() {
         {/* Main Data Table */}
         <div className="mb-12">
           <PendingReviewsTable />
+        </div>
+
+        {/* Recent Decisions Log */}
+        <div className="mb-12">
+          <RecentDecisionsLog />
         </div>
 
         {/* Events Management */}

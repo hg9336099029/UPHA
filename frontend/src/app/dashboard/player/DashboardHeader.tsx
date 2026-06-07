@@ -19,7 +19,7 @@ export default function DashboardHeader() {
 
   const createdAt = authUser?.created_at
     ? new Date(authUser.created_at).toLocaleDateString("en-IN", { month: "short", year: "numeric" }).toUpperCase()
-    : "—";
+    : null;
 
   if (loading) {
     return (
@@ -50,8 +50,8 @@ export default function DashboardHeader() {
         </div>
       </div>
 
-      {/* 4 Status Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      {/* Status Cards Grid - adjusted cols based on available items */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
 
         {/* Membership Status */}
         <div className="bg-white border border-gray-200 shadow-sm rounded-sm p-6 flex flex-col justify-center">
@@ -59,31 +59,28 @@ export default function DashboardHeader() {
           <div className={`font-heading text-2xl font-bold uppercase mb-1 ${player?.paid ? "text-emerald-600" : "text-orange-500"}`}>
             &bull; {player?.paid ? "ACTIVE" : "PENDING"}
           </div>
-          <div className="text-[11px] text-gray-500">{player?.paid ? "Fee paid · ₹ 111" : "Payment not verified"}</div>
+          <div className="text-[11px] text-gray-500">{player?.paid ? "Fee paid" : "Payment not verified"}</div>
         </div>
 
         {/* Player ID */}
-        <div className="bg-white border border-gray-200 shadow-sm rounded-sm p-6 flex flex-col justify-center">
-          <div className="text-[9px] font-bold tracking-widest text-gray-400 uppercase mb-2">PLAYER ID</div>
-          <div className="font-heading text-xl font-bold uppercase text-primary mb-1">
-            PLR-{String(player?.id ?? 0).padStart(5, "0")}
+        {player?.id ? (
+          <div className="bg-white border border-gray-200 shadow-sm rounded-sm p-6 flex flex-col justify-center">
+            <div className="text-[9px] font-bold tracking-widest text-gray-400 uppercase mb-2">PLAYER ID</div>
+            <div className="font-heading text-xl font-bold uppercase text-primary mb-1">
+              PLR-{String(player.id).padStart(5, "0")}
+            </div>
+            <div className="text-[11px] text-gray-500">{player.district ?? "—"} District</div>
           </div>
-          <div className="text-[11px] text-gray-500">{player?.district ?? "—"} District</div>
-        </div>
+        ) : null}
 
         {/* Member Since */}
-        <div className="bg-white border border-gray-200 shadow-sm rounded-sm p-6 flex flex-col justify-center">
-          <div className="text-[9px] font-bold tracking-widest text-gray-400 uppercase mb-2">MEMBER SINCE</div>
-          <div className="font-heading text-2xl font-bold uppercase text-primary mb-1">{createdAt}</div>
-          <div className="text-[11px] text-gray-500">Registration date</div>
-        </div>
-
-        {/* Valid Through */}
-        <div className="bg-white border border-gray-200 shadow-sm rounded-sm p-6 flex flex-col justify-center">
-          <div className="text-[9px] font-bold tracking-widest text-gray-400 uppercase mb-2">VALID THROUGH</div>
-          <div className="font-heading text-2xl font-bold uppercase text-primary mb-1">31 MAR 2027</div>
-          <div className="text-[11px] text-gray-500">Renews annually</div>
-        </div>
+        {createdAt ? (
+          <div className="bg-white border border-gray-200 shadow-sm rounded-sm p-6 flex flex-col justify-center">
+            <div className="text-[9px] font-bold tracking-widest text-gray-400 uppercase mb-2">MEMBER SINCE</div>
+            <div className="font-heading text-2xl font-bold uppercase text-primary mb-1">{createdAt}</div>
+            <div className="text-[11px] text-gray-500">Registration date</div>
+          </div>
+        ) : null}
 
       </div>
     </div>

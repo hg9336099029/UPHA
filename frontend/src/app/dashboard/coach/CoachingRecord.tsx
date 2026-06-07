@@ -19,30 +19,30 @@ export default function CoachingRecord() {
         
         {/* Stat 1 */}
         <div className="flex flex-col items-center justify-center text-center py-4 lg:py-0">
-          <div className="font-heading text-6xl md:text-7xl font-bold text-accent mb-2 tracking-tight">22</div>
+          <div className="font-heading text-6xl md:text-7xl font-bold text-accent mb-2 tracking-tight">—</div>
           <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-1">TOURNAMENTS COACHED</div>
-          <div className="text-[10px] text-gray-500">2018 - 2026</div>
+          <div className="text-[10px] text-gray-500">not tracked</div>
         </div>
 
         {/* Stat 2 */}
         <div className="flex flex-col items-center justify-center text-center py-4 lg:py-0">
-          <div className="font-heading text-6xl md:text-7xl font-bold text-accent mb-2 tracking-tight">38</div>
+          <div className="font-heading text-6xl md:text-7xl font-bold text-accent mb-2 tracking-tight">—</div>
           <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-1">PLAYERS TRAINED</div>
-          <div className="text-[10px] text-gray-500">lifetime</div>
+          <div className="text-[10px] text-gray-500">not tracked</div>
         </div>
 
         {/* Stat 3 */}
         <div className="flex flex-col items-center justify-center text-center py-4 lg:py-0">
-          <div className="font-heading text-6xl md:text-7xl font-bold text-accent mb-2 tracking-tight">06</div>
+          <div className="font-heading text-6xl md:text-7xl font-bold text-accent mb-2 tracking-tight">—</div>
           <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-1">TITLES WON</div>
-          <div className="text-[10px] text-gray-500">district &middot; state</div>
+          <div className="text-[10px] text-gray-500">not tracked</div>
         </div>
 
         {/* Stat 4 */}
         <div className="flex flex-col items-center justify-center text-center py-4 lg:py-0">
-          <div className="font-heading text-6xl md:text-7xl font-bold text-accent mb-2 tracking-tight">08</div>
+          <div className="font-heading text-6xl md:text-7xl font-bold text-accent mb-2 tracking-tight">—</div>
           <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-1">SEASONS ACTIVE</div>
-          <div className="text-[10px] text-gray-500">since 2018</div>
+          <div className="text-[10px] text-gray-500">not tracked</div>
         </div>
 
       </div>

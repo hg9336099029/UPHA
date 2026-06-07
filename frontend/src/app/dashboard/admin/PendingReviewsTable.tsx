@@ -19,7 +19,7 @@ import {
 
 type Tab = "ALL" | "PLAYERS" | "COACHES" | "REFEREES" | "ACADEMIES";
 
-type Applicant =
+export type Applicant =
   | { type: "player"; data: PlayerData }
   | { type: "coach"; data: CoachData }
   | { type: "referee"; data: RefereeData }
@@ -99,31 +99,62 @@ export default function PendingReviewsTable() {
     return `${a.type}-${getId(a)}`;
   }
 
-  async function handleApprove(a: Applicant) {
+  const [rejecting, setRejecting] = useState<string | null>(null);
+
+  async function handleApprove(a: Applicant, notes: string) {
     const key = rowKey(a);
     setApproving(key);
     try {
       if (a.type === "player") {
-        const res = await approvePlayerPayment(getId(a));
+        const res = await approvePlayerPayment(getId(a), notes);
         setPlayers((prev) => prev.map((p) => (p.id === getId(a) ? res.player : p)));
       } else if (a.type === "coach") {
-        const res = await approveCoachPayment(getId(a));
+        const res = await approveCoachPayment(getId(a), notes);
         setCoaches((prev) => prev.map((c) => (c.id === getId(a) ? res.coach : c)));
       } else if (a.type === "referee") {
-        const res = await approveRefereePayment(getId(a));
+        const res = await approveRefereePayment(getId(a), notes);
         setReferees((prev) => prev.map((r) => (r.id === getId(a) ? res.referee : r)));
       } else {
-        const res = await approveAcademyPayment(getId(a));
+        const res = await approveAcademyPayment(getId(a), notes);
         setAcademies((prev) => prev.map((ac) => (ac.id === getId(a) ? res.academy : ac)));
       }
-      setToast(`Payment approved for ${getName(a)}`);
+      setToast(`Application approved for ${getName(a)}`);
       setTimeout(() => setToast(null), 3000);
+      setExpandedId(null);
     } catch (err) {
       setToast(`Error: ${err instanceof Error ? err.message : "Unknown error"}`);
       setTimeout(() => setToast(null), 4000);
     } finally {
       setApproving(null);
     }
+  }
+
+  async function handleReject(a: Applicant, notes: string) {
+    import("@/lib/api").then(async ({ rejectApplication }) => {
+      const key = rowKey(a);
+      setRejecting(key);
+      try {
+        await rejectApplication(a.type, getId(a), notes);
+        // Remove from list
+        if (a.type === "player") {
+          setPlayers((prev) => prev.filter((p) => p.id !== getId(a)));
+        } else if (a.type === "coach") {
+          setCoaches((prev) => prev.filter((c) => c.id !== getId(a)));
+        } else if (a.type === "referee") {
+          setReferees((prev) => prev.filter((r) => r.id !== getId(a)));
+        } else {
+          setAcademies((prev) => prev.filter((ac) => ac.id !== getId(a)));
+        }
+        setToast(`Application rejected for ${getName(a)}`);
+        setTimeout(() => setToast(null), 3000);
+        setExpandedId(null);
+      } catch (err) {
+        setToast(`Error: ${err instanceof Error ? err.message : "Unknown error"}`);
+        setTimeout(() => setToast(null), 4000);
+      } finally {
+        setRejecting(null);
+      }
+    });
   }
 
   const tabs: { label: string; key: Tab; type?: Applicant["type"] }[] = [
@@ -265,16 +296,6 @@ export default function PendingReviewsTable() {
                         >
                           {isExpanded ? "CLOSE" : "REVIEW"}
                         </button>
-                        {!paid && (
-                          <button
-                            disabled={approving === key}
-                            onClick={() => handleApprove(a)}
-                            className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white px-3 py-2 rounded-sm text-[9px] font-bold tracking-widest uppercase shadow-sm transition-colors flex items-center gap-1"
-                          >
-                            <Check className="w-3 h-3" />
-                            {approving === key ? "…" : "APPROVE"}
-                          </button>
-                        )}
                       </div>
                     </td>
                   </tr>
@@ -283,8 +304,19 @@ export default function PendingReviewsTable() {
                   {isExpanded && (
                     <tr>
                       <td colSpan={8} className="p-0 border-b-2 border-accent bg-[#fcfbf9]">
-                        <div className="p-8">
-                          <DetailPanel applicant={a} onApprove={() => handleApprove(a)} approving={approving === key} />
+                        <div className="p-0">
+                          {typeof window !== "undefined" && (
+                            <React.Suspense fallback={<div className="p-8">Loading review panel...</div>}>
+                              {React.createElement(require('./ApplicationReviewPanel').default, {
+                                applicant: a,
+                                onApprove: (notes: string) => handleApprove(a, notes),
+                                onReject: (notes: string) => handleReject(a, notes),
+                                onClose: () => setExpandedId(null),
+                                approving: approving === key,
+                                rejecting: rejecting === key,
+                              })}
+                            </React.Suspense>
+                          )}
                         </div>
                       </td>
                     </tr>
@@ -294,131 +326,6 @@ export default function PendingReviewsTable() {
             })}
           </tbody>
         </table>
-      </div>
-    </div>
-  );
-}
-
-// ─── Inline Detail Panel ──────────────────────────────────────────────────────
-
-function DetailPanel({
-  applicant,
-  onApprove,
-  approving,
-}: {
-  applicant: Applicant;
-  onApprove: () => void;
-  approving: boolean;
-}) {
-  const txImg = getTransactionImage(applicant);
-
-  return (
-    <div className="flex flex-col lg:flex-row gap-10">
-      {/* Left: Details */}
-      <div className="flex-1 space-y-6">
-        <div className="text-[11px] font-bold tracking-widest text-accent uppercase">APPLICANT DETAILS</div>
-
-        {applicant.type !== "academy" && (
-          <div className="grid grid-cols-2 gap-4">
-            {[
-              ["Full Name", applicant.data.user.name],
-              ["Email", applicant.data.user.email],
-              ["Phone", applicant.data.user.phone_number || "—"],
-              ["Gender", applicant.data.user.gender || "—"],
-              ["District", applicant.data.district],
-              ["Role", applicant.type],
-              ...(applicant.type === "player"
-                ? [
-                    ["Club", applicant.data.club_name],
-                    ["Coach", applicant.data.coach_name],
-                    ["Height", `${applicant.data.height} cm`],
-                    ["Weight", `${applicant.data.weight} kg`],
-                    ["Playing Hand", applicant.data.dominant_hand],
-                    ["School", applicant.data.school_name],
-                  ]
-                : applicant.type === "coach"
-                ? [
-                    ["Occupation", applicant.data.occupation],
-                    ["Highest Grade", applicant.data.highest_coaching_grade],
-                  ]
-                : applicant.type === "referee"
-                ? [
-                    ["Occupation", applicant.data.occupation],
-                    ["Grade Applying", applicant.data.grade_applying_for],
-                    ["Experience (yrs)", String(applicant.data.year_of_officiating_experience)],
-                    ["Highest Level", applicant.data.highest_level_officiated],
-                  ]
-                : []),
-            ].map(([label, value]) => (
-              <div key={label}>
-                <div className="text-[9px] font-bold tracking-widest text-gray-400 uppercase mb-1">{label}</div>
-                <div className="text-sm font-medium text-gray-800">{value || "—"}</div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {applicant.type === "academy" && (
-          <div className="grid grid-cols-2 gap-4">
-            {[
-              ["Academy Name", applicant.data.name],
-              ["Email", applicant.data.email],
-              ["District", applicant.data.district],
-              ["Year Est.", String(applicant.data.year_of_establishment)],
-              ["Phone", applicant.data.office_phone_number],
-              ["No. of Players", String(applicant.data.no_of_players)],
-              ["Trust Reg. No.", applicant.data.trust_registration_number],
-              ["Office Address", applicant.data.office_address],
-            ].map(([label, value]) => (
-              <div key={label}>
-                <div className="text-[9px] font-bold tracking-widest text-gray-400 uppercase mb-1">{label}</div>
-                <div className="text-sm font-medium text-gray-800">{value || "—"}</div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        <div>
-          <div className="text-[9px] font-bold tracking-widest text-gray-400 uppercase mb-1">TRANSACTION ID</div>
-          <div className="text-sm font-mono font-medium text-gray-800">{getTransactionId(applicant)}</div>
-        </div>
-      </div>
-
-      {/* Right: Receipt + Action */}
-      <div className="lg:w-80 space-y-6 shrink-0">
-        {txImg && (
-          <div>
-            <div className="text-[11px] font-bold tracking-widest text-accent uppercase mb-3">PAYMENT RECEIPT</div>
-            <a href={txImg} target="_blank" rel="noopener noreferrer">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={txImg}
-                alt="Transaction receipt"
-                className="w-full max-h-56 object-contain border border-gray-200 rounded-sm hover:opacity-90 transition"
-              />
-              <div className="text-[9px] font-bold tracking-widest text-accent uppercase mt-2 flex items-center gap-1">
-                <ExternalLink className="w-3 h-3" /> OPEN FULL SIZE
-              </div>
-            </a>
-          </div>
-        )}
-
-        {!isPaid(applicant) && (
-          <button
-            disabled={approving}
-            onClick={onApprove}
-            className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white py-4 rounded-sm text-[10px] font-bold tracking-widest uppercase flex items-center justify-center gap-2 transition-colors shadow-md"
-          >
-            <Check className="w-4 h-4" />
-            {approving ? "APPROVING…" : `APPROVE ${applicant.type.toUpperCase()}`}
-          </button>
-        )}
-
-        {isPaid(applicant) && (
-          <div className="w-full border border-emerald-200 bg-emerald-50 py-4 rounded-sm text-[10px] font-bold tracking-widest uppercase flex items-center justify-center gap-2 text-emerald-700">
-            <Check className="w-4 h-4" /> PAYMENT VERIFIED
-          </div>
-        )}
       </div>
     </div>
   );

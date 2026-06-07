@@ -45,6 +45,18 @@ def image_url(request, file_field):
     except ValueError:
         return None
 
+def log_decision(request, applicant_type, applicant_id, action, applicant_name_ref, details, notes=''):
+    from users.models import DecisionLog
+    DecisionLog.objects.create(
+        applicant_type=applicant_type,
+        applicant_id=applicant_id,
+        action=action,
+        applicant_name_ref=applicant_name_ref,
+        details=details,
+        admin=request.user if request.user.is_authenticated else None,
+        notes=notes
+    )
+
 
 def serialize_user(request, user):
     return {
