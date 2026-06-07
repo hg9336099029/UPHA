@@ -133,6 +133,22 @@ export type MeData =
 
 // ─── Core Fetch Utility ───────────────────────────────────────────────────────
 
+function getFriendlyErrorMessage(errorMsg: string): string {
+  if (!errorMsg) return "An unknown error occurred.";
+  
+  const msg = errorMsg.toLowerCase();
+  if (msg.includes("duplicate key value violates unique constraint")) {
+    if (msg.includes("email")) return "This email address is already registered.";
+    if (msg.includes("phone_number")) return "This phone number is already registered.";
+    if (msg.includes("adhar_number") || msg.includes("aadhar")) return "This Aadhar number is already registered.";
+    if (msg.includes("trust_registration_number")) return "This Society/Trust Registration Number is already registered.";
+    if (msg.includes("transaction_id")) return "This Payment Transaction ID has already been used.";
+    return "A record with this information already exists. Please check your details and try again.";
+  }
+  
+  return errorMsg;
+}
+
 async function apiFetch<T = unknown>(
   url: string,
   options: RequestInit = {}
@@ -148,10 +164,16 @@ async function apiFetch<T = unknown>(
     credentials: "include",
   });
 
-  const json = await res.json();
+  let json;
+  try {
+    json = await res.json();
+  } catch (e) {
+    // If not JSON, we'll handle it via res.ok check below
+  }
 
   if (!res.ok) {
-    throw new Error(json?.message || `Error ${res.status}: ${res.statusText}`);
+    const rawMsg = json?.message || json?.error || json?.detail || `Error ${res.status}: ${res.statusText}`;
+    throw new Error(getFriendlyErrorMessage(String(rawMsg)));
   }
 
   return json as T;

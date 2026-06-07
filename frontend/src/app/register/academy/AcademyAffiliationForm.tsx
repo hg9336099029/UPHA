@@ -3,6 +3,7 @@
 import { Clock, Image as ImageIcon, FileText, Upload } from "lucide-react";
 import React, { useState } from "react";
 import { registerAcademy } from "@/lib/api";
+import { UP_DISTRICTS } from "@/lib/constants";
 import ErrorBanner from "@/components/ErrorBanner";
 
 // Helper component for Office Bearer Cards
@@ -200,9 +201,9 @@ export default function AcademyAffiliationForm() {
               <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">DISTRICT <span className="text-accent">*</span></label>
               <select name="district" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-gray-600" required>
                 <option value="">Select district</option>
-                <option value="Lucknow">Lucknow</option>
-                <option value="Varanasi">Varanasi</option>
-                <option value="Kanpur">Kanpur</option>
+                {UP_DISTRICTS.map((district) => (
+                  <option key={district} value={district}>{district}</option>
+                ))}
               </select>
             </div>
             <div>
