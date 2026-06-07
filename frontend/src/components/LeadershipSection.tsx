@@ -54,7 +54,7 @@ export default function LeadershipSection() {
             Meet the team steering UPHA&apos;s mission across the state — from grassroots outreach to international representation.
           </p>
         </div>
-        <Link href="/#council" className="text-primary font-semibold text-sm uppercase tracking-widest border-b-2 border-primary pb-1 hover:text-accent hover:border-accent transition-colors mt-6 md:mt-0 whitespace-nowrap">
+        <Link href="/council" className="text-primary font-semibold text-sm uppercase tracking-widest border-b-2 border-primary pb-1 hover:text-accent hover:border-accent transition-colors mt-6 md:mt-0 whitespace-nowrap">
           FULL COUNCIL &rarr;
         </Link>
       </div>
