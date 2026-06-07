@@ -150,6 +150,25 @@ export default function RegistrationCards() {
             </div>
           </div>
 
+          {/* Card 6 */}
+          <div className="flex-[0_0_100%] md:flex-[0_0_50%] lg:flex-[0_0_33.333%] xl:flex-[0_0_25%] min-w-0 pl-6">
+            <div className="bg-primary p-8 rounded-sm text-white flex flex-col items-start justify-between h-full min-h-[400px]">
+              <div>
+                <div className="text-accent text-sm font-semibold tracking-widest mb-6">— 06</div>
+                <div className="w-12 h-12 rounded-full border border-gray-700 flex items-center justify-center mb-6">
+                  <Building2 className="text-accent w-5 h-5" />
+                </div>
+                <h3 className="font-heading text-3xl font-bold uppercase tracking-wide mb-4">Academy Affiliation</h3>
+                <p className="text-gray-400 text-sm leading-relaxed mb-12">
+                  For sports academies and clubs. File for official affiliation, submit committee details, and become a recognized unit under UPHA's network.
+                </p>
+              </div>
+              <Link href="/register/academy" className="text-accent text-sm font-bold tracking-widest uppercase hover:text-white transition-colors">
+                Apply as Academy &rarr;
+              </Link>
+            </div>
+          </div>
+
         </div>
       </div>
       

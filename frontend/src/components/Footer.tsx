@@ -71,6 +71,7 @@ export default function Footer() {
               <li><Link href="/register/player" className="hover:text-accent transition-colors">Register as Player</Link></li>
               <li><Link href="/register/coach" className="hover:text-accent transition-colors">Coach Certification</Link></li>
               <li><Link href="/register/referee" className="hover:text-accent transition-colors">Referee Accreditation</Link></li>
+              <li><Link href="/register/academy" className="hover:text-accent transition-colors">Academy Affiliation</Link></li>
               <li><Link href="/calendar" className="hover:text-accent transition-colors">Tournament Calendar</Link></li>
               <li><Link href="/results" className="hover:text-accent transition-colors">Event Results</Link></li>
             </ul>
