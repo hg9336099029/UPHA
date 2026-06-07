@@ -1,7 +1,12 @@
 "use client";
 import React from "react";
+import { useAuth } from "@/context/AuthContext";
+import { AcademyData } from "@/lib/api";
 
 export default function AcademyDetailsSummary() {
+  const { meData } = useAuth();
+  const academy = meData as AcademyData | null;
+
   return (
     <div className="bg-white border border-gray-200 shadow-sm rounded-sm">
       
@@ -19,44 +24,50 @@ export default function AcademyDetailsSummary() {
         {/* Row 1 */}
         <div className="p-6 md:p-8 border-b border-gray-100">
           <div className="text-[9px] font-bold tracking-widest text-accent uppercase mb-2">ACADEMY NAME</div>
-          <div className="text-sm font-medium text-gray-800">Vajra Sports Academy</div>
+          <div className="text-sm font-medium text-gray-800">{academy?.name || "—"}</div>
         </div>
         <div className="p-6 md:p-8 border-b border-gray-100">
-          <div className="text-[9px] font-bold tracking-widest text-accent uppercase mb-2">DIRECTOR</div>
-          <div className="text-sm font-medium text-gray-800">R. K. Trivedi</div>
+          <div className="text-[9px] font-bold tracking-widest text-accent uppercase mb-2">DIRECTOR (ADHYAKSH)</div>
+          <div className="text-sm font-medium text-gray-800">{academy?.adhyaksha?.name || "—"}</div>
         </div>
         <div className="p-6 md:p-8 border-b border-gray-100">
-          <div className="text-[9px] font-bold tracking-widest text-accent uppercase mb-2">HEAD COACH</div>
-          <div className="text-sm font-medium text-gray-800">Anil Sharma</div>
+          <div className="text-[9px] font-bold tracking-widest text-accent uppercase mb-2">SECRETARY (SACHIV)</div>
+          <div className="text-sm font-medium text-gray-800">{academy?.sachiv?.name || "—"}</div>
         </div>
 
         {/* Row 2 */}
         <div className="p-6 md:p-8 border-b border-gray-100">
           <div className="text-[9px] font-bold tracking-widest text-accent uppercase mb-2">DISTRICT</div>
-          <div className="text-sm font-medium text-gray-800">Lucknow</div>
+          <div className="text-sm font-medium text-gray-800">{academy?.district || "—"}</div>
         </div>
         <div className="p-6 md:p-8 border-b border-gray-100">
           <div className="text-[9px] font-bold tracking-widest text-accent uppercase mb-2">FOUNDED</div>
-          <div className="text-sm font-medium text-gray-800">2014</div>
+          <div className="text-sm font-medium text-gray-800">{academy?.year_of_establishment || "—"}</div>
         </div>
         <div className="p-6 md:p-8 border-b border-gray-100">
-          <div className="text-[9px] font-bold tracking-widest text-accent uppercase mb-2">TYPE</div>
-          <div className="text-sm font-medium text-gray-800">Co-ed &middot; Boys &amp; Girls</div>
+          <div className="text-[9px] font-bold tracking-widest text-accent uppercase mb-2">WEBSITE</div>
+          <div className="text-sm font-medium text-gray-800 truncate">
+            {academy?.website ? (
+              <a href={academy.website} target="_blank" rel="noreferrer" className="text-accent hover:underline">
+                {academy.website.replace(/^https?:\/\//, '')}
+              </a>
+            ) : "—"}
+          </div>
         </div>
 
         {/* Row 3 */}
         <div className="p-6 md:p-8">
           <div className="text-[9px] font-bold tracking-widest text-accent uppercase mb-2">PLAYERS</div>
-          <div className="text-sm font-medium text-gray-800">42 registered</div>
+          <div className="text-sm font-medium text-gray-800">{academy?.no_of_players || "0"} registered</div>
         </div>
         <div className="p-6 md:p-8">
-          <div className="text-[9px] font-bold tracking-widest text-accent uppercase mb-2">AFFILIATED COACHES</div>
-          <div className="text-sm font-medium text-gray-800">4 coaches</div>
+          <div className="text-[9px] font-bold tracking-widest text-accent uppercase mb-2">EMAIL</div>
+          <div className="text-sm font-medium text-gray-800 truncate">{academy?.email || "—"}</div>
         </div>
         <div className="p-6 md:p-8">
           <div className="text-[9px] font-bold tracking-widest text-accent uppercase mb-2">ADDRESS</div>
-          <div className="text-sm font-medium text-gray-800">Gomti Nagar, Lucknow</div>
-          <div className="text-xs text-gray-500 mt-1">Uttar Pradesh &mdash; 226010</div>
+          <div className="text-sm font-medium text-gray-800">{academy?.office_address || "—"}</div>
+          <div className="text-xs text-gray-500 mt-1">Phone: {academy?.office_phone_number || "—"}</div>
         </div>
 
       </div>

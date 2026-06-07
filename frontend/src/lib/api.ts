@@ -192,6 +192,13 @@ export async function registerDistrict(formData: FormData) {
   );
 }
 
+export async function registerAcademy(formData: FormData) {
+  return multipartApiFetch<{ success: boolean; message: string; academy: AcademyData }>(
+    `${API_BASE}/register/academy/`,
+    formData
+  );
+}
+
 // ─── Auth ─────────────────────────────────────────────────────────────────────
 
 export async function login(email: string, password: string) {

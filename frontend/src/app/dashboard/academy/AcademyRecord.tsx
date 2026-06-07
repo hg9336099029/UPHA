@@ -47,7 +47,9 @@ export default function AcademyRecord() {
 
         {/* Stat 4 */}
         <div className="flex flex-col items-center justify-center text-center py-4 lg:py-0">
-          <div className="font-heading text-6xl md:text-7xl font-bold text-accent mb-2 tracking-tight">—</div>
+          <div className="font-heading text-6xl md:text-7xl font-bold text-accent mb-2 tracking-tight">
+            {academy?.year_of_establishment ? new Date().getFullYear() - academy.year_of_establishment : "—"}
+          </div>
           <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-1">YEARS ACTIVE</div>
           <div className="text-[10px] text-gray-500">since {academy?.year_of_establishment ?? "—"}</div>
         </div>
