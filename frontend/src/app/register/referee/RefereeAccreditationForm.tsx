@@ -17,6 +17,7 @@ export default function RefereeAccreditationForm() {
   const [transactionImagePreview, setTransactionImagePreview] = useState("");
   const [passportImageName, setPassportImageName] = useState("");
   const [adharImageName, setAdharImageName] = useState("");
+  const [certificateImageName, setCertificateImageName] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState("");
@@ -303,13 +304,17 @@ export default function RefereeAccreditationForm() {
           <div className="pt-2">
             <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">OFFICIATING CERTIFICATE / EXPERIENCE PROOF <span className="text-gray-400 lowercase normal-case text-[10px] font-normal">(recommended)</span></label>
             <label className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center gap-4 cursor-pointer hover:bg-gray-50 transition-colors relative overflow-hidden">
-              <input name="certificate_image" type="file" accept="image/*,.pdf" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+              <input name="certificate_image" type="file" accept="image/*,.pdf" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={(e) => {
+                const f = e.target.files?.[0];
+                setCertificateImageName(f ? f.name : "");
+              }} />
               <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0">
                 <FileBadge className="w-4 h-4 text-gray-400" />
               </div>
               <div>
                 <div className="text-sm font-semibold text-gray-800">Upload certificate or experience proof</div>
                 <div className="text-[10px] text-gray-500">Prior accreditation, tournament letters, or course certificates · PDF preferred · max 5 MB</div>
+                {certificateImageName && <div className="text-[10px] text-primary mt-1 break-all">Selected: {certificateImageName}</div>}
               </div>
             </label>
             <div className="text-[10px] text-gray-400 mt-3">Strengthens your application — especially for State, National, or International grades.</div>

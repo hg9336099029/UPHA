@@ -135,9 +135,22 @@ const OfficeBearerCard = ({ num, title, subtitle, prefix }: { num: string, title
 };
 
 export default function AcademyAffiliationForm() {
+  const [logoName, setLogoName] = useState("");
+  const [logoPreview, setLogoPreview] = useState("");
+  const [certName, setCertName] = useState("");
+  const [transactionImageName, setTransactionImageName] = useState("");
+  const [transactionImagePreview, setTransactionImagePreview] = useState("");
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState("");
   const [submitSuccess, setSubmitSuccess] = useState("");
+
+  React.useEffect(() => {
+    return () => {
+      if (logoPreview) URL.revokeObjectURL(logoPreview);
+      if (transactionImagePreview) URL.revokeObjectURL(transactionImagePreview);
+    };
+  }, [logoPreview, transactionImagePreview]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -216,14 +229,33 @@ export default function AcademyAffiliationForm() {
           <div className="pt-2">
             <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">UNIT LOGO <span className="text-accent">*</span></label>
             <label className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex flex-col md:flex-row items-center gap-6 cursor-pointer hover:bg-gray-50 transition-colors relative overflow-hidden">
-              <input name="logo" type="file" accept="image/*" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required />
-              <div className="w-20 h-20 rounded-full bg-white border border-dashed border-gray-300 flex items-center justify-center shrink-0">
-                <span className="text-gray-300 font-bold text-2xl font-serif">L</span>
-              </div>
+              <input name="logo" type="file" accept="image/*" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required onChange={(e) => {
+                const f = e.target.files?.[0];
+                if(f) {
+                  setLogoName(f.name);
+                  setLogoPreview(URL.createObjectURL(f));
+                } else {
+                  setLogoName("");
+                  setLogoPreview("");
+                }
+              }} />
+              {logoPreview ? (
+                <div className="w-20 h-20 rounded-full border border-gray-200 overflow-hidden shrink-0">
+                  <img src={logoPreview} className="w-full h-full object-cover" alt="Logo preview" />
+                </div>
+              ) : (
+                <div className="w-20 h-20 rounded-full bg-white border border-dashed border-gray-300 flex items-center justify-center shrink-0">
+                  <span className="text-gray-300 font-bold text-2xl font-serif">L</span>
+                </div>
+              )}
               <div className="text-center md:text-left">
-                <div className="text-sm font-semibold text-gray-800 mb-1">Upload your unit logo</div>
+                <div className="text-sm font-semibold text-gray-800 mb-1">Upload your academy logo</div>
                 <div className="text-[10px] text-gray-500 mb-3">PNG, SVG or JPG · square aspect ratio · 500 x 500 px minimum · max 2 MB</div>
-                <div className="text-[10px] font-bold tracking-widest text-accent uppercase">CHOOSE FILE &rarr;</div>
+                {logoName ? (
+                  <div className="text-[10px] text-primary mt-1 break-all">Selected: {logoName}</div>
+                ) : (
+                  <div className="text-[10px] font-bold tracking-widest text-accent uppercase">CHOOSE FILE &rarr;</div>
+                )}
               </div>
             </label>
           </div>
@@ -301,16 +333,20 @@ export default function AcademyAffiliationForm() {
           <label className="block relative cursor-pointer group">
             <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">AUTHORIZATION LETTER / RESOLUTION <span className="text-accent">*</span></label>
             <div className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center gap-4 group-hover:bg-gray-50 transition-colors">
-              <input name="registration_certificate" type="file" accept=".pdf,image/*" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required />
+              <input name="registration_certificate" type="file" accept=".pdf,image/*" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required onChange={(e) => {
+                const f = e.target.files?.[0];
+                setCertName(f ? f.name : "");
+              }} />
               <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0">
                 <FileText className="w-4 h-4 text-gray-400" />
               </div>
               <div>
                 <div className="text-sm font-semibold text-gray-800">Upload authorization letter</div>
                 <div className="text-[10px] text-gray-500">Signed letter or committee resolution authorizing this registration · PDF preferred · max 5 MB</div>
+                {certName && <div className="text-[10px] text-primary mt-1 break-all">Selected: {certName}</div>}
               </div>
             </div>
-            <div className="text-[10px] text-gray-400 mt-2">A signed letter from the Academy committee or a resolution from a duly-convened meeting authorizing the named office bearers to register on behalf of the unit.</div>
+            <div className="text-[10px] text-gray-400 mt-2">A signed letter from the academy committee or a resolution from a duly-convened meeting authorizing the named office bearers to register on behalf of the academy.</div>
           </label>
         </div>
       </div>
@@ -335,15 +371,30 @@ export default function AcademyAffiliationForm() {
           <div className="pt-2">
             <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">PAYMENT SCREENSHOT <span className="text-accent">*</span></label>
             <label className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center gap-4 cursor-pointer hover:bg-gray-50 transition-colors relative overflow-hidden">
-              <input name="transaction_image" type="file" accept="image/*" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required />
+              <input name="transaction_image" type="file" accept="image/*" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required onChange={(e) => {
+                const f = e.target.files?.[0];
+                if(f) {
+                  setTransactionImageName(f.name);
+                  setTransactionImagePreview(URL.createObjectURL(f));
+                } else {
+                  setTransactionImageName("");
+                  setTransactionImagePreview("");
+                }
+              }} />
               <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0">
                 <ImageIcon className="w-4 h-4 text-gray-400" />
               </div>
               <div>
                 <div className="text-sm font-semibold text-gray-800">Upload payment screenshot</div>
                 <div className="text-[10px] text-gray-500">JPG or PNG · max 2 MB · must show transaction ID and amount</div>
+                {transactionImageName && <div className="text-[10px] text-primary mt-1 break-all">Selected: {transactionImageName}</div>}
               </div>
             </label>
+            {transactionImagePreview && (
+              <div className="mt-4 w-full md:w-[calc(50%-12px)] overflow-hidden rounded-sm border border-gray-200 bg-white shadow-sm">
+                <img src={transactionImagePreview} alt="Payment screenshot preview" className="h-56 w-full object-cover" />
+              </div>
+            )}
           </div>
         </div>
       </div>
