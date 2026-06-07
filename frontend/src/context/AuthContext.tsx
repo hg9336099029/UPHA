@@ -15,10 +15,11 @@ import {
   PlayerData,
   CoachData,
   RefereeData,
+  AcademyData,
   UserData,
 } from "@/lib/api";
 
-export type MePayload = PlayerData | CoachData | RefereeData;
+export type MePayload = PlayerData | CoachData | RefereeData | AcademyData;
 
 interface AuthContextValue {
   authUser: UserData | null;

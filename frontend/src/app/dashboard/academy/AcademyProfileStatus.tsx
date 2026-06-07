@@ -1,3 +1,4 @@
+"use client";
 import { Check, Plus } from "lucide-react";
 import React from "react";
 

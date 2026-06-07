@@ -1,3 +1,4 @@
+"use client";
 import { Trophy, Megaphone } from "lucide-react";
 import React from "react";
 
