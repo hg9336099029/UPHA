@@ -1,11 +1,11 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.db import IntegrityError, transaction
 
 from .models import District
 from users.utils import get_request_data, json_error, json_success, serialize_district
 
 
-from django.db import transaction
 from django.contrib.auth.hashers import make_password
 from users.models import User
 
@@ -17,13 +17,17 @@ def register_district(request):
 
     required_district_fields = [
         'name', 'district', 'year_of_establishment',
-        'office_address', 'office_phone_number', 'email', 'no_of_players',
+        'office_address', 'office_phone_number', 'email', 'password', 'no_of_players',
         'registration_certificate', 'transaction_id', 'transaction_image', 'logo',
     ]
     missing_fields = [field for field in required_district_fields if not (data.get(field) or files.get(field))]
     if missing_fields:
         readable = [f.replace('_', ' ').title() for f in missing_fields]
         return json_error(f"The following required fields are missing: {', '.join(readable)}. Please fill them in before submitting.")
+    
+    district_email = data.get('email')
+    if User.objects.filter(email=district_email).exists():
+        return json_error(f'The office email "{district_email}" is already registered. Please use a different email.')
 
     # Helper function to create a user for an office bearer
     def create_office_bearer(prefix):
@@ -76,7 +80,16 @@ def register_district(request):
             sachiv = create_office_bearer('sachiv')
             koshadhyaksha = create_office_bearer('koshadhyaksha')
 
+            district_user = User.objects.create_user(
+                email=district_email,
+                password=data.get('password'),
+                name=data.get('name', ''),
+                phone_number=data.get('office_phone_number', ''),
+                role='district'
+            )
+
             district = District.objects.create(
+                user=district_user,
                 name=data.get('name', ''),
                 district=data.get('district', ''),
                 year_of_establishment=int(data.get('year_of_establishment')),
@@ -84,7 +97,7 @@ def register_district(request):
                 trust_registration_number=data.get('trust_registration_number', ''),
                 office_address=data.get('office_address', ''),
                 office_phone_number=data.get('office_phone_number', ''),
-                email=data.get('email', ''),
+                email=district_email,
                 website=data.get('website') or None,
                 no_of_players=int(data.get('no_of_players')),
                 adhyaksha=adhyaksha,
@@ -97,6 +110,15 @@ def register_district(request):
             )
     except ValueError as ve:
         return json_error(str(ve))
+    except IntegrityError as e:
+        error_msg = str(e).lower()
+        if 'trust_registration_number' in error_msg:
+            return json_error('A unit with this Society/Trust Registration Number is already registered.')
+        if 'name' in error_msg:
+            return json_error('A unit with this name is already registered.')
+        if 'transaction_id' in error_msg:
+            return json_error('This transaction ID has already been used.')
+        return json_error('Registration failed due to duplicate information provided. Please check your data.')
     except Exception as exc:
         return json_error(str(exc))
 

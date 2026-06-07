@@ -3,6 +3,7 @@ from django.db import models
 
 
 class District(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, null=True, blank=True, related_name='district_profile')
     name = models.CharField(max_length=255)
     district = models.CharField(max_length=255)
     year_of_establishment = models.IntegerField()

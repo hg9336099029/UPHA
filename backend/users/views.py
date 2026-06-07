@@ -292,7 +292,23 @@ def me_view(request):
 			return json_error('Referee profile not found.', status=404)
 		return json_success('Current referee profile retrieved successfully.', user=serialize_referee(request, referee))
 
-	return json_error('Only coach, referee, and player accounts can access this endpoint.', status=403)
+	if user.role == 'academy':
+		from academy.models import Academy
+		academy = Academy.objects.select_related('user', 'adhyaksha', 'sachiv', 'koshadhyaksha').filter(user=user).first()
+		if not academy:
+			return json_error('Academy profile not found.', status=404)
+		from users.utils import serialize_academy
+		return json_success('Current academy profile retrieved successfully.', user=serialize_academy(request, academy))
+
+	if user.role == 'district':
+		from district.models import District
+		district = District.objects.select_related('user', 'adhyaksha', 'sachiv', 'koshadhyaksha').filter(user=user).first()
+		if not district:
+			return json_error('District profile not found.', status=404)
+		from users.utils import serialize_district
+		return json_success('Current district profile retrieved successfully.', user=serialize_district(request, district))
+
+	return json_error('Only coach, referee, academy, district, and player accounts can access this endpoint.', status=403)
 
 
 @csrf_exempt
@@ -440,179 +456,6 @@ def get_my_certificate(request):
 			'certificate_image': request.build_absolute_uri(player.certificate_image.url),
 		},
 	)
-
-@require_http_methods(['GET'])
-def get_admin_stats(request):
-	from django.utils import timezone
-	from datetime import timedelta
-	from users.models import DecisionLog, Player, Coach, Referee
-	from academy.models import Academy
-
-	now = timezone.now()
-	today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
-	week_start = today_start - timedelta(days=today_start.weekday())
-	month_start = today_start.replace(day=1)
-	if phone_query:
-		filter |= Q(user__phone_number__icontains=phone_query)
-	if not filter:
-		return json_error('At least one search criteria is required.')
-
-	players = Player.objects.select_related('user').filter(filter).order_by('id')
-	if not players.exists():
-		return json_error('No players found matching the search criteria.', status=404)
-	return json_success('Players retrieved successfully.', players=[serialize_player(request, player) for player in players])
-
-
-@require_http_methods(['GET'])
-def me_view(request):
-	user = getattr(request, 'user', None)
-	if not user or not user.is_authenticated:
-		return json_error('Authentication required.', status=401)
-
-	if user.role == 'player':
-		player = Player.objects.select_related('user').filter(user=user).first()
-		if not player:
-			return json_error('Player profile not found.', status=404)
-		return json_success('Current player profile retrieved successfully.', user=serialize_player(request, player))
-
-	if user.role == 'coach':
-		coach = Coach.objects.select_related('user').filter(user=user).first()
-		if not coach:
-			return json_error('Coach profile not found.', status=404)
-		return json_success('Current coach profile retrieved successfully.', user=serialize_coach(request, coach))
-
-	if user.role == 'referee':
-		referee = Referee.objects.select_related('user').filter(user=user).first()
-		if not referee:
-			return json_error('Referee profile not found.', status=404)
-		return json_success('Current referee profile retrieved successfully.', user=serialize_referee(request, referee))
-
-	return json_error('Only coach, referee, and player accounts can access this endpoint.', status=403)
-
-
-@csrf_exempt
-@require_http_methods(['POST'])
-def update_player_payment_status(request, player_id):
-	player = Player.objects.select_related('user').filter(pk=player_id).first()
-	if not player:
-		return json_error('Player not found.', status=404)
-
-	data = get_request_data(request)
-	paid = _parse_paid_flag(data)
-	player.paid = paid
-	player.save(update_fields=['paid'])
-	if paid:
-		from users.utils import log_decision
-		log_decision(
-			request, 'player', player.id, 'Approved',
-			f"{player.user.name} (APP-PLR-{player.id:05d})",
-			f"Player ID PLR-2026-{player.id:05d} issued",
-			data.get('notes', '')
-		)
-	return json_success('Player payment status updated successfully.', player=serialize_player(request, player))
-
-
-@csrf_exempt
-@require_http_methods(['POST'])
-def update_coach_payment_status(request, coach_id):
-	coach = Coach.objects.select_related('user').filter(pk=coach_id).first()
-	if not coach:
-		return json_error('Coach not found.', status=404)
-
-	data = get_request_data(request)
-	paid = _parse_paid_flag(data)
-	coach.paid = paid
-	coach.save(update_fields=['paid'])
-	if paid:
-		from users.utils import log_decision
-		log_decision(
-			request, 'coach', coach.id, 'Approved',
-			f"{coach.user.name} (APP-CCH-{coach.id:05d})",
-			f"Coach ID CCH-2026-{coach.id:05d} issued",
-			data.get('notes', '')
-		)
-	return json_success('Coach payment status updated successfully.', coach=serialize_coach(request, coach))
-
-
-@csrf_exempt
-@require_http_methods(['POST'])
-def update_referee_payment_status(request, referee_id):
-	referee = Referee.objects.select_related('user').filter(pk=referee_id).first()
-	if not referee:
-		return json_error('Referee not found.', status=404)
-
-	data = get_request_data(request)
-	paid = _parse_paid_flag(data)
-	referee.paid = paid
-	referee.save(update_fields=['paid'])
-	if paid:
-		from users.utils import log_decision
-		log_decision(
-			request, 'referee', referee.id, 'Approved',
-			f"{referee.user.name} (APP-REF-{referee.id:05d})",
-			f"Referee ID REF-2026-{referee.id:05d} issued",
-			data.get('notes', '')
-		)
-	return json_success('Referee payment status updated successfully.', referee=serialize_referee(request, referee))
-
-@csrf_exempt
-@require_http_methods(['POST'])
-def reject_application(request):
-	data = get_request_data(request)
-	app_type = data.get('type')
-	app_id = data.get('id')
-	notes = data.get('notes', 'Application rejected')
-	
-	if not app_type or not app_id:
-		return json_error('Type and ID are required.')
-
-	from users.utils import log_decision
-	name_ref = ""
-	
-	if app_type == 'player':
-		obj = Player.objects.select_related('user').filter(pk=app_id).first()
-		if not obj: return json_error('Not found', status=404)
-		name_ref = f"{obj.user.name} (APP-PLR-{obj.id:05d})"
-	elif app_type == 'coach':
-		obj = Coach.objects.select_related('user').filter(pk=app_id).first()
-		if not obj: return json_error('Not found', status=404)
-		name_ref = f"{obj.user.name} (APP-CCH-{obj.id:05d})"
-	elif app_type == 'referee':
-		obj = Referee.objects.select_related('user').filter(pk=app_id).first()
-		if not obj: return json_error('Not found', status=404)
-		name_ref = f"{obj.user.name} (APP-REF-{obj.id:05d})"
-	elif app_type == 'academy':
-		from academy.models import Academy
-		obj = Academy.objects.filter(pk=app_id).first()
-		if not obj: return json_error('Not found', status=404)
-		name_ref = f"{obj.name} (APP-ACA-{obj.id:05d})"
-	else:
-		return json_error('Invalid application type.')
-		
-	log_decision(
-		request, app_type, app_id, 'Rejected',
-		name_ref,
-		notes,
-		notes
-	)
-	return json_success('Application rejected successfully.')
-
-
-@csrf_exempt
-@require_http_methods(['POST'])
-def upload_player_certificate(request, player_id):
-	player = Player.objects.select_related('user').filter(pk=player_id).first()
-	if not player:
-		return json_error('Player not found.', status=404)
-
-	certificate_image = request.FILES.get('certificate_image')
-	if not certificate_image:
-		return json_error('certificate_image is required.')
-
-	player.certificate_image = certificate_image
-	player.save(update_fields=['certificate_image'])
-	return json_success('Player certificate uploaded successfully.', player=serialize_player(request, player))
-
 
 @require_http_methods(['GET'])
 def get_my_certificate(request):

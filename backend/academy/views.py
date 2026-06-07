@@ -1,7 +1,9 @@
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from django.db import IntegrityError, transaction
 
 from .models import Academy
+from users.models import User
 from users.utils import get_request_data, json_error, json_success, serialize_academy
 
 
@@ -13,33 +15,103 @@ def register_academy(request):
 
 	required_fields = [
 		'name', 'district', 'year_of_establishment', 'trust_registration_number',
-		'office_address', 'office_phone_number', 'email', 'no_of_players',
+		'office_address', 'office_phone_number', 'email', 'password', 'no_of_players',
 		'registration_certificate', 'transaction_id', 'transaction_image', 'logo',
 	]
 	missing_fields = [field for field in required_fields if not (data.get(field) or files.get(field))]
 	if missing_fields:
-		return json_error(f"Missing required fields: {', '.join(missing_fields)}")
+		readable = [f.replace('_', ' ').title() for f in missing_fields]
+		return json_error(f"The following required fields are missing: {', '.join(readable)}. Please fill them in before submitting.")
+
+	academy_email = data.get('email')
+	if User.objects.filter(email=academy_email).exists():
+		return json_error(f'The office email "{academy_email}" is already registered. Please use a different email.')
+
+	def create_office_bearer(prefix):
+		email = data.get(f'{prefix}_email')
+		adhar = data.get(f'{prefix}_adhar_number')
+		if not email or not adhar:
+			role_name = prefix.replace('_', ' ').title()
+			raise ValueError(f"Missing Email or Aadhar number for {role_name}. Both are required to create their login account.")
+		
+		user = User.objects.filter(email=email).first()
+		if user:
+			return user
+
+		if User.objects.filter(adhar_number=adhar).exists():
+			role_name = prefix.replace('_', ' ').title()
+			raise ValueError(
+				f'The Aadhar number "{adhar}" entered for {role_name} is already registered in the system. '
+				'Each individual can only appear as an office bearer once.'
+			)
+
+		user = User.objects.create_user(
+			email=email,
+			password=adhar,
+			name=data.get(f'{prefix}_name', ''),
+			father_name=data.get(f'{prefix}_father_name', ''),
+			phone_number=data.get(f'{prefix}_phone_number', ''),
+			adhar_number=adhar,
+			role='admin',
+		)
+
+		needs_save = False
+		if files.get(f'{prefix}_adhar_image'):
+			user.adhar_image = files[f'{prefix}_adhar_image']
+			needs_save = True
+		if files.get(f'{prefix}_passport_image'):
+			user.passport_image = files[f'{prefix}_passport_image']
+			needs_save = True
+		if needs_save:
+			user.save()
+
+		return user
 
 	try:
-		academy = Academy.objects.create(
-			name=data.get('name', ''),
-			district=data.get('district', ''),
-			year_of_establishment=int(data.get('year_of_establishment')),
-			logo=files.get('logo'),
-			trust_registration_number=data.get('trust_registration_number', ''),
-			office_address=data.get('office_address', ''),
-			office_phone_number=data.get('office_phone_number', ''),
-			email=data.get('email', ''),
-			website=data.get('website') or None,
-			no_of_players=int(data.get('no_of_players')),
-			adhyaksha_id=data.get('adhyaksha_id') or None,
-			sachiv_id=data.get('sachiv_id') or None,
-			koshadhyaksha_id=data.get('koshadhyaksha_id') or None,
-			registration_certificate=files.get('registration_certificate'),
-			transaction_id=data.get('transaction_id', ''),
-			transaction_image=files.get('transaction_image'),
-			paid=str(data.get('paid', '')).lower() in {'true', '1', 'yes'},
-		)
+		with transaction.atomic():
+			adhyaksha = create_office_bearer('adhyaksha')
+			sachiv = create_office_bearer('sachiv')
+			koshadhyaksha = create_office_bearer('koshadhyaksha')
+
+			academy_user = User.objects.create_user(
+				email=academy_email,
+				password=data.get('password'),
+				name=data.get('name', ''),
+				phone_number=data.get('office_phone_number', ''),
+				role='academy'
+			)
+
+			academy = Academy.objects.create(
+				user=academy_user,
+				name=data.get('name', ''),
+				district=data.get('district', ''),
+				year_of_establishment=int(data.get('year_of_establishment')),
+				logo=files.get('logo'),
+				trust_registration_number=data.get('trust_registration_number', ''),
+				office_address=data.get('office_address', ''),
+				office_phone_number=data.get('office_phone_number', ''),
+				email=academy_email,
+				website=data.get('website') or None,
+				no_of_players=int(data.get('no_of_players')),
+				adhyaksha=adhyaksha,
+				sachiv=sachiv,
+				koshadhyaksha=koshadhyaksha,
+				registration_certificate=files.get('registration_certificate'),
+				transaction_id=data.get('transaction_id', ''),
+				transaction_image=files.get('transaction_image'),
+				paid=str(data.get('paid', '')).lower() in {'true', '1', 'yes'},
+			)
+	except ValueError as ve:
+		return json_error(str(ve))
+	except IntegrityError as e:
+		error_msg = str(e).lower()
+		if 'trust_registration_number' in error_msg:
+			return json_error('A unit with this Society/Trust Registration Number is already registered.')
+		if 'name' in error_msg:
+			return json_error('A unit with this name is already registered.')
+		if 'transaction_id' in error_msg:
+			return json_error('This transaction ID has already been used.')
+		return json_error('Registration failed due to duplicate information provided. Please check your data.')
 	except Exception as exc:
 		return json_error(str(exc))
 

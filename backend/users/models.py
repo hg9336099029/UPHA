@@ -60,7 +60,7 @@ class User(AbstractUser):
     passport_image = models.ImageField(upload_to='passport_images/', null=True, blank=True)
     role = models.CharField(
         max_length=20,
-        choices=[('admin', 'Admin'), ('coach', 'Coach'), ('player', 'Player'), ('referee', 'Referee')],
+        choices=[('admin', 'Admin'), ('coach', 'Coach'), ('player', 'Player'), ('referee', 'Referee'), ('academy', 'Academy'), ('district', 'District')],
         default='player',
     )
     created_at = models.DateTimeField(auto_now_add=True)
