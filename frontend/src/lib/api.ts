@@ -126,21 +126,7 @@ export interface EventResultData {
   position: number;
 }
 
-export interface AcademyData {
-  id: number;
-  logo: string | null;
-  name: string;
-  district: string;
-  paid: boolean;
-  year_of_establishment: number;
-  no_of_players: number;
-  website: string | null;
-  email: string;
-  office_address: string;
-  office_phone_number: string;
-  adhyaksha?: { name: string };
-  sachiv?: { name: string };
-}
+
 
 export type MeData =
   | { type: "player"; data: PlayerData }
