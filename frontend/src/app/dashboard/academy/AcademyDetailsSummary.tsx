@@ -4,8 +4,10 @@ import { useAuth } from "@/context/AuthContext";
 import { AcademyData } from "@/lib/api";
 
 export default function AcademyDetailsSummary() {
-  const { meData } = useAuth();
+  const { meData, loading } = useAuth();
   const academy = meData as AcademyData | null;
+
+  if (loading) return <div className="animate-pulse bg-gray-100 rounded-sm h-40"></div>;
 
   return (
     <div className="bg-white border border-gray-200 shadow-sm rounded-sm">

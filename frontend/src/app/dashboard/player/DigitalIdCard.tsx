@@ -115,13 +115,26 @@ export default function DigitalIdCard() {
             if (!player?.paid) {
               alert("Not approved by Admin. You can download your ID card after your profile is approved.");
             } else {
-              window.print(); // or any other download logic
+              window.print();
             }
           }}
           className="flex-1 bg-[#d97c55] hover:bg-[#c16744] text-white flex items-center justify-center gap-2 py-4 rounded-sm transition-colors shadow-sm"
         >
           <Download className="w-4 h-4" />
           <span className="text-[10px] font-bold tracking-widest uppercase">DOWNLOAD ID CARD</span>
+        </button>
+        <button 
+          onClick={() => {
+            if (!player?.paid) {
+              alert("Not approved by Admin. You can download your certificate after your profile is approved.");
+            } else {
+              window.print();
+            }
+          }}
+          className="flex-1 bg-[#111827] hover:bg-[#1f2937] text-white flex items-center justify-center gap-2 py-4 rounded-sm transition-colors shadow-sm"
+        >
+          <Download className="w-4 h-4" />
+          <span className="text-[10px] font-bold tracking-widest uppercase">DOWNLOAD CERTIFICATE</span>
         </button>
       </div>
     </div>

@@ -1,4 +1,5 @@
 "use client";
+
 import { Download, RefreshCcw } from "lucide-react";
 import Image from "next/image";
 import React from "react";
@@ -6,17 +7,8 @@ import { useAuth } from "@/context/AuthContext";
 import { AcademyData } from "@/lib/api";
 
 export default function AcademyIdCard() {
-  const { meData, loading } = useAuth();
+  const { authUser, meData, loading } = useAuth();
   const academy = meData as AcademyData | null;
-
-  const initials = academy?.name
-    ? academy.name
-      .split(" ")
-      .map((p) => p[0])
-      .join("")
-      .slice(0, 3)
-      .toUpperCase()
-    : "?";
 
   if (loading) {
     return (
@@ -41,8 +33,8 @@ export default function AcademyIdCard() {
             </div>
           </div>
 
-          <div className="border border-[#d97c55]/40 rounded-sm px-3 py-1.5 bg-[#d97c55]/10">
-            <div className="text-[8px] font-bold tracking-widest text-accent uppercase">ACADEMY AFFILIATION</div>
+          <div className="border border-gray-600 rounded-sm px-3 py-1.5">
+            <div className="text-[8px] font-bold tracking-widest text-[#d97c55] uppercase">ACADEMY AFFILIATION</div>
           </div>
         </div>
 
@@ -50,49 +42,45 @@ export default function AcademyIdCard() {
         <div className="p-6 md:p-8 flex flex-col md:flex-row gap-8 flex-1 relative">
           {/* Avatar Block */}
           {academy?.logo ? (
-            <div className="w-28 h-32 bg-[#0f172a] border border-gray-800 rounded-sm overflow-hidden shrink-0 z-10">
-              <Image src={academy.logo} alt="Logo" width={112} height={128} className="object-cover w-full h-full" />
+            <div className="w-28 h-28 bg-[#0f172a] border border-gray-800 rounded-sm overflow-hidden shrink-0 z-10 self-center">
+              <Image src={academy.logo} alt="Logo" width={112} height={112} className="object-cover w-full h-full" />
             </div>
           ) : (
-            <div className="w-28 h-32 bg-[#0f172a] border border-gray-800 rounded-sm flex items-center justify-center shrink-0 shadow-inner z-10">
-              <span className="font-heading text-4xl font-bold text-white tracking-wider">{initials}</span>
+            <div className="w-28 h-28 bg-[#1e293b] border border-gray-700 rounded-full flex items-center justify-center shrink-0 shadow-inner z-10 self-center">
+              <span className="font-heading text-4xl font-bold text-white tracking-wider">VSA</span>
             </div>
           )}
 
           {/* Details Grid */}
           <div className="flex-1 flex flex-col justify-center gap-5 z-10">
-            {academy?.name && (
-              <div>
-                <div className="text-[9px] font-bold tracking-widest text-gray-400 uppercase mb-1">ACADEMY NAME</div>
-                <div className="font-heading text-2xl font-bold text-white uppercase tracking-wide">{academy.name}</div>
-              </div>
-            )}
+            <div>
+              <div className="text-[9px] font-bold tracking-widest text-gray-400 uppercase mb-1">ACADEMY NAME</div>
+              <div className="font-heading text-2xl font-bold text-white uppercase tracking-wide">{academy?.name || "VAJRA SPORTS ACADEMY"}</div>
+            </div>
 
             <div className="grid grid-cols-2 gap-4">
-              {academy?.id && (
-                <div>
-                  <div className="text-[8px] font-bold tracking-widest text-gray-500 uppercase mb-1">ACADEMY ID</div>
-                  <div className="text-sm font-medium text-white">UPHA-ACA-{String(academy.id).padStart(5, "0")}</div>
-                </div>
-              )}
-              {academy?.district && (
-                <div>
-                  <div className="text-[8px] font-bold tracking-widest text-gray-500 uppercase mb-1">DISTRICT</div>
-                  <div className="text-sm font-medium text-white">{academy.district}</div>
-                </div>
-              )}
+              <div>
+                <div className="text-[8px] font-bold tracking-widest text-gray-500 uppercase mb-1">ACADEMY ID</div>
+                <div className="text-sm font-medium text-white">UPHA-ACA-{String(academy?.id ?? 31).padStart(5, "0")}</div>
+              </div>
+              <div>
+                <div className="text-[8px] font-bold tracking-widest text-gray-500 uppercase mb-1">DISTRICT</div>
+                <div className="text-sm font-medium text-white">{academy?.district || "Lucknow"}</div>
+              </div>
 
-              {academy?.year_of_establishment && (
-                <div>
-                  <div className="text-[8px] font-bold tracking-widest text-gray-500 uppercase mb-1">ESTABLISHED</div>
-                  <div className="text-sm font-medium text-white">{academy.year_of_establishment}</div>
-                </div>
-              )}
+              <div>
+                <div className="text-[8px] font-bold tracking-widest text-gray-500 uppercase mb-1">ESTABLISHED</div>
+                <div className="text-sm font-medium text-white">{academy?.year_of_establishment || "2014"}</div>
+              </div>
+              <div>
+                <div className="text-[8px] font-bold tracking-widest text-gray-500 uppercase mb-1">TYPE</div>
+                <div className="text-sm font-medium text-white">Co-ed - Boys & Girls</div>
+              </div>
             </div>
           </div>
 
           {/* Simulated QR Code */}
-          <div className="absolute bottom-6 right-8 w-12 h-12 bg-white rounded-sm p-1 z-10 shadow-sm opacity-90">
+          <div className="absolute right-8 top-1/2 -translate-y-1/2 w-12 h-12 bg-white rounded-sm p-1 z-10 shadow-sm opacity-90 hidden sm:block">
             <svg viewBox="0 0 100 100" className="w-full h-full" fill="#111827">
               {/* Top-left marker */}
               <rect x="0" y="0" width="30" height="30" />
@@ -107,34 +95,48 @@ export default function AcademyIdCard() {
               <rect x="5" y="75" width="20" height="20" fill="white" />
               <rect x="10" y="80" width="10" height="10" />
               {/* Random blocks for pattern */}
-              <rect x="35" y="5" width="10" height="20" />
+              <rect x="40" y="0" width="10" height="10" />
               <rect x="55" y="0" width="10" height="10" />
-              <rect x="45" y="15" width="15" height="10" />
+              <rect x="45" y="15" width="20" height="10" />
               <rect x="35" y="30" width="35" height="10" />
-              <rect x="0" y="40" width="15" height="10" />
-              <rect x="25" y="45" width="10" height="15" />
-              <rect x="45" y="45" width="15" height="20" />
-              <rect x="70" y="40" width="30" height="15" />
-              <rect x="80" y="60" width="20" height="5" />
-              <rect x="40" y="75" width="20" height="25" />
+              <rect x="0" y="40" width="20" height="10" />
+              <rect x="25" y="45" width="10" height="20" />
+              <rect x="40" y="45" width="20" height="20" />
+              <rect x="65" y="40" width="35" height="10" />
+              <rect x="80" y="55" width="20" height="10" />
+              <rect x="45" y="75" width="15" height="25" />
               <rect x="65" y="70" width="35" height="15" />
-              <rect x="70" y="90" width="10" height="10" />
+              <rect x="70" y="90" width="15" height="10" />
               <rect x="90" y="90" width="10" height="10" />
             </svg>
           </div>
         </div>
 
         {/* Bottom Strip */}
-        <div className="bg-[#0f172a] px-6 md:px-8 py-4 flex justify-between items-center border-t border-gray-800">
-          <div className="font-serif italic text-gray-400 text-sm">Khelo India Toh Khilega India</div>
+        <div className="bg-[#0f172a] px-6 md:px-8 py-4 flex justify-between items-center border-t border-gray-800 z-10 relative">
+          <div className="font-serif italic text-[#d97c55] text-sm">Khelo India Toh Khilega India</div>
+          <div className="text-[9px] font-bold tracking-widest text-gray-400 uppercase">VALID THROUGH 31 MAR 2027</div>
         </div>
 
         {/* Subtle decorative elements */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-white/5 to-transparent pointer-events-none rounded-bl-full"></div>
+        <div className="absolute top-0 left-1/4 w-96 h-full bg-gradient-to-r from-transparent via-[#1e293b]/20 to-transparent pointer-events-none transform -skew-x-12"></div>
       </div>
 
       {/* Actions */}
       <div className="flex gap-4 mt-4">
+        <button 
+          onClick={() => {
+            if (!academy?.paid) {
+              alert("Not approved by Admin. You can download your ID card after your profile is approved.");
+            } else {
+              window.print();
+            }
+          }}
+          className="flex-1 bg-[#d97c55] hover:bg-[#c16744] text-white flex items-center justify-center gap-2 py-4 rounded-sm transition-colors shadow-sm"
+        >
+          <Download className="w-4 h-4" />
+          <span className="text-[10px] font-bold tracking-widest uppercase">DOWNLOAD ID CARD</span>
+        </button>
         <button 
           onClick={() => {
             if (!academy?.paid) {
@@ -143,7 +145,7 @@ export default function AcademyIdCard() {
               window.print();
             }
           }}
-          className="flex-1 bg-[#d97c55] hover:bg-[#c16744] text-white flex items-center justify-center gap-2 py-4 rounded-sm transition-colors shadow-sm"
+          className="flex-1 bg-[#111827] hover:bg-[#1f2937] text-white flex items-center justify-center gap-2 py-4 rounded-sm transition-colors shadow-sm"
         >
           <Download className="w-4 h-4" />
           <span className="text-[10px] font-bold tracking-widest uppercase">DOWNLOAD CERTIFICATE</span>

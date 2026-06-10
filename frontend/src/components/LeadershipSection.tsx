@@ -1,44 +1,29 @@
+"use client";
+
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { listOfficeBearers, OfficeBearerData } from "@/lib/api";
 
 export default function LeadershipSection() {
-  const leaders = [
-    {
-      role: "CHAIRMAN",
-      name: "DR. SUDHIR M. BOBDE",
-      details: "Office: Lucknow",
-      bgColor: "bg-gray-200",
-      image: "/leader-1.png"
-    },
-    {
-      role: "PRESIDENT",
-      name: "SMT. ALKA DAS",
-      details: "Office: Lucknow",
-      bgColor: "bg-gray-300",
-      image: "/leader-2.png"
-    },
-    {
-      role: "TREASURER",
-      name: "VINAY KUMAR SINGH",
-      details: "+91 75700 99990",
-      bgColor: "bg-yellow-100",
-      image: "/leader-3.png"
-    },
-    {
-      role: "EXEC. SECRETARY GENERAL",
-      name: "AMIT PANDEY",
-      details: "+91 70849 00009",
-      bgColor: "bg-pink-100",
-      image: "/leader-4.png"
-    },
-    {
-      role: "SECRETARY GENERAL",
-      name: "DR. ANANDESHWAR PANDEY",
-      details: "+91 94150 22230",
-      bgColor: "bg-gray-300",
-      image: "/leader-5.png"
+  const [leaders, setLeaders] = useState<OfficeBearerData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchLeaders() {
+      try {
+        const res = await listOfficeBearers();
+        if (res.success && res.office_bearers) {
+          setLeaders(res.office_bearers.slice(0, 5));
+        }
+      } catch (error) {
+        console.error("Failed to load office bearers:", error);
+      } finally {
+        setLoading(false);
+      }
     }
-  ];
+    fetchLeaders();
+  }, []);
 
   return (
     <section className="py-16 px-6 max-w-7xl mx-auto">
@@ -60,24 +45,58 @@ export default function LeadershipSection() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mt-12">
-        {leaders.map((leader, index) => (
-          <div key={index} className="border border-gray-100 rounded bg-white shadow-sm overflow-hidden flex flex-col">
-            <div className={`h-48 ${leader.bgColor} w-full relative flex items-center justify-center`}>
-              <div className="w-full h-full relative">
-                 <Image src={leader.image} alt={leader.name} fill className="object-cover object-center" />
-              </div>
-            </div>
-            <div className="p-4 flex-1 flex flex-col justify-between border-t border-gray-100">
-              <div>
-                <div className="text-accent text-[10px] font-bold tracking-widest uppercase mb-1">{leader.role}</div>
-                <h3 className="font-heading text-lg font-bold uppercase tracking-wide leading-tight mb-4">{leader.name}</h3>
-              </div>
-              <div className="text-gray-500 text-xs">
-                {leader.details}
-              </div>
-            </div>
+        {loading ? (
+          <div className="col-span-full py-12 flex justify-center items-center">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
           </div>
-        ))}
+        ) : (
+          Array.from({ length: Math.max(5, leaders.length) }).map((_, index) => {
+            const leader = leaders[index];
+            if (leader) {
+              return (
+                <div key={index} className="border border-gray-100 rounded bg-white shadow-sm overflow-hidden flex flex-col">
+                  <div className="h-48 bg-gray-200 w-full relative flex items-center justify-center">
+                    <div className="w-full h-full relative">
+                      {leader.image ? (
+                        <Image src={leader.image} alt={leader.name} fill className="object-cover object-center" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-gray-400 font-medium">No Image</div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="p-4 flex-1 flex flex-col justify-between border-t border-gray-100">
+                    <div>
+                      <div className="text-accent text-[10px] font-bold tracking-widest uppercase mb-1">{leader.role}</div>
+                      <h3 className="font-heading text-lg font-bold uppercase tracking-wide leading-tight mb-4">{leader.name}</h3>
+                    </div>
+                    <div className="text-gray-500 text-xs opacity-0">
+                      &nbsp;
+                    </div>
+                  </div>
+                </div>
+              );
+            } else {
+              return (
+                <div key={`empty-${index}`} className="border border-dashed border-gray-200 rounded bg-gray-50 shadow-sm overflow-hidden flex flex-col opacity-60">
+                  <div className="h-48 bg-gray-100 w-full relative flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+                      <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                    </div>
+                  </div>
+                  <div className="p-4 flex-1 flex flex-col justify-between border-t border-gray-100">
+                    <div>
+                      <div className="text-gray-400 text-[10px] font-bold tracking-widest uppercase mb-1">POSITION VACANT</div>
+                      <h3 className="font-heading text-lg font-bold uppercase tracking-wide leading-tight mb-4 text-gray-400">TO BE APPOINTED</h3>
+                    </div>
+                    <div className="text-gray-500 text-xs opacity-0">
+                      &nbsp;
+                    </div>
+                  </div>
+                </div>
+              );
+            }
+          })
+        )}
       </div>
     </section>
   );

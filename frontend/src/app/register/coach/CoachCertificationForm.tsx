@@ -12,6 +12,7 @@ export default function CoachCertificationForm() {
   const [gender, setGender] = useState("");
   const [bloodGroup, setBloodGroup] = useState("");
   const [coachingGrade, setCoachingGrade] = useState("");
+  const [occupation, setOccupation] = useState("");
   const [transactionImageName, setTransactionImageName] = useState("");
   const [transactionImagePreview, setTransactionImagePreview] = useState("");
   const [passportImageName, setPassportImageName] = useState("");
@@ -43,7 +44,7 @@ export default function CoachCertificationForm() {
     formData.set("gender", gender);
     formData.set("blood_group", bloodGroup);
     formData.set("highest_coaching_grade", coachingGrade);
-    formData.set("occupation", "self_employed");
+    formData.set("occupation", occupation || "self_employed");
 
     const password = String(formData.get("password") || "");
     const confirmPassword = String(formData.get("confirm_password") || "");
@@ -178,33 +179,39 @@ export default function CoachCertificationForm() {
           </div>
         </div>
         
-        <div className="space-y-6">
+        <div className="space-y-8">
           <div>
-            <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">COACHING GRADE <span className="text-accent">*</span></label>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              {['Grade A (National)', 'Grade B (State)', 'Grade C (District)', 'Grade D (Beginner)'].map(opt => (
-                <button key={opt} type="button" onClick={() => setCoachingGrade(opt)} className={`py-4 px-2 border text-xs font-bold rounded-sm transition-colors flex flex-col items-center justify-center gap-1 ${coachingGrade === opt ? 'border-primary bg-primary text-white' : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'}`}>
-                  <span>{opt.split(' ')[0]} {opt.split(' ')[1]}</span>
-                  <span className="font-normal opacity-70 text-[10px]">{opt.split('(')[1]?.replace(')', '')}</span>
+            <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">DISTRICT <span className="text-accent">*</span></label>
+            <select name="district" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-gray-600" required>
+              <option value="">Select district</option>
+              {UP_DISTRICTS.map((district) => (
+                <option key={district} value={district}>{district}</option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">OCCUPATION <span className="text-accent">*</span></label>
+            <div className="flex flex-wrap gap-3">
+              {['Government Sector', 'Private Sector', 'Self-employed'].map(opt => (
+                <button key={opt} type="button" onClick={() => setOccupation(opt)} className={`px-6 py-3 border text-sm rounded-sm transition-colors ${occupation === opt ? 'border-primary bg-[#fcfbf9] text-gray-800 font-medium' : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'}`}>
+                  {opt}
                 </button>
               ))}
             </div>
+            <div className="text-[10px] text-gray-400 mt-2">Your primary professional sector — relevant for federation grant programs.</div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-            <div>
-              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">AFFILIATED DISTRICT <span className="text-accent">*</span></label>
-              <select name="district" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-gray-600" required>
-                <option value="">Select district</option>
-                {UP_DISTRICTS.map((district) => (
-                  <option key={district} value={district}>{district}</option>
-                ))}
-              </select>
+          <div>
+            <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">HIGHEST COACHING GRADE <span className="text-accent">*</span></label>
+            <div className="flex flex-wrap gap-3">
+              {['International', 'National', 'State', 'District', 'School'].map(opt => (
+                <button key={opt} type="button" onClick={() => setCoachingGrade(opt)} className={`px-6 py-3 border text-sm rounded-sm transition-colors ${coachingGrade === opt ? 'border-primary bg-[#fcfbf9] text-gray-800 font-medium' : 'border-gray-200 bg-white text-gray-600 hover:border-gray-300'}`}>
+                  {opt}
+                </button>
+              ))}
             </div>
-            <div>
-              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">CURRENT CLUB / ACADEMY (optional)</label>
-              <input name="club_name" type="text" placeholder="Where you currently coach" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
-            </div>
+            <div className="text-[10px] text-gray-400 mt-2">Select the highest level at which you are currently certified or have been an active coach. Documentation may be requested for verification.</div>
           </div>
         </div>
       </div>
@@ -392,7 +399,7 @@ export default function CoachCertificationForm() {
 
       {/* Submit Box */}
       <div className="bg-[#111827] rounded-sm p-6 sm:p-8 flex flex-col gap-8 shadow-md">
-        <input type="hidden" name="occupation" value="self_employed" />
+        <input type="hidden" name="occupation" value={occupation || "self_employed"} />
         <input type="hidden" name="highest_coaching_grade" value={coachingGrade} />
         <input type="hidden" name="gender" value={gender} />
         <input type="hidden" name="blood_group" value={bloodGroup} />

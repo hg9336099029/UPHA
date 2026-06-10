@@ -6,6 +6,7 @@ import CoachProfileSummary from "./CoachProfileSummary";
 import PlayersRoster from "./PlayersRoster";
 import CoachEvents from "./CoachEvents";
 import CoachNotices from "./CoachNotices";
+import MyCertificates from "@/components/MyCertificates";
 
 export default function CoachDashboardPage() {
   return (
@@ -26,6 +27,11 @@ export default function CoachDashboardPage() {
           <div className="w-full lg:w-5/12">
             <CoachProfileStatus />
           </div>
+        </div>
+        
+        {/* Certificates */}
+        <div className="mb-6">
+          <MyCertificates />
         </div>
         
         {/* Profile Summary */}

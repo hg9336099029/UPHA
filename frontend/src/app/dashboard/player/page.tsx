@@ -5,6 +5,7 @@ import ProfileStatus from "./ProfileStatus";
 import ProfileSummary from "./ProfileSummary";
 import DashboardEvents from "./DashboardEvents";
 import DashboardNotices from "./DashboardNotices";
+import MyCertificates from "@/components/MyCertificates";
 
 export default function PlayerDashboardPage() {
   return (
@@ -25,6 +26,11 @@ export default function PlayerDashboardPage() {
           <div className="w-full lg:w-5/12">
             <ProfileStatus />
           </div>
+        </div>
+        
+        {/* Certificates */}
+        <div className="mb-6">
+          <MyCertificates />
         </div>
         
         {/* Profile Summary */}

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Coach, Player, Referee, User
+from .models import Coach, Player, Referee, User, OfficeBearer
 
 
 @admin.register(User)

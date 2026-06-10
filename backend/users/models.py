@@ -120,3 +120,22 @@ class DecisionLog(models.Model):
     admin = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='decisions')
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class OfficeBearer(models.Model):
+    name = models.CharField(max_length=255)
+    role = models.CharField(max_length=255)
+    image = models.ImageField(upload_to='office_bearers/', null=True, blank=True)
+    order = models.IntegerField(default=0)
+    
+    class Meta:
+        ordering = ['order']
+        
+    def __str__(self):
+        return f"{self.name} - {self.role}"

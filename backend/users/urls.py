@@ -16,5 +16,9 @@ urlpatterns = [
     path('search/player/', views.search_players, name='search_players'),
     path('player/certificate/', views.get_my_certificate, name='get_my_certificate'),
     path('invite-admin/', views.invite_admin, name='invite_admin'),
-    path('change-password/', views.change_password, name='change_password'),
-]
+    path('update-credentials/', views.update_credentials, name='update_credentials'),
+    path('notifications/', views.get_notifications, name='get_notifications'),
+    path('notifications/<int:notif_id>/read/', views.mark_notification_read, name='mark_notification_read'),
+    path('office-bearers/', views.list_office_bearers, name='list_office_bearers'),
+    path('stats/', views.get_global_stats, name='get_global_stats'),
+]

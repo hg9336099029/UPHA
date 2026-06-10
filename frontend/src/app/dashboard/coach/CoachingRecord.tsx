@@ -1,6 +1,17 @@
+"use client";
+
 import React from "react";
+import { useAuth } from "@/context/AuthContext";
+import { CoachData } from "@/lib/api";
 
 export default function CoachingRecord() {
+  const { meData, loading } = useAuth();
+  const coach = meData as CoachData | null;
+
+  if (loading) {
+    return <div className="bg-[#111827] rounded-sm p-10 mb-6 animate-pulse h-48"></div>;
+  }
+
   return (
     <div className="bg-[#111827] rounded-sm p-8 md:p-10 mb-6 shadow-md relative overflow-hidden">
       
@@ -10,7 +21,7 @@ export default function CoachingRecord() {
           COACHING RECORD
         </h2>
         <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mt-2 md:mt-0">
-          CAREER &middot; AS <span className="text-accent">COACH</span>
+          CAREER &middot; AS <span className="text-gray-400">COACH</span>
         </div>
       </div>
 
@@ -19,30 +30,38 @@ export default function CoachingRecord() {
         
         {/* Stat 1 */}
         <div className="flex flex-col items-center justify-center text-center py-4 lg:py-0">
-          <div className="font-heading text-6xl md:text-7xl font-bold text-accent mb-2 tracking-tight">—</div>
-          <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-1">TOURNAMENTS COACHED</div>
-          <div className="text-[10px] text-gray-500">not tracked</div>
+          <div className="font-heading text-4xl md:text-5xl font-bold text-[#d97c55] mb-2 tracking-tight uppercase">
+            {coach?.highest_coaching_grade || "N/A"}
+          </div>
+          <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-1">HIGHEST GRADE</div>
+          <div className="text-[10px] text-gray-500 uppercase">CERTIFICATION LEVEL</div>
         </div>
 
         {/* Stat 2 */}
         <div className="flex flex-col items-center justify-center text-center py-4 lg:py-0">
-          <div className="font-heading text-6xl md:text-7xl font-bold text-accent mb-2 tracking-tight">—</div>
-          <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-1">PLAYERS TRAINED</div>
-          <div className="text-[10px] text-gray-500">not tracked</div>
+          <div className="font-heading text-4xl md:text-5xl font-bold text-[#d97c55] mb-2 tracking-tight uppercase">
+            {coach?.district || "N/A"}
+          </div>
+          <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-1">REGISTERED DISTRICT</div>
+          <div className="text-[10px] text-gray-500 uppercase">UPHA AFFILIATION</div>
         </div>
 
         {/* Stat 3 */}
         <div className="flex flex-col items-center justify-center text-center py-4 lg:py-0">
-          <div className="font-heading text-6xl md:text-7xl font-bold text-accent mb-2 tracking-tight">—</div>
-          <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-1">TITLES WON</div>
-          <div className="text-[10px] text-gray-500">not tracked</div>
+          <div className="font-heading text-3xl md:text-4xl font-bold text-[#d97c55] mb-2 tracking-tight uppercase">
+            {coach?.occupation ? coach.occupation.replace("_", " ") : "N/A"}
+          </div>
+          <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-1">OCCUPATION</div>
+          <div className="text-[10px] text-gray-500 uppercase">PROFESSIONAL STATUS</div>
         </div>
 
         {/* Stat 4 */}
         <div className="flex flex-col items-center justify-center text-center py-4 lg:py-0">
-          <div className="font-heading text-6xl md:text-7xl font-bold text-accent mb-2 tracking-tight">—</div>
-          <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-1">SEASONS ACTIVE</div>
-          <div className="text-[10px] text-gray-500">not tracked</div>
+          <div className="font-heading text-4xl md:text-5xl font-bold text-[#d97c55] mb-2 tracking-tight uppercase">
+            {coach?.paid ? "YES" : "NO"}
+          </div>
+          <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-1">PAYMENT STATUS</div>
+          <div className="text-[10px] text-gray-500 uppercase">REGISTRATION COMPLETED</div>
         </div>
 
       </div>

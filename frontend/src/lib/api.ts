@@ -126,10 +126,27 @@ export interface EventResultData {
   position: number;
 }
 
+export interface AcademyData {
+  id: number;
+  logo: string | null;
+  name: string;
+  district: string;
+  paid: boolean;
+  year_of_establishment: number;
+  no_of_players: number;
+  website: string | null;
+  email: string;
+  office_address: string;
+  office_phone_number: string;
+  adhyaksha?: { name: string };
+  sachiv?: { name: string };
+}
+
 export type MeData =
   | { type: "player"; data: PlayerData }
   | { type: "coach"; data: CoachData }
-  | { type: "referee"; data: RefereeData };
+  | { type: "referee"; data: RefereeData }
+  | { type: "academy"; data: AcademyData };
 
 // ─── Core Fetch Utility ───────────────────────────────────────────────────────
 
@@ -221,7 +238,31 @@ export async function registerAcademy(formData: FormData) {
   );
 }
 
-// ─── Auth ─────────────────────────────────────────────────────────────────────
+// ─── User Profile ─────────────────────────────────────────────────────────────
+
+export interface NotificationData {
+  id: number;
+  title: string;
+  message: string;
+  is_read: boolean;
+  created_at: string;
+}
+
+export async function getNotifications() {
+  return apiFetch<{ success: boolean; notifications: NotificationData[] }>(
+    `${API_BASE}/notifications/`
+  );
+}
+
+export async function markNotificationRead(id: number) {
+  return apiFetch<{ success: boolean; message: string }>(
+    `${API_BASE}/notifications/${id}/read/`,
+    { method: "POST" }
+  );
+}
+
+
+// ─── Settings ─────────────────────────────────────────────────────────────────────
 
 export async function login(email: string, password: string) {
   return apiFetch<{ success: boolean; message: string; user: UserData }>(
@@ -237,10 +278,13 @@ export async function logout() {
   );
 }
 
-export async function changePassword(current_password: string, new_password: string) {
+export async function updateCredentials(current_password: string, new_password?: string, new_email?: string) {
   return apiFetch<{ success: boolean; message: string }>(
-    `${API_BASE}/change-password/`,
-    { method: "POST", body: JSON.stringify({ current_password, new_password }) }
+    `${API_BASE}/update-credentials/`,
+    {
+      method: "POST",
+      body: JSON.stringify({ current_password, new_password, new_email }),
+    }
   );
 }
 
@@ -253,6 +297,20 @@ export async function getMe(): Promise<{
 }
 
 // ─── Listing (Public / Admin) ─────────────────────────────────────────────────
+
+export interface OfficeBearerData {
+  id: number;
+  name: string;
+  role: string;
+  image: string | null;
+  order: number;
+}
+
+export async function listOfficeBearers() {
+  return apiFetch<{ success: boolean; office_bearers: OfficeBearerData[] }>(
+    `${API_BASE}/office-bearers/`
+  );
+}
 
 export async function listPlayers() {
   return apiFetch<{ success: boolean; players: PlayerData[] }>(
@@ -434,9 +492,9 @@ export async function listAlbums() {
 }
 
 export async function createAlbum(formData: FormData) {
-  return apiFetch<{ success: boolean; message: string; album: AlbumData }>(
-    `${ADMIN_BASE}/gallery/albums/create/`,
-    { method: "POST", body: formData }
+  return multipartApiFetch<{ success: boolean; message: string; album: AlbumData }>(
+    `${API_BASE}/gallery/albums/create/`,
+    formData
   );
 }
 
@@ -501,11 +559,37 @@ export interface FederationAwardData {
   awarded_by: string;
 }
 
+export interface NationalMedalData {
+  id: number;
+  year: string;
+  medal_type: string;
+  title: string;
+  description: string;
+  category: string;
+  result: string;
+  created_at: string;
+}
+
 export async function listAchievements() {
   return apiFetch<{
     success: boolean;
     players: PlayerAchievementData[];
     coaches: CoachAchievementData[];
     awards: FederationAwardData[];
+    medals: NationalMedalData[];
   }>(`${API_BASE}/achievements/`);
+}
+
+export interface GlobalStatsData {
+  districts: number;
+  players: number;
+  coaches: number;
+  tournaments: number;
+}
+
+export async function getGlobalStats() {
+  return apiFetch<{ success: boolean; stats: GlobalStatsData }>(
+    `${API_BASE}/stats/`,
+    { cache: "no-store" }
+  );
 }

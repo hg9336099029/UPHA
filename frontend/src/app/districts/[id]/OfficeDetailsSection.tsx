@@ -1,11 +1,10 @@
 import { MapPin, Phone, Mail, FileText, CheckCircle2 } from "lucide-react";
 import React from "react";
+import { DistrictData } from "@/lib/api";
 
-export default function OfficeDetailsSection() {
+export default function OfficeDetailsSection({ district }: { district: DistrictData }) {
   return (
     <div className="mb-24">
-      
-      {/* Section Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between border-b border-gray-200 pb-4 mb-12">
         <h2 className="font-heading text-4xl font-bold uppercase tracking-wide">
           OFFICE <span className="text-accent">DETAILS</span>
@@ -16,46 +15,40 @@ export default function OfficeDetailsSection() {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-12">
-        
-        {/* Left Column: Details List */}
         <div className="w-full lg:w-1/2 space-y-6">
-          
-          <div className="flex gap-6 border-b border-gray-100 pb-6">
+          <div className="flex gap-6 border-b border-dashed border-gray-200 pb-6">
             <div className="w-48 shrink-0 flex items-center gap-2 text-[9px] font-bold tracking-widest text-accent uppercase">
               <MapPin className="w-3.5 h-3.5" /> OFFICE ADDRESS
             </div>
-            <div className="text-sm text-gray-800 leading-relaxed font-medium">
-              18, Madhuwan Colony<br />
-              Devsainy Ramghat Road,<br />
-              Aligarh — 202001<br />
-              Uttar Pradesh, India
+            <div className="text-sm text-gray-800 leading-relaxed font-medium whitespace-pre-wrap">
+              {district.office_address || "— Not yet provided —"}
             </div>
           </div>
           
-          <div className="flex gap-6 border-b border-gray-100 pb-6">
+          <div className="flex gap-6 border-b border-dashed border-gray-200 pb-6">
             <div className="w-48 shrink-0 flex items-center gap-2 text-[9px] font-bold tracking-widest text-accent uppercase">
               <Phone className="w-3.5 h-3.5" /> PHONE NUMBER
             </div>
-            <div className="text-sm text-gray-400 italic">
-              — Not yet provided —
+            <div className={`text-sm ${district.office_phone_number ? 'text-gray-800 font-medium' : 'text-gray-400 italic'}`}>
+              {district.office_phone_number || "— Not yet provided —"}
             </div>
           </div>
           
-          <div className="flex gap-6 border-b border-gray-100 pb-6">
+          <div className="flex gap-6 border-b border-dashed border-gray-200 pb-6">
             <div className="w-48 shrink-0 flex items-center gap-2 text-[9px] font-bold tracking-widest text-accent uppercase">
               <Mail className="w-3.5 h-3.5" /> E-MAIL
             </div>
-            <div className="text-sm text-gray-400 italic">
-              — Not yet provided —
+            <div className={`text-sm ${district.email ? 'text-gray-800 font-medium' : 'text-gray-400 italic'}`}>
+              {district.email || "— Not yet provided —"}
             </div>
           </div>
           
-          <div className="flex gap-6 border-b border-gray-100 pb-6">
+          <div className="flex gap-6 border-b border-dashed border-gray-200 pb-6">
             <div className="w-48 shrink-0 flex items-center gap-2 text-[9px] font-bold tracking-widest text-accent uppercase">
               <FileText className="w-3.5 h-3.5" /> REGISTRATION NO.
             </div>
-            <div className="text-sm text-gray-400 italic">
-              — Not yet provided —
+            <div className={`text-sm ${district.trust_registration_number ? 'text-gray-800 font-medium' : 'text-gray-400 italic'}`}>
+              {district.trust_registration_number || "— Not yet provided —"}
             </div>
           </div>
           
@@ -67,34 +60,29 @@ export default function OfficeDetailsSection() {
               <span className="text-emerald-600 font-bold">&bull; Active</span> — recognized member unit of UPHA
             </div>
           </div>
-
         </div>
 
-        {/* Right Column: Location Card */}
         <div className="w-full lg:w-1/2">
           <div className="bg-[#f5f3ef] border border-[#e5e1d8] rounded-sm p-8 h-full flex flex-col">
             <div className="flex items-center gap-2 text-[9px] font-bold tracking-widest text-accent uppercase mb-2">
               <span className="w-1.5 h-1.5 rounded-full bg-accent"></span> LOCATION
             </div>
-            <h3 className="font-heading text-xl font-bold uppercase text-primary mb-6">ALIGARH, U.P.</h3>
+            <h3 className="font-heading text-xl font-bold uppercase text-primary mb-6">{district.district}, U.P.</h3>
             
-            {/* Simulated Map Box */}
             <div className="bg-white border border-[#e5e1d8] rounded-sm h-32 flex items-center justify-center shadow-inner mb-6 relative overflow-hidden">
-              {/* Map grid lines simulation */}
               <div className="absolute inset-0 opacity-5" style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '20px 20px' }}></div>
               <MapPin className="w-8 h-8 text-accent relative z-10 drop-shadow-md" />
             </div>
             
             <p className="text-xs text-gray-500 leading-relaxed mb-6 flex-1">
-              The association&apos;s office is located in Madhuwan Colony on Ramghat Road, Aligarh. For visits or correspondance, use the postal address provided.
+              The association&apos;s office is located in {district.district}. For visits or correspondence, use the postal address provided.
             </p>
             
-            <button className="text-[9px] font-bold tracking-widest text-accent uppercase hover:text-primary transition-colors text-left w-max">
+            <a href={`https://maps.google.com/?q=${encodeURIComponent(district.office_address || district.district)}`} target="_blank" rel="noopener noreferrer" className="text-[9px] font-bold tracking-widest text-accent uppercase hover:text-primary transition-colors text-left w-max inline-block">
               OPEN IN MAPS &rarr;
-            </button>
+            </a>
           </div>
         </div>
-
       </div>
     </div>
   );

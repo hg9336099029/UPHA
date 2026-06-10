@@ -5,19 +5,25 @@ import { useAuth } from "@/context/AuthContext";
 import { AcademyData } from "@/lib/api";
 
 export default function AcademyRecord() {
-  const { meData } = useAuth();
+  const { meData, loading } = useAuth();
   const academy = meData as AcademyData | null;
 
+  if (loading) {
+    return <div className="bg-[#111827] rounded-sm p-10 mb-6 animate-pulse h-48"></div>;
+  }
+
+  const facilities = 0; // Academy model does not track facilities
+
   return (
-    <div className="bg-[#111827] rounded-sm p-8 md:p-10 mb-6 shadow-md relative overflow-hidden border border-blue-500">
+    <div className="bg-[#111827] rounded-sm p-8 md:p-10 mb-6 shadow-md relative overflow-hidden">
       
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-center mb-10 relative z-10 border-b border-gray-800 pb-4">
         <h2 className="font-heading text-xl font-bold text-white uppercase tracking-wider">
-          TOURNAMENT RECORD
+          ACADEMY RECORD
         </h2>
         <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mt-2 md:mt-0">
-          ACADEMY &middot; SINCE <span className="text-accent">{academy?.year_of_establishment ?? "—"}</span>
+          ACADEMY &middot; <span className="text-[#d97c55]">ESTABLISHED {academy?.year_of_establishment || "N/A"}</span>
         </div>
       </div>
 
@@ -26,32 +32,38 @@ export default function AcademyRecord() {
         
         {/* Stat 1 */}
         <div className="flex flex-col items-center justify-center text-center py-4 lg:py-0">
-          <div className="font-heading text-6xl md:text-7xl font-bold text-accent mb-2 tracking-tight">—</div>
-          <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-1">TOURNAMENTS ENTERED</div>
-          <div className="text-[10px] text-gray-500">teams fielded</div>
+          <div className="font-heading text-6xl md:text-7xl font-bold text-[#d97c55] mb-2 tracking-tight truncate w-full px-2">
+            0
+          </div>
+          <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-1">COACHES REGISTERED</div>
+          <div className="text-[10px] text-gray-500 uppercase">ACTIVE STAFF</div>
         </div>
 
         {/* Stat 2 */}
         <div className="flex flex-col items-center justify-center text-center py-4 lg:py-0">
-          <div className="font-heading text-6xl md:text-7xl font-bold text-accent mb-2 tracking-tight">—</div>
-          <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-1">MEDALS WON</div>
-          <div className="text-[10px] text-gray-500">across age groups</div>
+          <div className="font-heading text-6xl md:text-7xl font-bold text-[#d97c55] mb-2 tracking-tight truncate w-full px-2">
+            {facilities}
+          </div>
+          <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-1">FACILITIES</div>
+          <div className="text-[10px] text-gray-500 uppercase">AVAILABLE</div>
         </div>
 
         {/* Stat 3 */}
         <div className="flex flex-col items-center justify-center text-center py-4 lg:py-0">
-          <div className="font-heading text-6xl md:text-7xl font-bold text-accent mb-2 tracking-tight">—</div>
-          <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-1">STATE SELECTIONS</div>
-          <div className="text-[10px] text-gray-500">players advanced</div>
+          <div className="font-heading text-3xl md:text-4xl font-bold text-[#d97c55] mb-2 tracking-tight uppercase truncate w-full px-2">
+            {academy?.district || "N/A"}
+          </div>
+          <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-1">DISTRICT</div>
+          <div className="text-[10px] text-gray-500 uppercase">AFFILIATION</div>
         </div>
 
         {/* Stat 4 */}
         <div className="flex flex-col items-center justify-center text-center py-4 lg:py-0">
-          <div className="font-heading text-6xl md:text-7xl font-bold text-accent mb-2 tracking-tight">
-            {academy?.year_of_establishment ? new Date().getFullYear() - academy.year_of_establishment : "—"}
+          <div className="font-heading text-5xl md:text-6xl font-bold text-[#d97c55] mb-2 tracking-tight truncate w-full px-2">
+            {academy?.year_of_establishment || "N/A"}
           </div>
-          <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-1">YEARS ACTIVE</div>
-          <div className="text-[10px] text-gray-500">since {academy?.year_of_establishment ?? "—"}</div>
+          <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-1">YEAR ESTABLISHED</div>
+          <div className="text-[10px] text-gray-500 uppercase">FOUNDATION</div>
         </div>
 
       </div>

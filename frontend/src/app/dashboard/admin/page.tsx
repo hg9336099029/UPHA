@@ -12,10 +12,15 @@ import UploadResultsModal from "./UploadResultsModal";
 import UploadGalleryModal from "./UploadGalleryModal";
 
 import { createEvent, CreateEventPayload } from "@/lib/api";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 type TabType = "applications" | "create_event" | "upload_results" | "upload_gallery" | "invite_admin" | "publish_notice";
 
 export default function AdminDashboardPage() {
+  const { meData, loading } = useAuth();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>("applications");
   const [toast, setToast] = useState<string | null>(null);
 
@@ -34,6 +39,20 @@ export default function AdminDashboardPage() {
     }
   };
 
+  useEffect(() => {
+    if (!loading && (!meData || meData.role !== "admin")) {
+      router.push("/login");
+    }
+  }, [loading, meData, router]);
+
+  if (loading || !meData || meData.role !== "admin") {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#fcfbf9]">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#d97c55]"></div>
+      </div>
+    );
+  }
+
   return (
     <main className="flex-1 bg-[#fcfbf9] min-h-screen pt-12 pb-24 relative">
       {/* Toast Notification */}
@@ -49,35 +68,39 @@ export default function AdminDashboardPage() {
 
         {/* Tab Content Area */}
         <div className="mt-8">
-          {activeTab === "applications" && (
-            <>
-              <div id="recent-applications" className="mb-12">
-                <PendingReviewsTable />
+          {/* Always show the main dashboard content */}
+          <div id="recent-applications" className="mb-12">
+            <PendingReviewsTable />
+          </div>
+          <div className="mb-12">
+            <RecentDecisionsLog />
+          </div>
+
+          {/* Render active tab as a popup modal if it's not the main dashboard view */}
+          {activeTab !== "applications" && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[#111827]/60 backdrop-blur-sm p-4 sm:p-6 overflow-y-auto">
+              <div className="relative w-full max-w-4xl my-auto">
+                {/* Close Button */}
+                <button
+                  onClick={() => setActiveTab("applications")}
+                  className="absolute top-6 right-6 z-20 w-8 h-8 flex items-center justify-center rounded-full bg-gray-100 text-gray-600 hover:bg-gray-200 hover:text-gray-900 transition-colors shadow"
+                  aria-label="Close modal"
+                >
+                  ✕
+                </button>
+                
+                <div className="w-full max-h-[90vh] overflow-y-auto rounded shadow-2xl relative z-10 bg-white">
+                  {activeTab === "invite_admin" && <InviteAdminModal />}
+                  {activeTab === "publish_notice" && <PublishNoticeModal />}
+                  {activeTab === "create_event" && <CreateEventModal onSubmit={async (form) => {
+                      await handleCreateEvent(form);
+                      setActiveTab("applications");
+                  }} />}
+                  {activeTab === "upload_results" && <UploadResultsModal />}
+                  {activeTab === "upload_gallery" && <UploadGalleryModal />}
+                </div>
               </div>
-              <div className="mb-12">
-                <RecentDecisionsLog />
-              </div>
-            </>
-          )}
-
-          {activeTab === "invite_admin" && (
-            <InviteAdminModal />
-          )}
-
-          {activeTab === "publish_notice" && (
-            <PublishNoticeModal />
-          )}
-
-          {activeTab === "create_event" && (
-            <CreateEventModal onSubmit={handleCreateEvent} />
-          )}
-
-          {activeTab === "upload_results" && (
-            <UploadResultsModal />
-          )}
-
-          {activeTab === "upload_gallery" && (
-            <UploadGalleryModal />
+            </div>
           )}
         </div>
       </div>

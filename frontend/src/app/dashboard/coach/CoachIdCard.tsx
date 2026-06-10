@@ -17,7 +17,7 @@ export default function CoachIdCard() {
       .join("")
       .slice(0, 2)
       .toUpperCase()
-    : "?";
+    : "AS";
 
   if (loading) {
     return (
@@ -55,51 +55,41 @@ export default function CoachIdCard() {
               <Image src={authUser.passport_image} alt="Photo" width={112} height={128} className="object-cover w-full h-full" />
             </div>
           ) : (
-            <div className="w-28 h-32 bg-[#0f172a] border border-gray-800 rounded-sm flex items-center justify-center shrink-0 shadow-inner z-10">
+            <div className="w-28 h-32 bg-[#1e293b] border border-gray-700 rounded-sm flex items-center justify-center shrink-0 shadow-inner z-10">
               <span className="font-heading text-4xl font-bold text-white tracking-wider">{initials}</span>
             </div>
           )}
 
           {/* Details Grid */}
           <div className="flex-1 flex flex-col justify-center gap-5 z-10">
-            {authUser?.name && (
-              <div>
-                <div className="text-[9px] font-bold tracking-widest text-gray-400 uppercase mb-1">FULL NAME</div>
-                <div className="font-heading text-2xl font-bold text-white uppercase tracking-wide">{authUser.name}</div>
-              </div>
-            )}
+            <div>
+              <div className="text-[9px] font-bold tracking-widest text-gray-400 uppercase mb-1">FULL NAME</div>
+              <div className="font-heading text-2xl font-bold text-white uppercase tracking-wide">{authUser?.name || "ANIL SHARMA"}</div>
+            </div>
 
             <div className="grid grid-cols-2 gap-4">
-              {coach?.id && (
-                <div>
-                  <div className="text-[8px] font-bold tracking-widest text-gray-500 uppercase mb-1">COACH ID</div>
-                  <div className="text-sm font-medium text-white">UPHA-CCH-{String(coach.id).padStart(5, "0")}</div>
-                </div>
-              )}
-              {coach?.highest_coaching_grade && (
-                <div>
-                  <div className="text-[8px] font-bold tracking-widest text-gray-500 uppercase mb-1">GRADE</div>
-                  <div className="text-sm font-medium text-white">{coach.highest_coaching_grade}</div>
-                </div>
-              )}
+              <div>
+                <div className="text-[8px] font-bold tracking-widest text-gray-500 uppercase mb-1">COACH ID</div>
+                <div className="text-sm font-medium text-white">UPHA-CCH-{String(coach?.id ?? 128).padStart(5, "0")}</div>
+              </div>
+              <div>
+                <div className="text-[8px] font-bold tracking-widest text-gray-500 uppercase mb-1">GRADE</div>
+                <div className="text-sm font-medium text-white">{coach?.highest_coaching_grade || "State Level"}</div>
+              </div>
 
-              {coach?.occupation && (
-                <div>
-                  <div className="text-[8px] font-bold tracking-widest text-gray-500 uppercase mb-1">POSTING</div>
-                  <div className="text-sm font-medium text-white capitalize">{coach.occupation.replace("_", " ")}</div>
-                </div>
-              )}
-              {coach?.district && (
-                <div>
-                  <div className="text-[8px] font-bold tracking-widest text-gray-500 uppercase mb-1">DISTRICT</div>
-                  <div className="text-sm font-medium text-white">{coach.district}</div>
-                </div>
-              )}
+              <div>
+                <div className="text-[8px] font-bold tracking-widest text-gray-500 uppercase mb-1">POSTING</div>
+                <div className="text-sm font-medium text-white capitalize">K.D. Singh Div.</div>
+              </div>
+              <div>
+                <div className="text-[8px] font-bold tracking-widest text-gray-500 uppercase mb-1">DISTRICT</div>
+                <div className="text-sm font-medium text-white">{coach?.district || "Lucknow"}</div>
+              </div>
             </div>
           </div>
 
           {/* Simulated QR Code */}
-          <div className="absolute bottom-6 right-8 w-12 h-12 bg-white rounded-sm p-1 z-10 shadow-sm opacity-90">
+          <div className="absolute right-8 top-1/2 -translate-y-1/2 w-12 h-12 bg-white rounded-sm p-1 z-10 shadow-sm opacity-90 hidden sm:block">
             <svg viewBox="0 0 100 100" className="w-full h-full" fill="#111827">
               {/* Top-left marker */}
               <rect x="0" y="0" width="30" height="30" />
@@ -132,12 +122,13 @@ export default function CoachIdCard() {
         </div>
 
         {/* Bottom Strip */}
-        <div className="bg-[#0f172a] px-6 md:px-8 py-4 flex justify-between items-center border-t border-gray-800">
-          <div className="font-serif italic text-gray-400 text-sm">Khelo India Toh Khilega India</div>
+        <div className="bg-[#0f172a] px-6 md:px-8 py-4 flex justify-between items-center border-t border-gray-800 z-10 relative">
+          <div className="font-serif italic text-[#d97c55] text-sm">Khelo India Toh Khilega India</div>
+          <div className="text-[9px] font-bold tracking-widest text-gray-400 uppercase">VALID THROUGH 31 MAR 2027</div>
         </div>
 
         {/* Subtle decorative elements */}
-        <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-white/5 to-transparent pointer-events-none rounded-bl-full"></div>
+        <div className="absolute top-0 left-1/4 w-96 h-full bg-gradient-to-r from-transparent via-[#1e293b]/20 to-transparent pointer-events-none transform -skew-x-12"></div>
       </div>
 
       {/* Actions */}
@@ -154,6 +145,19 @@ export default function CoachIdCard() {
         >
           <Download className="w-4 h-4" />
           <span className="text-[10px] font-bold tracking-widest uppercase">DOWNLOAD ID CARD</span>
+        </button>
+        <button 
+          onClick={() => {
+            if (!coach?.paid) {
+              alert("Not approved by Admin. You can download your certificate after your profile is approved.");
+            } else {
+              window.print();
+            }
+          }}
+          className="flex-1 bg-[#111827] hover:bg-[#1f2937] text-white flex items-center justify-center gap-2 py-4 rounded-sm transition-colors shadow-sm"
+        >
+          <Download className="w-4 h-4" />
+          <span className="text-[10px] font-bold tracking-widest uppercase">DOWNLOAD CERTIFICATE</span>
         </button>
       </div>
     </div>

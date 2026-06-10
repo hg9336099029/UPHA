@@ -1,14 +1,31 @@
 import os
+import sys
 import django
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'upha_be.settings')
 django.setup()
 
-from achievements.models import PlayerAchievement, CoachAchievement, FederationAward
+from achievements.models import PlayerAchievement, CoachAchievement, FederationAward, NationalMedal
 
 PlayerAchievement.objects.all().delete()
 CoachAchievement.objects.all().delete()
 FederationAward.objects.all().delete()
+NationalMedal.objects.all().delete()
+
+medals = [
+  { "year": "2024", "medal_type": "BRONZE", "title": "30TH NATIONAL SUB-JUNIOR CHAMPIONSHIP", "description": "Hosted by Telangana Handball Assn. - Hyderabad", "category": "SUB-JUNIOR GIRLS", "result": "3rd Place" },
+  { "year": "2023", "medal_type": "SILVER", "title": "25TH JUNIOR NATIONAL CHAMPIONSHIP", "description": "Hosted by Tamil Nadu Handball Assn. - Chennai", "category": "JUNIOR BOYS", "result": "Runner-up" },
+  { "year": "2021", "medal_type": "GOLD", "title": "23RD JUNIOR NATIONAL CHAMPIONSHIP", "description": "Hosted by Goa Handball Assn. - Panaji", "category": "JUNIOR BOYS", "result": "Champion" },
+  { "year": "2019", "medal_type": "BRONZE", "title": "67TH SENIOR NATIONAL CHAMPIONSHIP", "description": "Hosted by Punjab Handball Assn. - Patiala", "category": "SENIOR WOMEN", "result": "3rd Place" },
+  { "year": "2018", "medal_type": "GOLD", "title": "66TH SENIOR NATIONAL CHAMPIONSHIP", "description": "Hosted by Odisha Handball Assn. - Bhubaneswar", "category": "SENIOR MEN", "result": "Champion" },
+  { "year": "2017", "medal_type": "SILVER", "title": "23RD SUB-JUNIOR NATIONAL CHAMPIONSHIP", "description": "Hosted by Karnataka Handball Assn. - Bengaluru", "category": "SUB-JUNIOR BOYS", "result": "Runner-up" },
+  { "year": "1996", "medal_type": "GOLD", "title": "44TH SENIOR NATIONAL CHAMPIONSHIP", "description": "First national title - Hosted by Delhi Handball Assn.", "category": "SENIOR MEN", "result": "Champion" },
+]
+
+for m in medals:
+    NationalMedal.objects.create(**m)
 
 players = [
     {

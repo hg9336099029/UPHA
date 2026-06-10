@@ -114,6 +114,12 @@ def register_player(request):
 				transaction_image=request.FILES.get('transaction_image'),
 				paid=str(data.get('paid', '')).lower() in {'true', '1', 'yes'},
 			)
+			
+			from users.utils import create_admin_notification
+			create_admin_notification(
+				"New Player Application",
+				f"{user.name} has registered as a Player and is awaiting approval."
+			)
 	except Exception as exc:
 		return json_error(str(exc))
 
@@ -596,7 +602,7 @@ def invite_admin(request):
 
 @csrf_exempt
 @require_http_methods(['POST'])
-def change_password(request):
+def update_credentials(request):
 	user = getattr(request, 'user', None)
 	if not user or not user.is_authenticated:
 		return json_error('Authentication required.', status=401)
@@ -604,19 +610,101 @@ def change_password(request):
 	data = get_request_data(request)
 	current_password = data.get('current_password', '')
 	new_password = data.get('new_password', '')
+	new_email = data.get('new_email', '').strip()
 	
-	if not current_password or not new_password:
-		return json_error('Both current and new passwords are required.')
+	if not current_password:
+		return json_error('Current password is required to make changes.')
 		
 	if not user.check_password(current_password):
 		return json_error('Incorrect current password.')
 		
-	user.set_password(new_password)
-	user.save(update_fields=['password'])
+	updated = False
 	
-	# Re-login to update session hash
-	from django.contrib.auth import login
-	login(request, user)
-	
-	return json_success('Password changed successfully.')
+	if new_password:
+		user.set_password(new_password)
+		updated = True
+		
+	if new_email and new_email != user.email:
+		from users.models import User
+		if User.objects.filter(email=new_email).exclude(id=user.id).exists():
+			return json_error('This email is already in use by another account.')
+		user.email = new_email
+		updated = True
+		
+	if updated:
+		user.save()
+		from django.contrib.auth import login
+		login(request, user)
+		return json_success('Settings updated successfully.')
+	else:
+		return json_error('No changes were provided.')
 
+@require_http_methods(['GET'])
+def get_notifications(request):
+	user = getattr(request, 'user', None)
+	if not user or not user.is_authenticated:
+		return json_error('Authentication required.', status=401)
+	
+	from users.models import Notification
+	notifs = Notification.objects.filter(user=user).order_by('-created_at')[:50]
+	data = []
+	for n in notifs:
+		data.append({
+			'id': n.id,
+			'title': n.title,
+			'message': n.message,
+			'is_read': n.is_read,
+			'created_at': n.created_at.isoformat(),
+		})
+	return json_success('Notifications retrieved successfully.', notifications=data)
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def mark_notification_read(request, notif_id):
+	user = getattr(request, 'user', None)
+	if not user or not user.is_authenticated:
+		return json_error('Authentication required.', status=401)
+	
+	from users.models import Notification
+	notif = Notification.objects.filter(pk=notif_id, user=user).first()
+	if not notif:
+		return json_error('Notification not found.', status=404)
+	
+	notif.is_read = True
+	notif.save(update_fields=['is_read'])
+	return json_success('Notification marked as read.')
+
+@require_http_methods(['GET'])
+def list_office_bearers(request):
+	try:
+		from users.models import OfficeBearer
+		bearers = OfficeBearer.objects.all().order_by('order')
+		bearer_list = []
+		for b in bearers:
+			bearer_list.append({
+				'id': b.id,
+				'name': b.name,
+				'role': b.role,
+				'image': request.build_absolute_uri(b.image.url) if b.image else None,
+				'order': b.order
+			})
+		return json_success('Office bearers retrieved successfully.', office_bearers=bearer_list)
+	except Exception as e:
+		return json_error(str(e), status=400)
+
+@require_http_methods(["GET"])
+def get_global_stats(request):
+	try:
+		from district.models import District
+		from users.models import Player, Coach
+		from events.models import Event
+		
+		stats = {
+			'districts': District.objects.count(),
+			'players': Player.objects.count(),
+			'coaches': Coach.objects.count(),
+			'tournaments': Event.objects.filter(category='TOURNAMENT').count()
+		}
+		return json_success('Stats retrieved successfully', stats=stats)
+	except Exception as e:
+		return json_error(str(e), status=400)

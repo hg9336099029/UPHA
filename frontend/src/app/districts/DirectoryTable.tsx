@@ -1,8 +1,13 @@
+"use client";
+
 import React from "react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { DistrictData } from "@/lib/api";
 
 export default function DirectoryTable({ districts }: { districts: DistrictData[] }) {
+  const router = useRouter();
+
   return (
     <div className="w-full overflow-x-auto shadow-sm border border-gray-200 rounded-sm">
       <table className="w-full text-left bg-white whitespace-nowrap min-w-[900px]">
@@ -22,7 +27,11 @@ export default function DirectoryTable({ districts }: { districts: DistrictData[
             const secretary = row.sachiv;
 
             return (
-              <tr key={row.id} className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'} border-b border-gray-100 hover:bg-gray-50 transition-colors`}>
+              <tr 
+                key={row.id} 
+                onClick={() => router.push(`/districts/${row.id}`)}
+                className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'} border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer`}
+              >
                 <td className="py-6 px-6 align-middle">
                   <span className="text-[#d97c55] font-mono font-bold text-xs">{rowNumber}</span>
                 </td>

@@ -6,6 +6,7 @@ import AcademyDetailsSummary from "./AcademyDetailsSummary";
 import AcademyPlayersGrid from "./AcademyPlayersGrid";
 import AcademyStaffAndSchedule from "./AcademyStaffAndSchedule";
 import AcademyNotices from "./AcademyNotices";
+import MyCertificates from "@/components/MyCertificates";
 
 export default function AcademyDashboardPage() {
   return (
@@ -26,6 +27,11 @@ export default function AcademyDashboardPage() {
           <div className="w-full lg:w-5/12">
             <AcademyProfileStatus />
           </div>
+        </div>
+        
+        {/* Certificates */}
+        <div className="mb-6">
+          <MyCertificates />
         </div>
         
         {/* Academy Details Summary */}

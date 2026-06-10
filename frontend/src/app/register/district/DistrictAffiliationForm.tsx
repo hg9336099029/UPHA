@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, Image as ImageIcon, FileText, Upload } from "lucide-react";
+import { Clock, Image as ImageIcon, FileText, Upload, Camera, Award } from "lucide-react";
 import React, { useState } from "react";
 import { registerDistrict } from "@/lib/api";
 import { UP_DISTRICTS } from "@/lib/constants";
@@ -54,6 +54,11 @@ const OfficeBearerCard = ({ num, title, subtitle, prefix }: { num: string, title
       </div>
       
       <div>
+        <label className="block text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-2">RESIDENTIAL ADDRESS <span className="text-accent">*</span></label>
+        <textarea name={`${prefix}_address`} rows={2} placeholder="Full postal address" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none" required></textarea>
+      </div>
+      
+      <div>
         <label className="block text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-2">AADHAR NUMBER <span className="text-accent">*</span></label>
         <input name={`${prefix}_adhar_number`} type="text" placeholder="XXXX XXXX XXXX" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
       </div>
@@ -81,7 +86,7 @@ const OfficeBearerCard = ({ num, title, subtitle, prefix }: { num: string, title
               }}
             />
             <div className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0">
-              <FileText className="w-3.5 h-3.5 text-gray-400" />
+              <FileText className="w-3.5 h-3.5 text-gray-600" />
             </div>
             <div>
               <div className="text-xs font-semibold text-gray-800">Aadhar (front + back)</div>
@@ -114,7 +119,7 @@ const OfficeBearerCard = ({ num, title, subtitle, prefix }: { num: string, title
               }}
             />
             <div className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0">
-              <ImageIcon className="w-3.5 h-3.5 text-gray-400" />
+              <Camera className="w-3.5 h-3.5 text-gray-600" />
             </div>
             <div>
               <div className="text-xs font-semibold text-gray-800">Passport-style photo</div>
@@ -138,6 +143,7 @@ export default function DistrictAffiliationForm() {
   const [logoName, setLogoName] = useState("");
   const [logoPreview, setLogoPreview] = useState("");
   const [certName, setCertName] = useState("");
+  const [socCertName, setSocCertName] = useState("");
   const [transactionImageName, setTransactionImageName] = useState("");
   const [transactionImagePreview, setTransactionImagePreview] = useState("");
 
@@ -296,18 +302,6 @@ export default function DistrictAffiliationForm() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">PASSWORD <span className="text-accent">*</span></label>
-              <input name="password" type="password" placeholder="Create a password" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required minLength={6} />
-              <div className="text-[10px] text-gray-400 mt-2">Required for district login. Minimum 6 characters.</div>
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">CONFIRM PASSWORD <span className="text-accent">*</span></label>
-              <input name="confirm_password" type="password" placeholder="Confirm your password" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required minLength={6} />
-            </div>
-          </div>
-          
           <div>
             <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">WEBSITE <span className="text-gray-400 lowercase normal-case text-[10px] font-normal">(optional)</span></label>
             <input name="website" type="url" placeholder="https://" className="w-full md:w-[calc(50%-12px)] bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
@@ -359,12 +353,12 @@ export default function DistrictAffiliationForm() {
           <label className="block relative cursor-pointer group">
             <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">AUTHORIZATION LETTER / RESOLUTION <span className="text-accent">*</span></label>
             <div className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center gap-4 group-hover:bg-gray-50 transition-colors">
-              <input name="registration_certificate" type="file" accept=".pdf,image/*" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required onChange={(e) => {
+              <input name="authorization_letter" type="file" accept=".pdf,image/*" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required onChange={(e) => {
                 const f = e.target.files?.[0];
                 setCertName(f ? f.name : "");
               }} />
               <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0">
-                <FileText className="w-4 h-4 text-gray-400" />
+                <FileText className="w-4 h-4 text-gray-600" />
               </div>
               <div>
                 <div className="text-sm font-semibold text-gray-800">Upload authorization letter</div>
@@ -373,6 +367,25 @@ export default function DistrictAffiliationForm() {
               </div>
             </div>
             <div className="text-[10px] text-gray-400 mt-2">A signed letter from the district committee or a resolution from a duly-convened meeting authorizing the named office bearers to register on behalf of the unit.</div>
+          </label>
+          
+          <label className="block relative cursor-pointer group">
+            <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">SOCIETY / TRUST REGISTRATION CERTIFICATE <span className="text-gray-400 lowercase normal-case text-[10px] font-normal">(optional)</span></label>
+            <div className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center gap-4 group-hover:bg-gray-50 transition-colors">
+              <input name="registration_certificate" type="file" accept=".pdf,image/*" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={(e) => {
+                const f = e.target.files?.[0];
+                setSocCertName(f ? f.name : "");
+              }} />
+              <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0">
+                <Award className="w-4 h-4 text-gray-600" />
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-gray-800">Upload registration certificate</div>
+                <div className="text-[10px] text-gray-500">If registered as a Society or Trust · JPG, PNG or PDF · max 5 MB</div>
+                {socCertName && <div className="text-[10px] text-primary mt-1 break-all">Selected: {socCertName}</div>}
+              </div>
+            </div>
+            <div className="text-[10px] text-gray-400 mt-2">Only required if you entered a Society/Trust registration number in Section 01.</div>
           </label>
         </div>
       </div>
@@ -408,7 +421,7 @@ export default function DistrictAffiliationForm() {
                 }
               }} />
               <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0">
-                <ImageIcon className="w-4 h-4 text-gray-400" />
+                <ImageIcon className="w-4 h-4 text-gray-600" />
               </div>
               <div>
                 <div className="text-sm font-semibold text-gray-800">Upload payment screenshot</div>

@@ -1,143 +1,30 @@
 "use client";
 
-import { Clock, Image as ImageIcon, FileText, Upload } from "lucide-react";
+import { Clock, Image as ImageIcon, FileText, Camera, Award, MapPin } from "lucide-react";
 import React, { useState } from "react";
 import { registerAcademy } from "@/lib/api";
 import { UP_DISTRICTS } from "@/lib/constants";
 import ErrorBanner from "@/components/ErrorBanner";
 
-// Helper component for Office Bearer Cards
-const OfficeBearerCard = ({ num, title, subtitle, prefix }: { num: string, title: string, subtitle: string, prefix: string }) => {
-  const [adharPreview, setAdharPreview] = useState("");
-  const [passportPreview, setPassportPreview] = useState("");
-  const [adharName, setAdharName] = useState("");
-  const [passportName, setPassportName] = useState("");
-
-  return (
-  <div className="border border-gray-200 border-dashed rounded-sm bg-white p-6 md:p-8">
-    <div className="flex justify-between items-start mb-6 border-b border-gray-100 border-dashed pb-4">
-      <div className="flex items-center gap-4">
-        <div className="w-8 h-8 rounded-full bg-[#111827] text-white flex items-center justify-center font-bold text-sm shrink-0">
-          {num}
-        </div>
-        <div>
-          <h3 className="font-heading text-lg font-bold uppercase tracking-wide text-primary">{title}</h3>
-          <div className="text-[9px] font-bold tracking-widest text-accent uppercase">{subtitle}</div>
-        </div>
-      </div>
-      <div className="text-[9px] font-bold tracking-wider px-2 py-1 border border-gray-200 rounded-sm text-gray-400 bg-gray-50 uppercase">
-        REQUIRED
-      </div>
-    </div>
-    
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-2">FULL NAME <span className="text-accent">*</span></label>
-          <input name={`${prefix}_name`} type="text" placeholder="As on Aadhar" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
-        </div>
-        <div>
-          <label className="block text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-2">FATHER&apos;S NAME <span className="text-accent">*</span></label>
-          <input name={`${prefix}_father_name`} type="text" placeholder="Full name" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
-        </div>
-      </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div>
-          <label className="block text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-2">MOBILE NUMBER <span className="text-accent">*</span></label>
-          <input name={`${prefix}_phone_number`} type="tel" placeholder="+91" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
-        </div>
-        <div>
-          <label className="block text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-2">EMAIL <span className="text-accent">*</span></label>
-          <input name={`${prefix}_email`} type="email" placeholder="email@example.com" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
-        </div>
-      </div>
-      
-      <div>
-        <label className="block text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-2">AADHAR NUMBER <span className="text-accent">*</span></label>
-        <input name={`${prefix}_adhar_number`} type="text" placeholder="XXXX XXXX XXXX" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-        <label className="block relative cursor-pointer group">
-          <label className="block text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-2">AADHAR CARD UPLOAD <span className="text-accent">*</span></label>
-          <div className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-4 flex items-center gap-4 group-hover:bg-gray-50 transition-colors">
-            <input
-              name={`${prefix}_adhar_image`}
-              type="file"
-              accept="image/*,.pdf"
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              required
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  setAdharName(file.name);
-                  if (file.type.startsWith("image/")) {
-                    setAdharPreview(URL.createObjectURL(file));
-                  } else {
-                    setAdharPreview("");
-                  }
-                }
-              }}
-            />
-            <div className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0">
-              <FileText className="w-3.5 h-3.5 text-gray-400" />
-            </div>
-            <div>
-              <div className="text-xs font-semibold text-gray-800">Aadhar (front + back)</div>
-              <div className="text-[9px] text-gray-500">JPG, PNG or PDF · max 5 MB</div>
-              {adharName && <div className="text-[9px] text-primary mt-1 truncate max-w-[150px]">{adharName}</div>}
-            </div>
-          </div>
-          {adharPreview && (
-            <div className="mt-2 h-20 w-full overflow-hidden rounded-sm border border-gray-200">
-              <img src={adharPreview} className="w-full h-full object-cover" alt="Adhar preview" />
-            </div>
-          )}
-        </label>
-        
-        <label className="block relative cursor-pointer group">
-          <label className="block text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-2">PASSPORT PHOTO <span className="text-accent">*</span></label>
-          <div className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-4 flex items-center gap-4 group-hover:bg-gray-50 transition-colors">
-            <input
-              name={`${prefix}_passport_image`}
-              type="file"
-              accept="image/*"
-              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-              required
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  setPassportName(file.name);
-                  setPassportPreview(URL.createObjectURL(file));
-                }
-              }}
-            />
-            <div className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0">
-              <ImageIcon className="w-3.5 h-3.5 text-gray-400" />
-            </div>
-            <div>
-              <div className="text-xs font-semibold text-gray-800">Passport-style photo</div>
-              <div className="text-[9px] text-gray-500">JPG or PNG · max 2 MB</div>
-              {passportName && <div className="text-[9px] text-primary mt-1 truncate max-w-[150px]">{passportName}</div>}
-            </div>
-          </div>
-          {passportPreview && (
-            <div className="mt-2 h-20 w-full overflow-hidden rounded-sm border border-gray-200">
-              <img src={passportPreview} className="w-full h-full object-cover" alt="Passport preview" />
-            </div>
-          )}
-        </label>
-      </div>
-    </div>
-  </div>
-  );
-};
-
 export default function AcademyAffiliationForm() {
   const [logoName, setLogoName] = useState("");
   const [logoPreview, setLogoPreview] = useState("");
-  const [certName, setCertName] = useState("");
+
+  const [academyType, setAcademyType] = useState("");
+  const [disciplineFocus, setDisciplineFocus] = useState<string[]>([]);
+  const [categoriesTrained, setCategoriesTrained] = useState<string[]>([]);
+  
+  const [coachGrade, setCoachGrade] = useState("");
+
+  const [dirPhotoName, setDirPhotoName] = useState("");
+  const [dirPhotoPreview, setDirPhotoPreview] = useState("");
+  const [dirAadharName, setDirAadharName] = useState("");
+
+  const [regCertName, setRegCertName] = useState("");
+  const [addressProofName, setAddressProofName] = useState("");
+  const [bankDetailsName, setBankDetailsName] = useState("");
+  const [facilityPhotosName, setFacilityPhotosName] = useState("");
+
   const [transactionImageName, setTransactionImageName] = useState("");
   const [transactionImagePreview, setTransactionImagePreview] = useState("");
 
@@ -148,9 +35,13 @@ export default function AcademyAffiliationForm() {
   React.useEffect(() => {
     return () => {
       if (logoPreview) URL.revokeObjectURL(logoPreview);
+      if (dirPhotoPreview) URL.revokeObjectURL(dirPhotoPreview);
       if (transactionImagePreview) URL.revokeObjectURL(transactionImagePreview);
     };
-  }, [logoPreview, transactionImagePreview]);
+  }, [logoPreview, dirPhotoPreview, transactionImagePreview]);
+
+  const toggleDiscipline = (d: string) => setDisciplineFocus(prev => prev.includes(d) ? prev.filter(x => x !== d) : [...prev, d]);
+  const toggleCategory = (c: string) => setCategoriesTrained(prev => prev.includes(c) ? prev.filter(x => x !== c) : [...prev, c]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -158,21 +49,33 @@ export default function AcademyAffiliationForm() {
     setSubmitError("");
     setSubmitSuccess("");
 
+    if (!academyType) {
+      setSubmitError("Please select an Academy Type.");
+      setIsSubmitting(false);
+      return;
+    }
+    if (disciplineFocus.length === 0) {
+      setSubmitError("Please select at least one Discipline Focus.");
+      setIsSubmitting(false);
+      return;
+    }
+    if (categoriesTrained.length === 0) {
+      setSubmitError("Please select at least one Category Trained.");
+      setIsSubmitting(false);
+      return;
+    }
+    if (!coachGrade) {
+      setSubmitError("Please select a Coaching Grade for the Head Coach.");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
       const formData = new FormData(e.currentTarget);
-      const password = formData.get("password") as string;
-      const confirmPassword = formData.get("confirm_password") as string;
-      
-      if (password !== confirmPassword) {
-        setSubmitError("Passwords do not match.");
-        setIsSubmitting(false);
-        return;
-      }
-      if (password.length < 6) {
-        setSubmitError("Password must be at least 6 characters long.");
-        setIsSubmitting(false);
-        return;
-      }
+      formData.append("academy_type", academyType);
+      formData.append("discipline_focus", disciplineFocus.join(","));
+      formData.append("categories_trained", categoriesTrained.join(","));
+      formData.append("coach_grade", coachGrade);
 
       await registerAcademy(formData);
       setSubmitSuccess("Academy Affiliation Request Submitted Successfully!");
@@ -199,10 +102,11 @@ export default function AcademyAffiliationForm() {
           <Clock className="w-4 h-4" /> BEFORE YOU BEGIN
         </div>
         <ul className="space-y-3 text-sm text-gray-600 list-disc list-inside ml-2">
-          <li>Gather Aadhar copies and passport photos for all <strong>three office bearers</strong> (Adhyaksh, Sachiv, Koshadhyaksh).</li>
-          <li>Prepare your <strong>unit logo</strong> (PNG or SVG, square aspect) and an <strong>authorization letter</strong> from your Academy committee.</li>
-          <li>Pay the annual affiliation fee of <strong>₹ 1,100</strong> via the QR code in the sidebar, then enter the transaction details below.</li>
-          <li>Use the document checklist on the right to track what&apos;s been uploaded as you fill the form.</li>
+          <li>Keep your academy <strong>logo, address proof, bank details</strong>, and <strong>registration/incorporation certificate</strong> ready to upload.</li>
+          <li>The Director&apos;s <strong>Aadhar, photo, and signature</strong> are required for verification by the UPHA office.</li>
+          <li>If your Head Coach is already <strong>UPHA-accredited</strong>, enter their Coach ID to speed up review.</li>
+          <li>Pay the affiliation fee of <strong>₹ 2,500</strong> via the QR code in the sidebar, then enter the transaction details below.</li>
+          <li>Affiliated academies can register their players, field tournament teams, and apply for equipment grants.</li>
         </ul>
       </div>
 
@@ -211,37 +115,14 @@ export default function AcademyAffiliationForm() {
         <div className="flex items-start gap-6 mb-8 border-b border-gray-100 pb-8">
           <div className="font-heading text-4xl font-bold text-accent">01</div>
           <div>
-            <h2 className="font-heading text-2xl font-bold uppercase tracking-wide text-primary mb-1">UNIT DETAILS</h2>
-            <p className="text-sm text-gray-500">Name, location, contact information, and reach of your Academy handball association.</p>
+            <h2 className="font-heading text-2xl font-bold uppercase tracking-wide text-primary mb-1">ACADEMY DETAILS</h2>
+            <p className="text-sm text-gray-500">Information about your academy as a registered entity.</p>
           </div>
         </div>
         
         <div className="space-y-6">
           <div>
-            <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">UNIT NAME <span className="text-accent">*</span></label>
-            <input name="name" type="text" placeholder="e.g. Lucknow Academy Handball Association" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
-            <div className="text-[10px] text-gray-400 mt-2">Full official name as it appears on your registration documents.</div>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">DISTRICT <span className="text-accent">*</span></label>
-              <select name="district" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-gray-600" required>
-                <option value="">Select district</option>
-                {UP_DISTRICTS.map((district) => (
-                  <option key={district} value={district}>{district}</option>
-                ))}
-              </select>
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">YEAR ESTABLISHED <span className="text-accent">*</span></label>
-              <input name="year_of_establishment" type="number" placeholder="e.g. 1985" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
-              <div className="text-[10px] text-gray-400 mt-2">Year the Academy unit was first formed.</div>
-            </div>
-          </div>
-          
-          <div className="pt-2">
-            <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">UNIT LOGO <span className="text-accent">*</span></label>
+            <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">ACADEMY LOGO <span className="text-accent">*</span></label>
             <label className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex flex-col md:flex-row items-center gap-6 cursor-pointer hover:bg-gray-50 transition-colors relative overflow-hidden">
               <input name="logo" type="file" accept="image/*" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required onChange={(e) => {
                 const f = e.target.files?.[0];
@@ -258,71 +139,109 @@ export default function AcademyAffiliationForm() {
                   <img src={logoPreview} className="w-full h-full object-cover" alt="Logo preview" />
                 </div>
               ) : (
-                <div className="w-20 h-20 rounded-full bg-white border border-dashed border-gray-300 flex items-center justify-center shrink-0">
-                  <span className="text-gray-300 font-bold text-2xl font-serif">L</span>
+                <div className="w-20 h-20 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0">
+                  <ImageIcon className="w-8 h-8 text-gray-400" />
                 </div>
               )}
               <div className="text-center md:text-left">
-                <div className="text-sm font-semibold text-gray-800 mb-1">Upload your academy logo</div>
-                <div className="text-[10px] text-gray-500 mb-3">PNG, SVG or JPG · square aspect ratio · 500 x 500 px minimum · max 2 MB</div>
-                {logoName ? (
-                  <div className="text-[10px] text-primary mt-1 break-all">Selected: {logoName}</div>
-                ) : (
-                  <div className="text-[10px] font-bold tracking-widest text-accent uppercase">CHOOSE FILE &rarr;</div>
-                )}
+                <div className="text-sm font-semibold text-gray-800 mb-1">UPLOAD ACADEMY LOGO</div>
+                <div className="text-[10px] text-gray-500">Square format, PNG or JPG. Minimum 500 x 500 px. Will appear on academy ID card, public directory listing, and event entries.</div>
+                {logoName && <div className="text-[10px] text-primary mt-1 break-all">Selected: {logoName}</div>}
               </div>
             </label>
           </div>
 
           <div>
-            <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">SOCIETY / TRUST REGISTRATION NO. <span className="text-gray-400 lowercase normal-case text-[10px] font-normal">(if applicable)</span></label>
-            <input name="trust_registration_number" type="text" placeholder="e.g. SR/12345/2010" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
-            <div className="text-[10px] text-gray-400 mt-2">Required only if your unit is registered under the Societies Registration Act, 1860 or as a Trust.</div>
+            <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">ACADEMY NAME <span className="text-accent">*</span></label>
+            <input name="name" type="text" placeholder="e.g. Vajra Sports Academy" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
           </div>
           
-          <div>
-            <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">OFFICE ADDRESS <span className="text-accent">*</span></label>
-            <textarea name="office_address" rows={3} placeholder="Full postal address of the Academy unit's office" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none" required></textarea>
-          </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">OFFICE PHONE <span className="text-accent">*</span></label>
-              <input name="office_phone_number" type="tel" placeholder="Landline or mobile" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">YEAR OF ESTABLISHMENT <span className="text-accent">*</span></label>
+              <input name="year_of_establishment" type="number" placeholder="e.g. 2014" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
             </div>
             <div>
-              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">OFFICE EMAIL <span className="text-accent">*</span></label>
-              <input name="email" type="email" placeholder="contact@your-Academy.org" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">PASSWORD <span className="text-accent">*</span></label>
-              <input name="password" type="password" placeholder="Create a password" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required minLength={6} />
-              <div className="text-[10px] text-gray-400 mt-2">Required for academy login. Minimum 6 characters.</div>
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">CONFIRM PASSWORD <span className="text-accent">*</span></label>
-              <input name="confirm_password" type="password" placeholder="Confirm your password" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required minLength={6} />
+              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">REGISTRATION NO. <span className="text-gray-400 lowercase normal-case text-[10px] font-normal">(if registered)</span></label>
+              <input name="trust_registration_number" type="text" placeholder="Society / Trust / Company reg. no." className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
+              <div className="text-[10px] text-gray-400 mt-2">If your academy is registered as a society, trust, or company.</div>
             </div>
           </div>
           
           <div>
-            <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">WEBSITE <span className="text-gray-400 lowercase normal-case text-[10px] font-normal">(optional)</span></label>
-            <input name="website" type="url" placeholder="https://" className="w-full md:w-[calc(50%-12px)] bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
+            <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">ACADEMY TYPE <span className="text-accent">*</span></label>
+            <div className="flex flex-wrap gap-3">
+              {["Boys Only", "Girls Only", "Co-ed - Boys & Girls"].map(type => (
+                <button type="button" key={type} onClick={() => setAcademyType(type)} className={`px-4 py-2 border rounded-sm text-sm font-semibold transition-colors ${academyType === type ? "bg-accent/10 border-accent text-accent" : "bg-white border-gray-200 text-gray-600 hover:border-gray-300"}`}>
+                  {type}
+                </button>
+              ))}
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-gray-100 pt-6">
+          <div>
+            <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">DISCIPLINE FOCUS <span className="text-accent">*</span></label>
+            <div className="flex flex-wrap gap-3">
+              {["Handball - Indoor", "Beach Handball", "Mini Handball"].map(d => (
+                <button type="button" key={d} onClick={() => toggleDiscipline(d)} className={`px-4 py-2 border rounded-sm text-sm font-semibold transition-colors ${disciplineFocus.includes(d) ? "bg-accent/10 border-accent text-accent" : "bg-[#fcfbf9] border-gray-200 text-gray-600 hover:border-gray-300"}`}>
+                  {d}
+                </button>
+              ))}
+            </div>
+            <div className="text-[10px] text-gray-400 mt-2">Tick all disciplines your academy actively trains for.</div>
+          </div>
+
+          <div>
+            <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">CATEGORIES TRAINED <span className="text-accent">*</span></label>
+            <div className="flex flex-wrap gap-3">
+              {["Senior - Men", "Senior - Women", "Junior - Boys", "Junior - Girls", "Sub-Junior"].map(c => (
+                <button type="button" key={c} onClick={() => toggleCategory(c)} className={`px-4 py-2 border rounded-sm text-sm font-semibold transition-colors ${categoriesTrained.includes(c) ? "bg-accent/10 border-accent text-accent" : "bg-[#fcfbf9] border-gray-200 text-gray-600 hover:border-gray-300"}`}>
+                  {c}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-100">
             <div>
-              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">REGISTERED PLAYERS <span className="text-gray-400 lowercase normal-case text-[10px] font-normal">(approximate)</span></label>
-              <input name="no_of_players" type="number" placeholder="e.g. 120" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
-              <div className="text-[10px] text-gray-400 mt-2">Current count of active players in the Academy.</div>
+              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">DISTRICT <span className="text-accent">*</span></label>
+              <select name="district" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-gray-600" required>
+                <option value="">Select district</option>
+                {UP_DISTRICTS.map((district) => (
+                  <option key={district} value={district}>{district}</option>
+                ))}
+              </select>
             </div>
             <div>
-              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">AFFILIATED CLUBS / ACADEMIES <span className="text-gray-400 lowercase normal-case text-[10px] font-normal">(approximate)</span></label>
-              <input type="number" placeholder="e.g. 8" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
-              <div className="text-[10px] text-gray-400 mt-2">Number of clubs or academies under this Academy unit.</div>
+              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">PIN CODE <span className="text-accent">*</span></label>
+              <input name="pin_code" type="text" placeholder="6-digit pin code" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+            </div>
+          </div>
+          
+          <div>
+            <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">FULL ADDRESS <span className="text-accent">*</span></label>
+            <textarea name="office_address" rows={3} placeholder="Building / Street / Area / City — as it should appear on official correspondence" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all resize-none" required></textarea>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">ACADEMY EMAIL <span className="text-accent">*</span></label>
+              <input name="email" type="email" placeholder="contact@academy.in" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">ACADEMY PHONE <span className="text-accent">*</span></label>
+              <input name="office_phone_number" type="tel" placeholder="+91" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">WEBSITE <span className="text-gray-400 lowercase normal-case text-[10px] font-normal">(optional)</span></label>
+              <input name="website" type="url" placeholder="https://" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">TRAINING FACILITY / VENUE <span className="text-accent">*</span></label>
+              <input name="training_venue" type="text" placeholder="Court / ground name" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
             </div>
           </div>
         </div>
@@ -333,15 +252,155 @@ export default function AcademyAffiliationForm() {
         <div className="flex items-start gap-6 mb-8 border-b border-gray-100 pb-8">
           <div className="font-heading text-4xl font-bold text-accent">02</div>
           <div>
-            <h2 className="font-heading text-2xl font-bold uppercase tracking-wide text-primary mb-1">OFFICE BEARERS</h2>
-            <p className="text-sm text-gray-500">Provide identity and contact details for the three principal office bearers of the Academy unit. All three positions are mandatory.</p>
+            <h2 className="font-heading text-2xl font-bold uppercase tracking-wide text-primary mb-1">DIRECTOR & HEAD COACH</h2>
+            <p className="text-sm text-gray-500">The two key people the UPHA office will work with — the Director (who registers and is accountable for the academy) and the Head Coach (who runs training).</p>
           </div>
         </div>
         
         <div className="space-y-8">
-          <OfficeBearerCard num="01" title="ADHYAKSH" subtitle="PRESIDENT · CHIEF OFFICE BEARER" prefix="adhyaksha" />
-          <OfficeBearerCard num="02" title="SACHIV" subtitle="SECRETARY · ADMINISTRATIVE HEAD" prefix="sachiv" />
-          <OfficeBearerCard num="03" title="KOSHADHYAKSH" subtitle="TREASURER · FINANCIAL HEAD" prefix="koshadhyaksha" />
+          {/* Director Card */}
+          <div className="border border-gray-200 border-dashed rounded-sm bg-[#fcfbf9] p-6 md:p-8">
+            <div className="flex items-center gap-4 mb-6 border-b border-gray-200 border-dashed pb-4">
+              <div className="w-8 h-8 rounded-full bg-[#111827] text-white flex items-center justify-center font-bold text-sm shrink-0">DR</div>
+              <div>
+                <h3 className="font-heading text-lg font-bold uppercase tracking-wide text-primary">DIRECTOR</h3>
+                <div className="text-[9px] font-bold tracking-widest text-accent uppercase">PRIMARY CONTACT · LEGALLY ACCOUNTABLE</div>
+              </div>
+            </div>
+            
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-2">FULL NAME <span className="text-accent">*</span></label>
+                  <input name="director_name" type="text" placeholder="As on Aadhar" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+                </div>
+                <div>
+                  <label className="block text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-2">FATHER&apos;S NAME <span className="text-accent">*</span></label>
+                  <input name="director_father_name" type="text" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-2">DATE OF BIRTH <span className="text-accent">*</span></label>
+                  <input name="director_dob" type="date" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all text-gray-600" required />
+                </div>
+                <div>
+                  <label className="block text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-2">DESIGNATION <span className="text-accent">*</span></label>
+                  <input name="director_designation" type="text" placeholder="e.g. Founder Director" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-2">MOBILE <span className="text-accent">*</span></label>
+                  <input name="director_mobile" type="tel" placeholder="+91" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+                </div>
+                <div>
+                  <label className="block text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-2">EMAIL <span className="text-accent">*</span></label>
+                  <input name="director_email" type="email" placeholder="director@academy.in" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+                </div>
+              </div>
+              <div>
+                <label className="block text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-2">AADHAR NUMBER <span className="text-accent">*</span></label>
+                <input name="director_aadhar_number" type="text" placeholder="XXXX XXXX XXXX" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+                <label className="block relative cursor-pointer group">
+                  <label className="block text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-2">DIRECTOR&apos;S PHOTO <span className="text-accent">*</span></label>
+                  <div className="border border-dashed border-gray-300 bg-white rounded-sm p-4 flex items-center gap-4 group-hover:bg-gray-50 transition-colors">
+                    <input type="file" name="director_photo" accept="image/*" required className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if(f) {
+                        setDirPhotoName(f.name);
+                        setDirPhotoPreview(URL.createObjectURL(f));
+                      } else {
+                        setDirPhotoName("");
+                        setDirPhotoPreview("");
+                      }
+                    }} />
+                    <div className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0">
+                      <Camera className="w-3.5 h-3.5 text-gray-600" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold text-gray-800">Passport-style photo</div>
+                      <div className="text-[9px] text-gray-500">JPG or PNG · max 2 MB</div>
+                      {dirPhotoName && <div className="text-[9px] text-primary mt-1 truncate max-w-[150px]">{dirPhotoName}</div>}
+                    </div>
+                  </div>
+                  {dirPhotoPreview && (
+                    <div className="mt-2 h-20 w-full overflow-hidden rounded-sm border border-gray-200">
+                      <img src={dirPhotoPreview} className="w-full h-full object-cover" alt="Preview" />
+                    </div>
+                  )}
+                </label>
+                <label className="block relative cursor-pointer group">
+                  <label className="block text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-2">DIRECTOR&apos;S AADHAR <span className="text-accent">*</span></label>
+                  <div className="border border-dashed border-gray-300 bg-white rounded-sm p-4 flex items-center gap-4 group-hover:bg-gray-50 transition-colors">
+                    <input type="file" name="director_aadhar" accept=".pdf,image/*" required className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={(e) => setDirAadharName(e.target.files?.[0]?.name || "")} />
+                    <div className="w-8 h-8 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0">
+                      <FileText className="w-3.5 h-3.5 text-gray-600" />
+                    </div>
+                    <div>
+                      <div className="text-xs font-semibold text-gray-800">Aadhar (front + back)</div>
+                      <div className="text-[9px] text-gray-500">PDF or images · max 5 MB</div>
+                      {dirAadharName && <div className="text-[9px] text-primary mt-1 truncate max-w-[150px]">{dirAadharName}</div>}
+                    </div>
+                  </div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Head Coach Card */}
+          <div className="border border-gray-200 border-dashed rounded-sm bg-[#fcfbf9] p-6 md:p-8">
+            <div className="flex items-center gap-4 mb-6 border-b border-gray-200 border-dashed pb-4">
+              <div className="w-8 h-8 rounded-full bg-[#111827] text-white flex items-center justify-center font-bold text-sm shrink-0">HC</div>
+              <div>
+                <h3 className="font-heading text-lg font-bold uppercase tracking-wide text-primary">HEAD COACH</h3>
+                <div className="text-[9px] font-bold tracking-widest text-accent uppercase">TRAINING LEAD · UPHA-ACCREDITED PREFERRED</div>
+              </div>
+            </div>
+            
+            <div className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-2">FULL NAME <span className="text-accent">*</span></label>
+                  <input name="coach_name" type="text" placeholder="As on Aadhar" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+                </div>
+                <div>
+                  <label className="block text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-2">UPHA COACH ID <span className="text-gray-400 lowercase normal-case text-[9px] font-normal">(if accredited)</span></label>
+                  <input name="coach_upha_id" type="text" placeholder="e.g. CCH-2026-00128" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
+                  <div className="text-[9px] text-gray-400 mt-1.5">Speeds up verification if your Head Coach is already UPHA-accredited.</div>
+                </div>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-2">MOBILE <span className="text-accent">*</span></label>
+                  <input name="coach_mobile" type="tel" placeholder="+91" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+                </div>
+                <div>
+                  <label className="block text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-2">EMAIL <span className="text-gray-400 lowercase normal-case text-[9px] font-normal">(optional)</span></label>
+                  <input name="coach_email" type="email" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" />
+                </div>
+              </div>
+              
+              <div>
+                <label className="block text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-2">COACHING GRADE <span className="text-accent">*</span></label>
+                <div className="flex flex-wrap gap-3">
+                  {["International", "National", "State", "District", "School / Club"].map(grade => (
+                    <button type="button" key={grade} onClick={() => setCoachGrade(grade)} className={`px-4 py-2 border rounded-sm text-sm font-semibold transition-colors ${coachGrade === grade ? "bg-accent/10 border-accent text-accent" : "bg-white border-gray-200 text-gray-600 hover:border-gray-300"}`}>
+                      {grade}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-2">YEARS OF COACHING EXPERIENCE <span className="text-accent">*</span></label>
+                <input name="coach_experience" type="number" placeholder="e.g. 8" className="w-full md:w-[calc(50%-12px)] bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-2.5 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -350,29 +409,82 @@ export default function AcademyAffiliationForm() {
         <div className="flex items-start gap-6 mb-8 border-b border-gray-100 pb-8">
           <div className="font-heading text-4xl font-bold text-accent">03</div>
           <div>
-            <h2 className="font-heading text-2xl font-bold uppercase tracking-wide text-primary mb-1">SUPPORTING DOCUMENTS</h2>
-            <p className="text-sm text-gray-500">An authorization letter is required to verify your authority to register on behalf of the Academy. Other documents are optional but strengthen your application.</p>
+            <h2 className="font-heading text-2xl font-bold uppercase tracking-wide text-primary mb-1">CAPACITY & DOCUMENTS</h2>
+            <p className="text-sm text-gray-500">A snapshot of your academy&apos;s size and the documents the UPHA office requires for affiliation.</p>
           </div>
         </div>
         
-        <div className="space-y-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+          <div>
+            <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">CURRENT PLAYERS TRAINED <span className="text-accent">*</span></label>
+            <input name="current_players" type="number" placeholder="e.g. 42" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+          </div>
+          <div>
+            <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">COACHES EMPLOYED <span className="text-accent">*</span></label>
+            <input name="coaches_employed" type="number" placeholder="e.g. 4" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+          </div>
+        </div>
+        
+        <div className="space-y-6 pt-2">
           <label className="block relative cursor-pointer group">
-            <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">AUTHORIZATION LETTER / RESOLUTION <span className="text-accent">*</span></label>
+            <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">REGISTRATION / INCORPORATION CERTIFICATE <span className="text-gray-400 lowercase normal-case text-[10px] font-normal">(if registered as society/trust/company)</span></label>
             <div className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center gap-4 group-hover:bg-gray-50 transition-colors">
-              <input name="registration_certificate" type="file" accept=".pdf,image/*" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" required onChange={(e) => {
-                const f = e.target.files?.[0];
-                setCertName(f ? f.name : "");
-              }} />
+              <input type="file" name="reg_certificate" accept=".pdf,image/*" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={(e) => setRegCertName(e.target.files?.[0]?.name || "")} />
               <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0">
-                <FileText className="w-4 h-4 text-gray-400" />
+                <Award className="w-4 h-4 text-gray-600" />
               </div>
               <div>
-                <div className="text-sm font-semibold text-gray-800">Upload authorization letter</div>
-                <div className="text-[10px] text-gray-500">Signed letter or committee resolution authorizing this registration · PDF preferred · max 5 MB</div>
-                {certName && <div className="text-[10px] text-primary mt-1 break-all">Selected: {certName}</div>}
+                <div className="text-sm font-semibold text-gray-800">Registration certificate</div>
+                <div className="text-[10px] text-gray-500">Society / Trust / Company incorporation certificate · PDF preferred · max 5 MB</div>
+                {regCertName && <div className="text-[10px] text-primary mt-1">{regCertName}</div>}
               </div>
             </div>
-            <div className="text-[10px] text-gray-400 mt-2">A signed letter from the academy committee or a resolution from a duly-convened meeting authorizing the named office bearers to register on behalf of the academy.</div>
+          </label>
+          
+          <label className="block relative cursor-pointer group">
+            <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">ADDRESS PROOF <span className="text-accent">*</span></label>
+            <div className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center gap-4 group-hover:bg-gray-50 transition-colors">
+              <input type="file" name="address_proof" accept=".pdf,image/*" required className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={(e) => setAddressProofName(e.target.files?.[0]?.name || "")} />
+              <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0">
+                <MapPin className="w-4 h-4 text-gray-600" />
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-gray-800">Address proof for academy premises</div>
+                <div className="text-[10px] text-gray-500">Utility bill, rent agreement, or ownership document · max 5 MB</div>
+                {addressProofName && <div className="text-[10px] text-primary mt-1">{addressProofName}</div>}
+              </div>
+            </div>
+          </label>
+          
+          <label className="block relative cursor-pointer group">
+            <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">BANK DETAILS <span className="text-accent">*</span></label>
+            <div className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center gap-4 group-hover:bg-gray-50 transition-colors">
+              <input type="file" name="bank_details" accept=".pdf,image/*" required className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={(e) => setBankDetailsName(e.target.files?.[0]?.name || "")} />
+              <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0 text-gray-600 font-bold">
+                $
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-gray-800">Cancelled cheque or bank passbook page</div>
+                <div className="text-[10px] text-gray-500">Required for UPHA payouts (equipment grants, prize money, etc.) · max 5 MB</div>
+                {bankDetailsName && <div className="text-[10px] text-primary mt-1">{bankDetailsName}</div>}
+              </div>
+            </div>
+          </label>
+
+          <label className="block relative cursor-pointer group">
+            <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">ACADEMY FACILITIES PHOTOS <span className="text-gray-400 lowercase normal-case text-[10px] font-normal">(recommended)</span></label>
+            <div className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center gap-4 group-hover:bg-gray-50 transition-colors">
+              <input type="file" name="facility_photos" multiple accept="image/*" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={(e) => setFacilityPhotosName(e.target.files?.length ? `${e.target.files.length} files selected` : "")} />
+              <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0">
+                <ImageIcon className="w-4 h-4 text-gray-600" />
+              </div>
+              <div>
+                <div className="text-sm font-semibold text-gray-800">Upload 2 – 5 photos</div>
+                <div className="text-[10px] text-gray-500">Court, training equipment, players in session · JPG or PNG · max 4 MB each</div>
+                {facilityPhotosName && <div className="text-[10px] text-primary mt-1">{facilityPhotosName}</div>}
+              </div>
+            </div>
+            <div className="text-[10px] text-gray-400 mt-2">Strengthens your affiliation case and helps with selection trial hosting requests.</div>
           </label>
         </div>
       </div>
@@ -383,7 +495,7 @@ export default function AcademyAffiliationForm() {
           <div className="font-heading text-4xl font-bold text-accent">04</div>
           <div>
             <h2 className="font-heading text-2xl font-bold uppercase tracking-wide text-primary mb-1">PAYMENT CONFIRMATION</h2>
-            <p className="text-sm text-gray-500">After paying ₹ 1,100 via the QR code in the sidebar, enter your transaction details and upload the receipt.</p>
+            <p className="text-sm text-gray-500">After paying the ₹ 2,500 affiliation fee via the QR code in the sidebar, enter your transaction details.</p>
           </div>
         </div>
         
@@ -433,13 +545,13 @@ export default function AcademyAffiliationForm() {
             <svg className="absolute w-3 h-3 text-white pointer-events-none opacity-0 peer-checked:opacity-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
           </div>
           <span className="text-sm text-gray-300 leading-relaxed group-hover:text-white transition-colors">
-            <strong className="text-white">I declare</strong> that all information and documents submitted are true and accurate, that I have been duly authorized by the Academy committee to file this affiliation request, and that I accept UPHA&apos;s affiliation terms including the obligation to file annual returns and maintain federation standards.
+            <strong className="text-white">I declare</strong> on behalf of the academy that all information provided is true and accurate, that the academy operates lawfully and meets safe coaching standards, and that we agree to abide by UPHA&apos;s affiliation terms and code of conduct for affiliated academies.
           </span>
         </label>
         
         <div className="border-t border-white/10 pt-6 flex flex-col sm:flex-row justify-between items-center gap-6">
           <div className="text-[10px] font-bold tracking-widest text-gray-500 uppercase">
-            Form REF / ACA-2026 · Powered by UPHA
+            Form REF / ACA-2026 · Reviewed by UPHA Office
           </div>
           <button type="submit" disabled={isSubmitting} className="w-full sm:w-auto bg-accent text-white px-8 py-4 text-sm font-bold tracking-widest uppercase hover:bg-accent/90 transition-colors rounded-sm disabled:opacity-50">
             {isSubmitting ? "SUBMITTING..." : "SUBMIT AFFILIATION REQUEST \u2192"}

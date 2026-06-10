@@ -123,35 +123,37 @@ export default function DistrictAffiliationSidebar() {
 
       {/* Need Help Box */}
       <div className="bg-white border border-gray-200 shadow-sm rounded-sm p-6">
-        <div className="text-[10px] font-bold tracking-widest text-accent uppercase mb-2">NEED HELP?</div>
-        <h3 className="font-heading text-2xl font-bold uppercase tracking-wide mb-4 text-primary">QUESTIONS ABOUT AFFILIATION?</h3>
-        <p className="text-gray-500 text-sm leading-relaxed mb-6">
+        <div className="text-[9px] font-bold tracking-widest text-accent uppercase mb-2">NEED HELP?</div>
+        <h3 className="font-heading text-xl font-bold uppercase tracking-wide text-primary mb-3">QUESTIONS ABOUT AFFILIATION?</h3>
+        <p className="text-xs text-gray-500 leading-relaxed mb-6">
           Our affiliation desk is available on working days between 10 AM and 5 PM. We can help with documentation, authorization letters, or eligibility queries.
         </p>
         
-        <ul className="space-y-4">
-          <li className="flex gap-3 items-start">
-            <Phone className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+        <div className="space-y-4 pt-4 border-t border-gray-100">
+          <div className="flex items-start gap-3">
+            <Phone className="w-3.5 h-3.5 text-accent mt-0.5" />
             <div>
-              <div className="text-xs font-bold text-gray-800 uppercase tracking-wide mb-1">HEAD OFFICE (LUCKNOW)</div>
-              <div className="text-sm text-gray-500">+91 98397 70123</div>
+              <div className="text-[10px] font-bold tracking-widest text-primary uppercase">HEAD OFFICE (LUCKNOW)</div>
+              <div className="text-xs text-gray-500 mt-0.5">+91 98397 70123</div>
             </div>
-          </li>
-          <li className="flex gap-3 items-start">
-            <Phone className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+          </div>
+          
+          <div className="flex items-start gap-3">
+            <Phone className="w-3.5 h-3.5 text-accent mt-0.5" />
             <div>
-              <div className="text-xs font-bold text-gray-800 uppercase tracking-wide mb-1">BRANCH (VARANASI)</div>
-              <div className="text-sm text-gray-500">+91 70849 00009</div>
+              <div className="text-[10px] font-bold tracking-widest text-primary uppercase">BRANCH (VARANASI)</div>
+              <div className="text-xs text-gray-500 mt-0.5">+91 70849 00009</div>
             </div>
-          </li>
-          <li className="flex gap-3 items-start">
-            <Mail className="w-4 h-4 text-accent shrink-0 mt-0.5" />
+          </div>
+          
+          <div className="flex items-start gap-3">
+            <Mail className="w-3.5 h-3.5 text-accent mt-0.5" />
             <div>
-              <div className="text-xs font-bold text-gray-800 uppercase tracking-wide mb-1">EMAIL</div>
-              <div className="text-sm text-gray-500">upha2024@gmail.com</div>
+              <div className="text-[10px] font-bold tracking-widest text-primary uppercase">EMAIL</div>
+              <div className="text-xs text-gray-500 mt-0.5">upha2024@gmail.com</div>
             </div>
-          </li>
-        </ul>
+          </div>
+        </div>
       </div>
 
     </div>

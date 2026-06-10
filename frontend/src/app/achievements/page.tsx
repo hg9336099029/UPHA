@@ -8,22 +8,14 @@ import {
   PlayerAchievementData,
   CoachAchievementData,
   FederationAwardData,
+  NationalMedalData,
 } from "@/lib/api";
-
-const MEDALS = [
-  { year: "2024", type: "BRONZE", title: "30TH NATIONAL SUB-JUNIOR CHAMPIONSHIP", desc: "Hosted by Telangana Handball Assn. - Hyderabad", category: "SUB-JUNIOR GIRLS", result: "3rd Place" },
-  { year: "2023", type: "SILVER", title: "25TH JUNIOR NATIONAL CHAMPIONSHIP", desc: "Hosted by Tamil Nadu Handball Assn. - Chennai", category: "JUNIOR BOYS", result: "Runner-up" },
-  { year: "2021", type: "GOLD", title: "23RD JUNIOR NATIONAL CHAMPIONSHIP", desc: "Hosted by Goa Handball Assn. - Panaji", category: "JUNIOR BOYS", result: "Champion" },
-  { year: "2019", type: "BRONZE", title: "67TH SENIOR NATIONAL CHAMPIONSHIP", desc: "Hosted by Punjab Handball Assn. - Patiala", category: "SENIOR WOMEN", result: "3rd Place" },
-  { year: "2018", type: "GOLD", title: "66TH SENIOR NATIONAL CHAMPIONSHIP", desc: "Hosted by Odisha Handball Assn. - Bhubaneswar", category: "SENIOR MEN", result: "Champion" },
-  { year: "2017", type: "SILVER", title: "23RD SUB-JUNIOR NATIONAL CHAMPIONSHIP", desc: "Hosted by Karnataka Handball Assn. - Bengaluru", category: "SUB-JUNIOR BOYS", result: "Runner-up" },
-  { year: "1996", type: "GOLD", title: "44TH SENIOR NATIONAL CHAMPIONSHIP", desc: "First national title - Hosted by Delhi Handball Assn.", category: "SENIOR MEN", result: "Champion" },
-];
 
 export default function AchievementsPage() {
   const [players, setPlayers] = useState<PlayerAchievementData[]>([]);
   const [coaches, setCoaches] = useState<CoachAchievementData[]>([]);
   const [awards, setAwards] = useState<FederationAwardData[]>([]);
+  const [medals, setMedals] = useState<NationalMedalData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -33,6 +25,7 @@ export default function AchievementsPage() {
           setPlayers(res.players);
           setCoaches(res.coaches);
           setAwards(res.awards);
+          setMedals(res.medals || []);
         }
       })
       .catch(console.error)
@@ -123,10 +116,16 @@ export default function AchievementsPage() {
         </div>
 
         <div className="flex flex-col gap-3">
-          {MEDALS.map((medal, idx) => {
+          {loading ? (
+            <div className="animate-pulse space-y-3">
+               {[1, 2, 3].map(i => <div key={i} className="bg-white border border-gray-100 p-5 rounded-sm h-24"></div>)}
+            </div>
+          ) : medals.length === 0 ? (
+            <div className="text-gray-500 italic py-6">No national medals found.</div>
+          ) : medals.map((medal, idx) => {
             let badgeColor = "bg-[#d89f55]"; // Gold
-            if (medal.type === "SILVER") badgeColor = "bg-[#a8a9a8]";
-            if (medal.type === "BRONZE") badgeColor = "bg-[#c88d68]";
+            if (medal.medal_type === "SILVER") badgeColor = "bg-[#a8a9a8]";
+            if (medal.medal_type === "BRONZE") badgeColor = "bg-[#c88d68]";
 
             return (
               <div key={idx} className="bg-white border border-gray-100 p-5 rounded-sm shadow-sm flex flex-col md:flex-row md:items-center gap-6 hover:shadow transition-shadow">
@@ -135,7 +134,7 @@ export default function AchievementsPage() {
                 </div>
                 
                 <div className={`w-12 h-12 rounded-full text-white text-[9px] font-bold tracking-widest flex items-center justify-center shrink-0 uppercase shadow-sm ${badgeColor}`}>
-                  {medal.type}
+                  {medal.medal_type}
                 </div>
 
                 <div className="flex-1">
@@ -143,7 +142,7 @@ export default function AchievementsPage() {
                     {medal.title}
                   </h3>
                   <p className="text-[10px] text-gray-500 font-bold tracking-widest uppercase">
-                    {medal.desc}
+                    {medal.description}
                   </p>
                 </div>
 
@@ -151,7 +150,7 @@ export default function AchievementsPage() {
                   <div className="bg-[#fcfbf9] border border-gray-100 px-4 py-2 text-[9px] font-bold tracking-widest uppercase text-gray-500 rounded-sm">
                     {medal.category}
                   </div>
-                  <div className="text-xs font-bold text-[#d97c55] min-w[80px] text-right uppercase tracking-widest">
+                  <div className="text-xs font-bold text-[#d97c55] min-w-[80px] text-right uppercase tracking-widest">
                     {medal.result}
                   </div>
                 </div>

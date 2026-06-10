@@ -30,3 +30,16 @@ class FederationAward(models.Model):
     award_name = models.CharField(max_length=255)
     awarded_by = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
+
+class NationalMedal(models.Model):
+    year = models.CharField(max_length=10)
+    medal_type = models.CharField(max_length=50, choices=[
+        ('GOLD', 'Gold'),
+        ('SILVER', 'Silver'),
+        ('BRONZE', 'Bronze'),
+    ])
+    title = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
+    category = models.CharField(max_length=255)
+    result = models.CharField(max_length=255)
+    created_at = models.DateTimeField(auto_now_add=True)

@@ -14,7 +14,7 @@ export default function CoachCertificationPage() {
 
         {/* Right Sidebar */}
         <div className="w-full lg:w-1/3 relative">
-          <div className="sticky top-28 space-y-6">
+          <div className="space-y-6">
             <CoachCertificationSidebar />
           </div>
         </div>

@@ -1,14 +1,47 @@
+"use client";
+
 import DistrictProfileHero from "./DistrictProfileHero";
 import OfficeBearersSection from "./OfficeBearersSection";
 import OfficeDetailsSection from "./OfficeDetailsSection";
 import GetInvolvedSection from "./GetInvolvedSection";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { useParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { listDistricts, DistrictData } from "@/lib/api";
 
 export default function DistrictProfilePage() {
+  const params = useParams();
+  const id = params.id as string;
+  const [district, setDistrict] = useState<DistrictData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    listDistricts()
+      .then((res) => {
+        if (res.success) {
+          const found = res.districts.find((d) => d.id.toString() === id);
+          setDistrict(found || null);
+        }
+      })
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [id]);
+
+  if (loading) {
+    return <main className="flex-1 bg-[#fcfbf9] min-h-screen pb-24 flex items-center justify-center animate-pulse text-gray-400 tracking-widest font-bold text-xs uppercase">Loading District Data...</main>;
+  }
+
+  if (!district) {
+    return <main className="flex-1 bg-[#fcfbf9] min-h-screen pb-24 flex items-center justify-center flex-col gap-4">
+      <div className="text-gray-500 uppercase tracking-widest font-bold text-sm">District not found</div>
+      <Link href="/districts" className="text-accent hover:underline text-xs tracking-widest uppercase font-bold">Return to Directory</Link>
+    </main>;
+  }
+
   return (
     <main className="flex-1 bg-[#fcfbf9] min-h-screen pb-24">
-      <DistrictProfileHero />
+      <DistrictProfileHero district={district} />
       
       <div className="max-w-7xl mx-auto px-6 mt-32">
         {/* Back Link */}
@@ -18,9 +51,9 @@ export default function DistrictProfilePage() {
         </Link>
         
         {/* Sections */}
-        <OfficeBearersSection />
-        <OfficeDetailsSection />
-        <GetInvolvedSection />
+        <OfficeBearersSection district={district} />
+        <OfficeDetailsSection district={district} />
+        <GetInvolvedSection district={district} />
       </div>
     </main>
   );

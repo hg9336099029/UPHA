@@ -1,7 +1,29 @@
+"use client";
+
 import { Megaphone, Clock } from "lucide-react";
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { getNotifications, NotificationData } from "@/lib/api";
 
 export default function CoachNotices() {
+  const [notices, setNotices] = useState<NotificationData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchNotices() {
+      try {
+        const res = await getNotifications();
+        if (res.success && res.notifications) {
+          setNotices(res.notifications.slice(0, 3));
+        }
+      } catch (error) {
+        console.error("Failed to fetch notices:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchNotices();
+  }, []);
+
   return (
     <div className="bg-white border border-gray-200 shadow-sm rounded-sm h-full flex flex-col">
       
@@ -15,39 +37,38 @@ export default function CoachNotices() {
 
       {/* Notices List */}
       <div className="flex-1 flex flex-col">
-        
-        {/* Notice 1 */}
-        <div className="flex gap-4 p-6 md:p-8 border-b border-gray-50">
-          <div className="w-10 h-10 rounded-full bg-orange-50 text-accent flex items-center justify-center shrink-0">
-            <Megaphone className="w-4 h-4" />
+        {loading ? (
+          <div className="p-8 text-center text-sm text-gray-500 animate-pulse">
+            Loading announcements...
           </div>
-          <div>
-            <h4 className="font-bold text-sm text-gray-800 mb-1">Coach grading workshop &mdash; July 2026</h4>
-            <p className="text-xs text-gray-500 leading-relaxed mb-3">
-              UPHA will host a State &rarr; National grading workshop in Lucknow. State-grade coaches eligible to apply.
-            </p>
-            <div className="text-[8px] font-bold tracking-widest text-accent uppercase">
-              POSTED 14 MAY 2026
-            </div>
+        ) : notices.length === 0 ? (
+          <div className="p-8 text-center text-sm text-gray-500">
+            No new announcements.
           </div>
-        </div>
+        ) : (
+          notices.map((notice, idx) => {
+            const dateStr = new Date(notice.created_at).toLocaleDateString("en-IN", {
+              day: "numeric", month: "short", year: "numeric"
+            }).toUpperCase();
 
-        {/* Notice 2 */}
-        <div className="flex gap-4 p-6 md:p-8">
-          <div className="w-10 h-10 rounded-full bg-orange-50 text-accent flex items-center justify-center shrink-0">
-            <Clock className="w-4 h-4" />
-          </div>
-          <div>
-            <h4 className="font-bold text-sm text-gray-800 mb-1">Selection criteria update</h4>
-            <p className="text-xs text-gray-500 leading-relaxed mb-3">
-              Revised criteria for state team selection are now published. All head coaches are requested to review before trials.
-            </p>
-            <div className="text-[8px] font-bold tracking-widest text-accent uppercase">
-              POSTED 2 MAY 2026
-            </div>
-          </div>
-        </div>
-
+            return (
+              <div key={notice.id} className={`flex gap-4 p-6 md:p-8 ${idx < notices.length - 1 ? 'border-b border-gray-50' : ''}`}>
+                <div className="w-10 h-10 rounded-full bg-orange-50 text-accent flex items-center justify-center shrink-0">
+                  <Megaphone className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="font-bold text-sm text-gray-800 mb-1">{notice.title}</h4>
+                  <p className="text-xs text-gray-500 leading-relaxed mb-3">
+                    {notice.message}
+                  </p>
+                  <div className="text-[8px] font-bold tracking-widest text-accent uppercase">
+                    POSTED {dateStr}
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
     </div>
   );

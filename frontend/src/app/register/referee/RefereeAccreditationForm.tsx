@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, Image as ImageIcon, FileText, FileBadge } from "lucide-react";
+import { Clock, Camera, FileText, Award, Image as ImageIcon } from "lucide-react";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { registerReferee } from "@/lib/api";
@@ -117,17 +117,7 @@ export default function RefereeAccreditationForm() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">PASSWORD <span className="text-accent">*</span></label>
-              <input name="password" type="password" placeholder="Create a password" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
-            </div>
-            <div>
-              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">CONFIRM PASSWORD <span className="text-accent">*</span></label>
-              <input name="confirm_password" type="password" placeholder="Repeat password" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
-            </div>
-          </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">DATE OF BIRTH <span className="text-accent">*</span></label>
@@ -253,7 +243,7 @@ export default function RefereeAccreditationForm() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
             <label className="block cursor-pointer">
               <span className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">PASSPORT PHOTO <span className="text-accent">*</span></span>
-              <div className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center justify-center gap-4 hover:bg-gray-50 transition-colors relative overflow-hidden">
+              <div className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center gap-4 hover:bg-gray-50 transition-colors relative overflow-hidden">
                 <input
                   name="passport_image"
                   type="file"
@@ -266,7 +256,7 @@ export default function RefereeAccreditationForm() {
                   }}
                 />
                 <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0">
-                  <ImageIcon className="w-4 h-4 text-gray-400" />
+                  <Camera className="w-4 h-4 text-gray-600" />
                 </div>
                 <div>
                   <div className="text-sm font-semibold text-gray-800">Passport-style photo</div>
@@ -277,7 +267,7 @@ export default function RefereeAccreditationForm() {
             </label>
             <label className="block cursor-pointer">
               <span className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">AADHAR CARD UPLOAD <span className="text-accent">*</span></span>
-              <div className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center justify-center gap-4 hover:bg-gray-50 transition-colors relative overflow-hidden">
+              <div className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center gap-4 hover:bg-gray-50 transition-colors relative overflow-hidden">
                 <input
                   name="adhar_image"
                   type="file"
@@ -290,7 +280,7 @@ export default function RefereeAccreditationForm() {
                   }}
                 />
                 <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0">
-                  <FileText className="w-4 h-4 text-gray-400" />
+                  <FileText className="w-4 h-4 text-gray-600" />
                 </div>
                 <div>
                   <div className="text-sm font-semibold text-gray-800">Aadhar (front + back)</div>
@@ -309,7 +299,7 @@ export default function RefereeAccreditationForm() {
                 setCertificateImageName(f ? f.name : "");
               }} />
               <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0">
-                <FileBadge className="w-4 h-4 text-gray-400" />
+                <Award className="w-4 h-4 text-gray-600" />
               </div>
               <div>
                 <div className="text-sm font-semibold text-gray-800">Upload certificate or experience proof</div>

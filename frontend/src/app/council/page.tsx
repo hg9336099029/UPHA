@@ -1,83 +1,52 @@
+"use client";
+
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-
-export const metadata = {
-  title: "Full Council | UPHA",
-  description: "Meet the complete Executive Council of the Uttar Pradesh Handball Association.",
-};
-
-const councilCategories = [
-  {
-    category: "EXECUTIVE BOARD",
-    members: [
-      {
-        role: "CHAIRMAN",
-        name: "DR. SUDHIR M. BOBDE",
-        details: "Office: Lucknow",
-        bgColor: "bg-gray-200",
-        image: "/leader-1.png"
-      },
-      {
-        role: "PRESIDENT",
-        name: "SMT. ALKA DAS",
-        details: "Office: Lucknow",
-        bgColor: "bg-gray-300",
-        image: "/leader-2.png"
-      },
-      {
-        role: "TREASURER",
-        name: "VINAY KUMAR SINGH",
-        details: "+91 75700 99990",
-        bgColor: "bg-yellow-100",
-        image: "/leader-3.png"
-      },
-      {
-        role: "EXEC. SECRETARY GENERAL",
-        name: "AMIT PANDEY",
-        details: "+91 70849 00009",
-        bgColor: "bg-pink-100",
-        image: "/leader-4.png"
-      },
-      {
-        role: "SECRETARY GENERAL",
-        name: "DR. ANANDESHWAR PANDEY",
-        details: "+91 94150 22230",
-        bgColor: "bg-gray-300",
-        image: "/leader-5.png"
-      }
-    ]
-  },
-  {
-    category: "VICE PRESIDENTS",
-    members: [
-      { role: "VICE PRESIDENT", name: "MR. RAJESH TIWARI", details: "Zone A", bgColor: "bg-blue-50", image: null },
-      { role: "VICE PRESIDENT", name: "MR. SANJEEV KUMAR", details: "Zone B", bgColor: "bg-green-50", image: null },
-      { role: "VICE PRESIDENT", name: "MS. ANITA SHARMA", details: "Zone C", bgColor: "bg-purple-50", image: null },
-      { role: "VICE PRESIDENT", name: "MR. DEEPAK SINGH", details: "Zone D", bgColor: "bg-orange-50", image: null },
-    ]
-  },
-  {
-    category: "JOINT SECRETARIES",
-    members: [
-      { role: "JOINT SECRETARY", name: "MR. RAHUL VERMA", details: "Administration", bgColor: "bg-gray-50", image: null },
-      { role: "JOINT SECRETARY", name: "MR. VIKAS YADAV", details: "Events", bgColor: "bg-gray-50", image: null },
-      { role: "JOINT SECRETARY", name: "MS. PRIYANKA GUPTA", details: "Women's Development", bgColor: "bg-gray-50", image: null },
-    ]
-  },
-  {
-    category: "EXECUTIVE MEMBERS",
-    members: [
-      { role: "EXECUTIVE MEMBER", name: "MR. ANIL CHATURVEDI", details: "Member", bgColor: "bg-gray-50", image: null },
-      { role: "EXECUTIVE MEMBER", name: "MR. SURENDRA PATEL", details: "Member", bgColor: "bg-gray-50", image: null },
-      { role: "EXECUTIVE MEMBER", name: "MR. MANISH MISHRA", details: "Member", bgColor: "bg-gray-50", image: null },
-      { role: "EXECUTIVE MEMBER", name: "MS. KAVITA RANI", details: "Member", bgColor: "bg-gray-50", image: null },
-      { role: "EXECUTIVE MEMBER", name: "MR. ASHOK PANDEY", details: "Member", bgColor: "bg-gray-50", image: null },
-    ]
-  }
-];
+import { useEffect, useState } from "react";
+import { listOfficeBearers, OfficeBearerData } from "@/lib/api";
 
 export default function CouncilPage() {
+  const [leaders, setLeaders] = useState<OfficeBearerData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchLeaders() {
+      try {
+        const res = await listOfficeBearers();
+        if (res.success && res.office_bearers) {
+          setLeaders(res.office_bearers);
+        }
+      } catch (error) {
+        console.error("Failed to load office bearers:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchLeaders();
+  }, []);
+
+  // Bifurcation / Categorization logic
+  const executiveBoardRoles = [
+    "CHAIRMAN",
+    "PRESIDENT",
+    "TREASURER",
+    "EXEC. SECRETARY GENERAL",
+    "SECRETARY GENERAL",
+  ];
+
+  const executiveBoard = leaders.filter((l) => executiveBoardRoles.includes(l.role));
+  const vicePresidents = leaders.filter((l) => l.role === "VICE PRESIDENT");
+  const jointSecretaries = leaders.filter((l) => l.role === "JOINT SECRETARY");
+  const executiveMembers = leaders.filter((l) => l.role === "EXECUTIVE MEMBER");
+
+  const groups = [
+    { title: "EXECUTIVE BOARD", members: executiveBoard },
+    { title: "VICE PRESIDENTS", members: vicePresidents },
+    { title: "JOINT SECRETARIES", members: jointSecretaries },
+    { title: "EXECUTIVE MEMBERS", members: executiveMembers },
+  ].filter((g) => g.members.length > 0);
+
   return (
     <main className="flex-1 bg-background flex flex-col pt-12 pb-24">
       {/* Header Section */}
@@ -96,45 +65,66 @@ export default function CouncilPage() {
         </p>
       </section>
 
-      {/* Directory Sections */}
-      <div className="px-6 max-w-7xl mx-auto w-full space-y-24">
-        {councilCategories.map((group, groupIdx) => (
-          <section key={groupIdx}>
-            <div className="flex items-center gap-4 mb-8">
-              <h2 className="font-heading text-2xl md:text-3xl font-bold uppercase tracking-wide text-primary">
-                {group.category}
-              </h2>
-              <div className="h-[1px] bg-gray-200 flex-1"></div>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-              {group.members.map((member, idx) => (
-                <div key={idx} className="border border-gray-100 rounded bg-white shadow-sm overflow-hidden flex flex-col hover:-translate-y-1 transition-transform duration-300">
-                  <div className={`h-48 ${member.bgColor} w-full relative flex items-center justify-center`}>
-                    {member.image ? (
-                      <div className="w-full h-full relative">
-                        <Image src={member.image} alt={member.name} fill className="object-cover object-center" />
-                      </div>
-                    ) : (
-                      <div className="font-heading text-4xl font-bold text-gray-300 opacity-50 uppercase">
-                        {member.name.charAt(0)}
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-4 flex-1 flex flex-col justify-between border-t border-gray-100">
-                    <div>
-                      <div className="text-accent text-[10px] font-bold tracking-widest uppercase mb-1">{member.role}</div>
-                      <h3 className="font-heading text-lg font-bold uppercase tracking-wide leading-tight mb-4">{member.name}</h3>
-                    </div>
-                    <div className="text-gray-500 text-xs">
-                      {member.details}
-                    </div>
-                  </div>
+      {/* Directory Section */}
+      <div className="px-6 max-w-7xl mx-auto w-full">
+        {loading ? (
+          <div className="py-24 flex justify-center items-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent"></div>
+          </div>
+        ) : leaders.length === 0 ? (
+          <div className="py-12 text-center text-gray-500">
+            No office bearers found in the database.
+          </div>
+        ) : (
+          <div className="space-y-24">
+            {groups.map((group, groupIdx) => (
+              <section key={groupIdx}>
+                <div className="flex items-center gap-4 mb-8">
+                  <h2 className="font-heading text-2xl md:text-3xl font-bold uppercase tracking-wide text-primary">
+                    {group.title}
+                  </h2>
+                  <div className="h-[1px] bg-gray-200 flex-1"></div>
                 </div>
-              ))}
-            </div>
-          </section>
-        ))}
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {group.members.map((member, idx) => (
+                    <div
+                      key={idx}
+                      className="border border-gray-100 rounded bg-white shadow-sm overflow-hidden flex flex-col hover:-translate-y-1 transition-transform duration-300"
+                    >
+                      <div className="h-56 bg-gray-100 w-full relative flex items-center justify-center">
+                        {member.image ? (
+                          <div className="w-full h-full relative">
+                            <Image
+                              src={member.image}
+                              alt={member.name}
+                              fill
+                              className="object-cover object-center"
+                            />
+                          </div>
+                        ) : (
+                          <div className="font-heading text-4xl font-bold text-gray-300 opacity-50 uppercase">
+                            {member.name.charAt(0)}
+                          </div>
+                        )}
+                      </div>
+                      <div className="p-5 flex-1 flex flex-col justify-between border-t border-gray-100">
+                        <div>
+                          <div className="text-accent text-xs font-bold tracking-widest uppercase mb-2">
+                            {member.role}
+                          </div>
+                          <h3 className="font-heading text-xl font-bold uppercase tracking-wide leading-tight mb-2">
+                            {member.name}
+                          </h3>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
+        )}
       </div>
     </main>
   );

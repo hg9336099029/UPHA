@@ -9,6 +9,7 @@ export default function GalleryPage() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
+  const [imageErrors, setImageErrors] = useState<Record<number, boolean>>({});
 
   useEffect(() => {
     listAlbums()
@@ -173,11 +174,12 @@ export default function GalleryPage() {
                 <div key={album.id} className="bg-white border border-gray-200 shadow-sm rounded-sm overflow-hidden group cursor-pointer hover:border-[#d97c55] transition-colors flex flex-col">
                   {/* Image Area */}
                   <div className="relative aspect-[4/3] bg-gray-100 overflow-hidden">
-                    {album.cover_photo ? (
+                    {album.cover_photo && !imageErrors[album.id] ? (
                       <img 
                         src={album.cover_photo} 
                         alt={album.title} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                        onError={() => setImageErrors(prev => ({ ...prev, [album.id]: true }))}
                       />
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gray-200">
