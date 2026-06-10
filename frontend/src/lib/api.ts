@@ -465,21 +465,6 @@ export interface DecisionLogData {
 export async function getDecisionLog() {
   return apiFetch<{ success: boolean; decisions: DecisionLogData[] }>(
     `${ADMIN_BASE}/decisions/`
-export interface DecisionLogData {
-  id: number;
-  applicant_type: string;
-  applicant_id: number;
-  action: string;
-  applicant_name_ref: string;
-  details: string;
-  admin_name: string;
-  notes: string;
-  created_at: string;
-}
-
-export async function getDecisionLog() {
-  return apiFetch<{ success: boolean; decisions: DecisionLogData[] }>(
-    `${ADMIN_BASE}/decisions/`
   );
 }
 
@@ -653,24 +638,6 @@ export interface CertificateData {
   certificate_id: string;
   icon_type: string;
   created_at: string;
-}
-
-export interface DecisionLogData {
-  id: number;
-  applicant_type: string;
-  applicant_id: number;
-  action: string;
-  applicant_name_ref: string;
-  details: string;
-  admin_name: string;
-  notes: string;
-  created_at: string;
-}
-
-export async function getDecisionLog() {
-  return apiFetch<{ success: boolean; decisions: DecisionLogData[] }>(
-    `${ADMIN_BASE}/decisions/`
-  );
 }
 
 // ─── Admin: Event Management ──────────────────────────────────────────────────
