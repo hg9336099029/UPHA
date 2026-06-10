@@ -6,7 +6,7 @@ import { Key, ArrowRight, X, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
 export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) {
-  const { authUser, checkAuth } = useAuth();
+  const { authUser } = useAuth();
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -52,7 +52,7 @@ export default function SettingsModal({ isOpen, onClose }: { isOpen: boolean; on
         setConfirmPassword("");
         // Refresh auth user context
         if (pNewEmail) {
-          checkAuth();
+          window.location.reload();
         }
         setTimeout(() => {
           onClose();
