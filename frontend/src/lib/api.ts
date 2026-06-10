@@ -1,8 +1,8 @@
-// ─── Base URL ────────────────────────────────────────────────────────────────
+// ΓöÇΓöÇΓöÇ Base URL ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 const ADMIN_BASE = `${API_BASE}/admin`;
 
-// ─── TypeScript Interfaces ────────────────────────────────────────────────────
+// ΓöÇΓöÇΓöÇ TypeScript Interfaces ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 export interface UserData {
   id: number;
@@ -121,37 +121,9 @@ export interface EventData {
 
 export interface EventResultData {
   id: number;
-  event: {
-    id: number;
-    name: string | null;
-  };
+  event: { id: number; name: string };
   player: PlayerData;
   position: number;
-}
-
-export interface CertificateData {
-  id: number;
-  title: string;
-  status: string;
-  details: string;
-  certificate_id: string;
-  icon_type: string;
-  created_at: string;
-}
-
-export interface EventAssignmentData {
-  id: number;
-  event: {
-    id: number;
-    name: string;
-    location: string;
-    start_date: string;
-    end_date: string;
-    category: string;
-  };
-  status: string;
-  role: string;
-  created_at: string;
 }
 
 export interface AcademyData {
@@ -176,7 +148,7 @@ export type MeData =
   | { type: "referee"; data: RefereeData }
   | { type: "academy"; data: AcademyData };
 
-// ─── Core Fetch Utility ───────────────────────────────────────────────────────
+// ΓöÇΓöÇΓöÇ Core Fetch Utility ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 function getFriendlyErrorMessage(errorMsg: string): string {
   if (!errorMsg) return "An unknown error occurred.";
@@ -266,7 +238,7 @@ export async function registerAcademy(formData: FormData) {
   );
 }
 
-// ─── User Profile ─────────────────────────────────────────────────────────────
+// ΓöÇΓöÇΓöÇ User Profile ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 export interface NotificationData {
   id: number;
@@ -289,16 +261,8 @@ export async function markNotificationRead(id: number) {
   );
 }
 
-export async function getMyCertificates(): Promise<{ success: boolean; message?: string; certificates?: CertificateData[] }> {
-  return apiFetch<{ success: boolean; message?: string; certificates?: CertificateData[] }>(`${API_BASE}/me/certificates/`);
-}
 
-export async function getMyAssignments(): Promise<{ success: boolean; message?: string; assignments?: EventAssignmentData[] }> {
-  return apiFetch<{ success: boolean; message?: string; assignments?: EventAssignmentData[] }>(`${API_BASE}/me/assignments/`);
-}
-
-
-// ─── Settings ─────────────────────────────────────────────────────────────────────
+// ΓöÇΓöÇΓöÇ Settings ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 export async function login(email: string, password: string) {
   return apiFetch<{ success: boolean; message: string; user: UserData }>(
@@ -332,7 +296,7 @@ export async function getMe(): Promise<{
   return apiFetch(`${API_BASE}/me/`);
 }
 
-// ─── Listing (Public / Admin) ─────────────────────────────────────────────────
+// ΓöÇΓöÇΓöÇ Listing (Public / Admin) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 export interface OfficeBearerData {
   id: number;
@@ -385,7 +349,7 @@ export async function listEventResults() {
   );
 }
 
-// ─── Admin: Payment Approvals ─────────────────────────────────────────────────
+// ΓöÇΓöÇΓöÇ Admin: Payment Approvals ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 export async function approvePlayerPayment(playerId: number | string, notes?: string) {
   return apiFetch<{ success: boolean; message: string; player: PlayerData }>(
@@ -468,7 +432,7 @@ export async function getDecisionLog() {
   );
 }
 
-// ─── Admin: Event Management ──────────────────────────────────────────────────
+// ΓöÇΓöÇΓöÇ Admin: Event Management ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 export interface CreateEventPayload {
   name: string;
@@ -508,7 +472,7 @@ export async function addEventResult(
   );
 }
 
-// ─── Albums ───────────────────────────────────────────────────────────────────
+// ΓöÇΓöÇΓöÇ Albums ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 export interface AlbumData {
   id: number;
@@ -534,7 +498,7 @@ export async function createAlbum(formData: FormData) {
   );
 }
 
-// ─── Districts ─────────────────────────────────────────────────────────────
+// ΓöÇΓöÇΓöÇ Districts ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 export interface DistrictData {
   id: number;
@@ -564,179 +528,7 @@ export async function listDistricts() {
 }
 
 
-// ─── Achievements ─────────────────────────────────────────────────────────────
-
-export interface PlayerAchievementData {
-  id: string;
-  name: string;
-  district: string;
-  position: string;
-  player_id_str: string;
-  event_name: string;
-  event_location: string;
-  description: string;
-  category_tag: string;
-  color_theme: string;
-}
-
-export interface CoachAchievementData {
-  id: string;
-  name: string;
-  award_name: string;
-  year: string;
-  role_description: string;
-  coach_id_str: string;
-}
-
-export interface FederationAwardData {
-  id: string;
-  year: string;
-  award_name: string;
-  awarded_by: string;
-}
-
-export interface NationalMedalData {
-  id: number;
-  year: string;
-  medal_type: string;
-  title: string;
-  description: string;
-  category: string;
-  result: string;
-  created_at: string;
-}
-
-export async function listAchievements() {
-  return apiFetch<{
-    success: boolean;
-    players: PlayerAchievementData[];
-    coaches: CoachAchievementData[];
-    awards: FederationAwardData[];
-    medals: NationalMedalData[];
-  }>(`${API_BASE}/achievements/`);
-}
-
-export interface GlobalStatsData {
-  districts: number;
-  players: number;
-  coaches: number;
-  tournaments: number;
-}
-
-export async function getGlobalStats() {
-  return apiFetch<{ success: boolean; stats: GlobalStatsData }>(
-    `${API_BASE}/stats/`,
-    { cache: "no-store" }
-  );
-}
-
-export interface CertificateData {
-  id: number;
-  title: string;
-  status: string;
-  details: string;
-  certificate_id: string;
-  icon_type: string;
-  created_at: string;
-}
-
-// ─── Admin: Event Management ──────────────────────────────────────────────────
-
-export interface CreateEventPayload {
-  name: string;
-  location: string;
-  start_date: string;
-  end_date: string;
-  registration_end_date: string;
-  category: string;
-}
-
-export async function createEvent(payload: CreateEventPayload) {
-  return apiFetch<{ success: boolean; message: string; event: EventData }>(
-    `${ADMIN_BASE}/events/create/`,
-    { method: "POST", body: JSON.stringify(payload) }
-  );
-}
-
-export async function deleteEvent(eventId: number | string) {
-  return apiFetch<{ success: boolean; message: string }>(
-    `${ADMIN_BASE}/events/${eventId}/delete/`,
-    { method: "POST", body: JSON.stringify({}) }
-  );
-}
-
-export interface AddEventResultPayload {
-  player_id: number | string;
-  position: number;
-}
-
-export async function addEventResult(
-  eventId: number | string,
-  payload: AddEventResultPayload
-) {
-  return apiFetch<{ success: boolean; message: string; result: EventResultData }>(
-    `${ADMIN_BASE}/events/${eventId}/results/`,
-    { method: "POST", body: JSON.stringify(payload) }
-  );
-}
-
-// ─── Albums ───────────────────────────────────────────────────────────────────
-
-export interface AlbumData {
-  id: number;
-  title: string;
-  description: string;
-  date: string | null;
-  event: { id: number; name: string; location: string; category: string; } | null;
-  cover_photo: string | null;
-  photo_count: number;
-  created_at: string;
-}
-
-export async function listAlbums() {
-  return apiFetch<{ success: boolean; message: string; albums: AlbumData[] }>(
-    `${API_BASE}/gallery/albums/`
-  );
-}
-
-export async function createAlbum(formData: FormData) {
-  return multipartApiFetch<{ success: boolean; message: string; album: AlbumData }>(
-    `${API_BASE}/gallery/albums/create/`,
-    formData
-  );
-}
-
-// ─── Districts ─────────────────────────────────────────────────────────────
-
-export interface DistrictData {
-  id: number;
-  name: string;
-  district: string;
-  year_of_establishment: number;
-  logo: string | null;
-  trust_registration_number: string;
-  office_address: string;
-  office_phone_number: string;
-  email: string;
-  website: string | null;
-  no_of_players: number;
-  adhyaksha: UserData | null;
-  sachiv: UserData | null;
-  koshadhyaksha: UserData | null;
-  registration_certificate: string | null;
-  transaction_id: string;
-  transaction_image: string | null;
-  paid: boolean;
-}
-
-export async function listDistricts() {
-  return apiFetch<{ success: boolean; districts: DistrictData[] }>(
-    `${API_BASE}/districts/`
-  );
-}
-
-
-// ─── Achievements ─────────────────────────────────────────────────────────────
+// ΓöÇΓöÇΓöÇ Achievements ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 export interface PlayerAchievementData {
   id: string;
