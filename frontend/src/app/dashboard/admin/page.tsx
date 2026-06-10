@@ -90,14 +90,14 @@ export default function AdminDashboardPage() {
                 </button>
                 
                 <div className="w-full max-h-[90vh] overflow-y-auto rounded shadow-2xl relative z-10 bg-white">
-                  {activeTab === "invite_admin" && <InviteAdminModal />}
-                  {activeTab === "publish_notice" && <PublishNoticeModal />}
+                  {activeTab === "invite_admin" && <InviteAdminModal onClose={() => setActiveTab("applications")} />}
+                  {activeTab === "publish_notice" && <PublishNoticeModal onClose={() => setActiveTab("applications")} />}
                   {activeTab === "create_event" && <CreateEventModal onSubmit={async (form) => {
                       await handleCreateEvent(form);
                       setActiveTab("applications");
                   }} />}
-                  {activeTab === "upload_results" && <UploadResultsModal />}
-                  {activeTab === "upload_gallery" && <UploadGalleryModal />}
+                  {activeTab === "upload_results" && <UploadResultsModal onClose={() => setActiveTab("applications")} />}
+                  {activeTab === "upload_gallery" && <UploadGalleryModal onClose={() => setActiveTab("applications")} />}
                 </div>
               </div>
             </div>
