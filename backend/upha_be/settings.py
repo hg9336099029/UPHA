@@ -29,6 +29,7 @@ INSTALLED_APPS = [
     'events',
     'district',
     'gallery',
+    'achievements',
 ]
 
 MIDDLEWARE = [

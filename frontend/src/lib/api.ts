@@ -237,6 +237,13 @@ export async function logout() {
   );
 }
 
+export async function changePassword(current_password: string, new_password: string) {
+  return apiFetch<{ success: boolean; message: string }>(
+    `${API_BASE}/change-password/`,
+    { method: "POST", body: JSON.stringify({ current_password, new_password }) }
+  );
+}
+
 export async function getMe(): Promise<{
   success: boolean;
   message: string;
@@ -321,17 +328,32 @@ export async function rejectApplication(type: string, id: number | string, notes
   );
 }
 
+export async function inviteAdmin(payload: { email: string; name: string }) {
+  return apiFetch<{ success: boolean; message: string; credentials: { email: string; password: string; name: string } }>(
+    `${API_BASE}/invite-admin/`,
+    { method: "POST", body: JSON.stringify(payload) }
+  );
+}
+
 export interface AdminStatsData {
   approved_today: number;
   approved_this_week: number;
   rejected_this_month: number;
   total_pending: number;
+  pending_players: number;
+  pending_coaches: number;
+  pending_referees: number;
+  pending_academies: number;
+  active_events: number;
+  draft_events: number;
+  results_awaiting: number;
+  gallery_albums: number;
+  active_admins: number;
+  scheduled_notices: number;
 }
 
-export async function getAdminStats() {
-  return apiFetch<{ success: boolean; stats: AdminStatsData }>(
-    `${ADMIN_BASE}/stats/`
-  );
+export async function getAdminStats(): Promise<{ success: boolean; message: string; stats: AdminStatsData }> {
+  return apiFetch<{ success: boolean; message: string; stats: AdminStatsData }>(`${ADMIN_BASE}/stats/`);
 }
 
 export interface DecisionLogData {
@@ -390,4 +412,100 @@ export async function addEventResult(
     `${ADMIN_BASE}/events/${eventId}/results/`,
     { method: "POST", body: JSON.stringify(payload) }
   );
+}
+
+// ─── Albums ───────────────────────────────────────────────────────────────────
+
+export interface AlbumData {
+  id: number;
+  title: string;
+  description: string;
+  date: string | null;
+  event: { id: number; name: string; location: string; category: string; } | null;
+  cover_photo: string | null;
+  photo_count: number;
+  created_at: string;
+}
+
+export async function listAlbums() {
+  return apiFetch<{ success: boolean; message: string; albums: AlbumData[] }>(
+    `${API_BASE}/gallery/albums/`
+  );
+}
+
+export async function createAlbum(formData: FormData) {
+  return apiFetch<{ success: boolean; message: string; album: AlbumData }>(
+    `${ADMIN_BASE}/gallery/albums/create/`,
+    { method: "POST", body: formData }
+  );
+}
+
+// ─── Districts ─────────────────────────────────────────────────────────────
+
+export interface DistrictData {
+  id: number;
+  name: string;
+  district: string;
+  year_of_establishment: number;
+  logo: string | null;
+  trust_registration_number: string;
+  office_address: string;
+  office_phone_number: string;
+  email: string;
+  website: string | null;
+  no_of_players: number;
+  adhyaksha: UserData | null;
+  sachiv: UserData | null;
+  koshadhyaksha: UserData | null;
+  registration_certificate: string | null;
+  transaction_id: string;
+  transaction_image: string | null;
+  paid: boolean;
+}
+
+export async function listDistricts() {
+  return apiFetch<{ success: boolean; districts: DistrictData[] }>(
+    `${API_BASE}/districts/`
+  );
+}
+
+
+// ─── Achievements ─────────────────────────────────────────────────────────────
+
+export interface PlayerAchievementData {
+  id: string;
+  name: string;
+  district: string;
+  position: string;
+  player_id_str: string;
+  event_name: string;
+  event_location: string;
+  description: string;
+  category_tag: string;
+  color_theme: string;
+}
+
+export interface CoachAchievementData {
+  id: string;
+  name: string;
+  award_name: string;
+  year: string;
+  role_description: string;
+  coach_id_str: string;
+}
+
+export interface FederationAwardData {
+  id: string;
+  year: string;
+  award_name: string;
+  awarded_by: string;
+}
+
+export async function listAchievements() {
+  return apiFetch<{
+    success: boolean;
+    players: PlayerAchievementData[];
+    coaches: CoachAchievementData[];
+    awards: FederationAwardData[];
+  }>(`${API_BASE}/achievements/`);
 }

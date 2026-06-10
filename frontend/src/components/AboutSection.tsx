@@ -26,7 +26,7 @@ export default function AboutSection() {
             From the courts of Lucknow&apos;s K.D. Singh Babu Stadium to inter-zonal tournaments across India, UPHA&apos;s mandate is plainspoken: develop players, certify coaches and referees, host competitions, and represent Uttar Pradesh wherever the game is played. Our work spans 75 affiliated districts, thousands of registered athletes, and a growing roster of tournaments that feed directly into the national pipeline.
           </p>
           
-          <Link href="/#about" className="text-primary font-bold text-xs uppercase tracking-widest border-b-2 border-primary pb-1 hover:text-accent hover:border-accent transition-colors">
+          <Link href="/about" className="text-primary font-bold text-xs uppercase tracking-widest border-b-2 border-primary pb-1 hover:text-accent hover:border-accent transition-colors">
             READ OUR FULL HISTORY &rarr;
           </Link>
         </div>

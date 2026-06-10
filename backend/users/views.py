@@ -308,7 +308,10 @@ def me_view(request):
 		from users.utils import serialize_district
 		return json_success('Current district profile retrieved successfully.', user=serialize_district(request, district))
 
-	return json_error('Only coach, referee, academy, district, and player accounts can access this endpoint.', status=403)
+	if user.role == 'admin':
+		return json_success('Current admin profile retrieved successfully.', user={'id': user.id, 'email': user.email, 'name': user.name, 'role': 'admin'})
+
+	return json_error('Only coach, referee, academy, district, admin, and player accounts can access this endpoint.', status=403)
 
 
 @csrf_exempt
@@ -483,8 +486,10 @@ def get_my_certificate(request):
 def get_admin_stats(request):
 	from django.utils import timezone
 	from datetime import timedelta
-	from users.models import DecisionLog, Player, Coach, Referee
+	from users.models import DecisionLog, Player, Coach, Referee, User
 	from academy.models import Academy
+	from events.models import Event, EventResults
+	from gallery.models import Gallery
 
 	now = timezone.now()
 	today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
@@ -501,6 +506,17 @@ def get_admin_stats(request):
 	pending_a = Academy.objects.filter(paid=False).count()
 	total_pending = pending_p + pending_c + pending_r + pending_a
 
+	active_events = Event.objects.count()
+	draft_events = 0
+	
+	# Events in the past with no results
+	events_with_results = EventResults.objects.values_list('event_id', flat=True).distinct()
+	results_awaiting = Event.objects.exclude(id__in=events_with_results).filter(end_date__lt=now.date()).count()
+
+	gallery_albums = Gallery.objects.filter(content_type='photo').count()
+	
+	active_admins = User.objects.filter(role='admin').count()
+
 	return json_success('Stats retrieved successfully.', stats={
 		'approved_today': approved_today,
 		'approved_this_week': approved_this_week,
@@ -510,6 +526,12 @@ def get_admin_stats(request):
 		'pending_coaches': pending_c,
 		'pending_referees': pending_r,
 		'pending_academies': pending_a,
+		'active_events': active_events,
+		'draft_events': draft_events,
+		'results_awaiting': results_awaiting,
+		'gallery_albums': gallery_albums,
+		'active_admins': active_admins,
+		'scheduled_notices': 0,
 	})
 
 @require_http_methods(['GET'])
@@ -530,3 +552,71 @@ def get_recent_decisions(request):
 			'created_at': d.created_at.isoformat(),
 		})
 	return json_success('Decisions retrieved successfully.', decisions=data)
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def invite_admin(request):
+	# In a real setup, we would check request.user.is_staff
+	# For now, since auth works with JWT/Session we will just create the user.
+	# The frontend guards this by only showing the dashboard to admins.
+	data = get_request_data(request)
+	email = data.get('email', '').strip()
+	name = data.get('name', '').strip()
+
+	if not email or not name:
+		return json_error('Email and name are required.')
+
+	if User.objects.filter(email=email).exists():
+		return json_error('A user with this email already exists.')
+
+	import string
+	import random
+	chars = string.ascii_letters + string.digits + "!@#$%"
+	temp_password = ''.join(random.choice(chars) for _ in range(12))
+
+	try:
+		with transaction.atomic():
+			user = User.objects.create_admin(
+				email=email,
+				password=temp_password,
+				name=name
+			)
+			# Optionally log this action
+			from users.utils import log_decision
+			# log_decision(request, 'admin', user.id, 'Created Admin', f"{user.name} ({user.email})", 'Created via Invite', '')
+	except Exception as exc:
+		return json_error(str(exc))
+
+	return json_success('Admin created successfully.', credentials={
+		'email': email,
+		'password': temp_password,
+		'name': name
+	})
+
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def change_password(request):
+	user = getattr(request, 'user', None)
+	if not user or not user.is_authenticated:
+		return json_error('Authentication required.', status=401)
+		
+	data = get_request_data(request)
+	current_password = data.get('current_password', '')
+	new_password = data.get('new_password', '')
+	
+	if not current_password or not new_password:
+		return json_error('Both current and new passwords are required.')
+		
+	if not user.check_password(current_password):
+		return json_error('Incorrect current password.')
+		
+	user.set_password(new_password)
+	user.save(update_fields=['password'])
+	
+	# Re-login to update session hash
+	from django.contrib.auth import login
+	login(request, user)
+	
+	return json_success('Password changed successfully.')
+

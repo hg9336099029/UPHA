@@ -8,7 +8,7 @@ from django.conf.urls.static import static
 from django.urls import path, include
 
 urlpatterns = [
-    path('django-admin/', admin.site.urls),
+    path('admin/', admin.site.urls),
 
     # Public API
     path('api/', include('users.urls')),
@@ -19,5 +19,8 @@ urlpatterns = [
     path('api/admin/', include('users.admin_urls')),
     path('api/admin/', include('academy.admin_urls')),
     path('api/admin/', include('events.admin_urls')),
+    path('api/admin/', include('gallery.admin_urls')),
     path('api/', include('district.urls')),
+    path('api/', include('gallery.urls')),
+    path('api/', include('achievements.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

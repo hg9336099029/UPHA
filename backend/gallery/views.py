@@ -1,10 +1,11 @@
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+import json
 
 from users.utils import admin_required_response, get_request_data, json_error, json_success, image_url
-
-from .models import Gallery
+from events.models import Event
+from .models import Gallery, GalleryAlbum, GalleryPhoto
 
 
 def serialize_gallery_item(request, item):
@@ -18,6 +19,31 @@ def serialize_gallery_item(request, item):
 		'created_at': item.created_at,
 		'updated_at': item.updated_at,
 	}
+
+def serialize_album(request, album):
+    cover_photo = album.photos.filter(is_cover=True).first()
+    if not cover_photo:
+        cover_photo = album.photos.first()
+    
+    event_data = None
+    if album.event:
+        event_data = {
+            'id': album.event.id,
+            'name': album.event.name,
+            'location': album.event.location,
+            'category': album.event.category,
+        }
+        
+    return {
+        'id': album.id,
+        'title': album.title,
+        'description': album.description,
+        'date': album.date,
+        'event': event_data,
+        'cover_photo': image_url(request, cover_photo.image) if cover_photo else None,
+        'photo_count': album.photos.count(),
+        'created_at': album.created_at,
+    }
 
 
 @require_http_methods(['GET'])
@@ -94,3 +120,55 @@ def delete_gallery_item(request, item_id):
 	item = get_object_or_404(Gallery, pk=item_id)
 	item.delete()
 	return json_success('Gallery item deleted successfully.')
+
+
+@require_http_methods(['GET'])
+def list_albums(request):
+    albums = GalleryAlbum.objects.all().order_by('-created_at', '-id')
+    return json_success('Albums retrieved successfully.', albums=[serialize_album(request, album) for album in albums])
+
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def create_album(request):
+    admin_response = admin_required_response(request)
+    if admin_response:
+        return admin_response
+
+    title = request.POST.get('title', '').strip()
+    description = request.POST.get('description', '').strip()
+    date_str = request.POST.get('date', '').strip()
+    event_id = request.POST.get('event_id')
+    cover_index = request.POST.get('cover_index', '0')
+    try:
+        cover_index = int(cover_index)
+    except:
+        cover_index = 0
+
+    if not title:
+        return json_error('Album title is required.')
+
+    event = None
+    if event_id:
+        try:
+            event = Event.objects.get(id=event_id)
+        except Event.DoesNotExist:
+            return json_error('Invalid event.')
+
+    album = GalleryAlbum.objects.create(
+        title=title,
+        description=description,
+        date=date_str if date_str else None,
+        event=event
+    )
+
+    photos = request.FILES.getlist('photos')
+    for index, photo_file in enumerate(photos):
+        is_cover = (index == cover_index)
+        GalleryPhoto.objects.create(
+            album=album,
+            image=photo_file,
+            is_cover=is_cover
+        )
+
+    return json_success('Album created successfully.', album=serialize_album(request, album))

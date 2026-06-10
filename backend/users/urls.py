@@ -15,4 +15,6 @@ urlpatterns = [
     path('referees/', views.list_referees, name='list_referees'),
     path('search/player/', views.search_players, name='search_players'),
     path('player/certificate/', views.get_my_certificate, name='get_my_certificate'),
+    path('invite-admin/', views.invite_admin, name='invite_admin'),
+    path('change-password/', views.change_password, name='change_password'),
 ]

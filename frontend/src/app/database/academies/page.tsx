@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Users, Search, AlertCircle } from "lucide-react";
-import { listPlayers, PlayerData } from "@/lib/api";
+import { GraduationCap, Search, AlertCircle, Phone } from "lucide-react";
+import { listAcademies, AcademyData } from "@/lib/api";
 
-export default function PlayersDatabasePage() {
-  const [players, setPlayers] = useState<PlayerData[]>([]);
+export default function AcademiesDatabasePage() {
+  const [academies, setAcademies] = useState<AcademyData[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -14,15 +14,15 @@ export default function PlayersDatabasePage() {
   useEffect(() => {
     async function fetchData() {
       try {
-        const res = await listPlayers();
+        const res = await listAcademies();
         if (res.success) {
-          // Only show approved/paid players in the public database
-          setPlayers(res.players.filter(p => p.paid));
+          // Only show approved/paid academies
+          setAcademies(res.academies.filter((a) => a.paid));
         } else {
-          setError("Failed to load players.");
+          setError("Failed to load academies.");
         }
       } catch (err: any) {
-        setError(err.message || "An error occurred while fetching players.");
+        setError(err.message || "An error occurred while fetching academies.");
       } finally {
         setLoading(false);
       }
@@ -30,11 +30,10 @@ export default function PlayersDatabasePage() {
     fetchData();
   }, []);
 
-  const filteredPlayers = players.filter((p) =>
-    p.user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.district.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.club_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    p.school_name.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredAcademies = academies.filter(
+    (a) =>
+      a.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      a.district.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   return (
@@ -43,21 +42,27 @@ export default function PlayersDatabasePage() {
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
           <div>
             <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-6 border border-gray-200">
-              <Users className="w-8 h-8 text-primary" />
+              <GraduationCap className="w-8 h-8 text-primary" />
             </div>
             <h1 className="text-4xl font-heading font-bold uppercase tracking-widest text-primary mb-2">
-              Players Database
+              Academies Database
             </h1>
             <p className="text-gray-500 text-lg">
-              Official roster of registered and approved athletes.
+              Official roster of registered handball academies and training centers.
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-4">
-            <Link href="/database" className="border border-gray-200 text-primary px-6 py-3 text-sm font-bold tracking-widest uppercase hover:bg-gray-50 transition-colors rounded-sm shadow-sm text-center">
+            <Link
+              href="/database"
+              className="border border-gray-200 text-primary px-6 py-3 text-sm font-bold tracking-widest uppercase hover:bg-gray-50 transition-colors rounded-sm shadow-sm text-center"
+            >
               &larr; Back
             </Link>
-            <Link href="/register/player" className="bg-accent text-white px-6 py-3 text-sm font-bold tracking-widest uppercase hover:bg-accent/90 transition-colors rounded-sm shadow-md text-center">
-              Register as Player
+            <Link
+              href="/register/academy"
+              className="bg-accent text-white px-6 py-3 text-sm font-bold tracking-widest uppercase hover:bg-accent/90 transition-colors rounded-sm shadow-md text-center"
+            >
+              Register Academy
             </Link>
           </div>
         </div>
@@ -67,7 +72,7 @@ export default function PlayersDatabasePage() {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
             <input
               type="text"
-              placeholder="Search by name, district, club, or school..."
+              placeholder="Search by academy name or district..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-colors"
@@ -84,9 +89,9 @@ export default function PlayersDatabasePage() {
             <AlertCircle className="w-10 h-10 mb-4 text-red-500" />
             <p className="font-semibold">{error}</p>
           </div>
-        ) : filteredPlayers.length === 0 ? (
+        ) : filteredAcademies.length === 0 ? (
           <div className="bg-gray-50 border border-gray-200 rounded-sm p-12 text-center text-gray-500">
-            <p className="text-lg">No approved players found matching your criteria.</p>
+            <p className="text-lg">No approved academies found matching your criteria.</p>
           </div>
         ) : (
           <div className="bg-white border border-gray-200 rounded-sm shadow-sm overflow-hidden">
@@ -94,33 +99,33 @@ export default function PlayersDatabasePage() {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-primary text-white">
-                    <th className="py-4 px-6 font-bold uppercase tracking-wider text-xs">Name</th>
+                    <th className="py-4 px-6 font-bold uppercase tracking-wider text-xs">Academy Name</th>
                     <th className="py-4 px-6 font-bold uppercase tracking-wider text-xs">District</th>
-                    <th className="py-4 px-6 font-bold uppercase tracking-wider text-xs">Club / School</th>
-                    <th className="py-4 px-6 font-bold uppercase tracking-wider text-xs">Coach Name</th>
-                    <th className="py-4 px-6 font-bold uppercase tracking-wider text-xs">Physical Stats</th>
+                    <th className="py-4 px-6 font-bold uppercase tracking-wider text-xs">Establishment</th>
+                    <th className="py-4 px-6 font-bold uppercase tracking-wider text-xs">No. Players</th>
+                    <th className="py-4 px-6 font-bold uppercase tracking-wider text-xs">Contact</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {filteredPlayers.map((player) => (
-                    <tr key={player.id} className="hover:bg-gray-50 transition-colors">
+                  {filteredAcademies.map((academy) => (
+                    <tr key={academy.id} className="hover:bg-gray-50 transition-colors">
                       <td className="py-4 px-6 font-medium text-primary">
-                        {player.user.name}
+                        {academy.name}
                       </td>
                       <td className="py-4 px-6 text-gray-600">
-                        {player.district}
+                        {academy.district}
                       </td>
                       <td className="py-4 px-6 text-gray-600">
-                        <div>
-                          {player.club_name && <span className="block">{player.club_name}</span>}
-                          {player.school_name && <span className="block text-xs text-gray-400 mt-1">{player.school_name}</span>}
+                        {academy.year_of_establishment || "N/A"}
+                      </td>
+                      <td className="py-4 px-6 text-gray-600 font-semibold">
+                        {academy.no_of_players || "0"}
+                      </td>
+                      <td className="py-4 px-6 text-gray-600">
+                        <div className="flex items-center gap-2">
+                          <Phone className="w-3 h-3" />
+                          <span className="text-xs">{academy.office_phone_number || "N/A"}</span>
                         </div>
-                      </td>
-                      <td className="py-4 px-6 text-gray-600">
-                        {player.coach_name || "N/A"}
-                      </td>
-                      <td className="py-4 px-6 text-gray-500 text-sm">
-                        H: {player.height} cm<br/>W: {player.weight} kg
                       </td>
                     </tr>
                   ))}

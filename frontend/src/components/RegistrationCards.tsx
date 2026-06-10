@@ -35,15 +35,15 @@ export default function RegistrationCards() {
           </p>
         </div>
         <div className="flex gap-2 shrink-0 hidden md:flex">
-          <button 
-            onClick={scrollPrev} 
+          <button
+            onClick={scrollPrev}
             disabled={!prevBtnEnabled}
             className={`w-10 h-10 border border-gray-300 rounded-full flex items-center justify-center transition text-gray-600 ${!prevBtnEnabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
           >
             <ArrowLeft className="w-5 h-5" />
           </button>
-          <button 
-            onClick={scrollNext} 
+          <button
+            onClick={scrollNext}
             disabled={!nextBtnEnabled}
             className={`w-10 h-10 border border-gray-300 rounded-full flex items-center justify-center transition text-gray-600 ${!nextBtnEnabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
           >
@@ -54,7 +54,7 @@ export default function RegistrationCards() {
 
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex -ml-6">
-          
+
           {/* Card 1 */}
           <div className="flex-[0_0_100%] md:flex-[0_0_50%] lg:flex-[0_0_33.333%] xl:flex-[0_0_25%] min-w-0 pl-6">
             <div className="bg-primary p-8 rounded-sm text-white flex flex-col items-start justify-between h-full min-h-[400px]">
@@ -111,7 +111,7 @@ export default function RegistrationCards() {
               </Link>
             </div>
           </div>
-          
+
           {/* Card 4 */}
           <div className="flex-[0_0_100%] md:flex-[0_0_50%] lg:flex-[0_0_33.333%] xl:flex-[0_0_25%] min-w-0 pl-6">
             <div className="bg-primary p-8 rounded-sm text-white flex flex-col items-start justify-between h-full min-h-[400px]">
@@ -137,25 +137,6 @@ export default function RegistrationCards() {
               <div>
                 <div className="text-accent text-sm font-semibold tracking-widest mb-6">— 05</div>
                 <div className="w-12 h-12 rounded-full border border-gray-700 flex items-center justify-center mb-6">
-                  <Users className="text-accent w-5 h-5" />
-                </div>
-                <h3 className="font-heading text-3xl font-bold uppercase tracking-wide mb-4">Council Member</h3>
-                <p className="text-gray-400 text-sm leading-relaxed mb-12">
-                  For elected or appointed members of the UPHA executive council. Register to manage official duties, view documents, and access council privileges.
-                </p>
-              </div>
-              <Link href="/register/council" className="text-accent text-sm font-bold tracking-widest uppercase hover:text-white transition-colors">
-                Register as Council Member &rarr;
-              </Link>
-            </div>
-          </div>
-
-          {/* Card 6 */}
-          <div className="flex-[0_0_100%] md:flex-[0_0_50%] lg:flex-[0_0_33.333%] xl:flex-[0_0_25%] min-w-0 pl-6">
-            <div className="bg-primary p-8 rounded-sm text-white flex flex-col items-start justify-between h-full min-h-[400px]">
-              <div>
-                <div className="text-accent text-sm font-semibold tracking-widest mb-6">— 06</div>
-                <div className="w-12 h-12 rounded-full border border-gray-700 flex items-center justify-center mb-6">
                   <Building2 className="text-accent w-5 h-5" />
                 </div>
                 <h3 className="font-heading text-3xl font-bold uppercase tracking-wide mb-4">Academy Affiliation</h3>
@@ -171,18 +152,18 @@ export default function RegistrationCards() {
 
         </div>
       </div>
-      
+
       {/* Mobile scroll controls */}
       <div className="flex gap-2 mt-8 md:hidden justify-center">
-        <button 
-          onClick={scrollPrev} 
+        <button
+          onClick={scrollPrev}
           disabled={!prevBtnEnabled}
           className={`w-12 h-12 border border-gray-300 rounded-full flex items-center justify-center transition text-gray-600 ${!prevBtnEnabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
         >
           <ArrowLeft className="w-6 h-6" />
         </button>
-        <button 
-          onClick={scrollNext} 
+        <button
+          onClick={scrollNext}
           disabled={!nextBtnEnabled}
           className={`w-12 h-12 border border-gray-300 rounded-full flex items-center justify-center transition text-gray-600 ${!nextBtnEnabled ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-100'}`}
         >
