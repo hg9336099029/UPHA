@@ -465,6 +465,21 @@ export interface DecisionLogData {
 export async function getDecisionLog() {
   return apiFetch<{ success: boolean; decisions: DecisionLogData[] }>(
     `${ADMIN_BASE}/decisions/`
+export interface DecisionLogData {
+  id: number;
+  applicant_type: string;
+  applicant_id: number;
+  action: string;
+  applicant_name_ref: string;
+  details: string;
+  admin_name: string;
+  notes: string;
+  created_at: string;
+}
+
+export async function getDecisionLog() {
+  return apiFetch<{ success: boolean; decisions: DecisionLogData[] }>(
+    `${ADMIN_BASE}/decisions/`
   );
 }
 
@@ -640,15 +655,10 @@ export interface CertificateData {
   created_at: string;
 }
 
-export interface EventAssignmentData {
+export interface DecisionLogData {
   id: number;
-  event: {
-    id: number;
-    name: string;
-    location: string;
-    start_date: string;
-    end_date: string;
-    category: string;
+  applicant_type: string;
+  applicant_id: number;
   action: string;
   applicant_name_ref: string;
   details: string;
@@ -848,4 +858,12 @@ export interface EventAssignmentData {
   status: string;
   role: string;
   created_at: string;
+}
+
+export async function getMyCertificates(): Promise<{ success: boolean; message?: string; certificates?: CertificateData[] }> {
+  return apiFetch<{ success: boolean; message?: string; certificates?: CertificateData[] }>(`${API_BASE}/me/certificates/`);
+}
+
+export async function getMyAssignments(): Promise<{ success: boolean; message?: string; assignments?: EventAssignmentData[] }> {
+  return apiFetch<{ success: boolean; message?: string; assignments?: EventAssignmentData[] }>(`${API_BASE}/me/assignments/`);
 }
