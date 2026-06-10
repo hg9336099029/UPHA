@@ -121,9 +121,37 @@ export interface EventData {
 
 export interface EventResultData {
   id: number;
-  event: { id: number; name: string };
+  event: {
+    id: number;
+    name: string | null;
+  };
   player: PlayerData;
   position: number;
+}
+
+export interface CertificateData {
+  id: number;
+  title: string;
+  status: string;
+  details: string;
+  certificate_id: string;
+  icon_type: string;
+  created_at: string;
+}
+
+export interface EventAssignmentData {
+  id: number;
+  event: {
+    id: number;
+    name: string;
+    location: string;
+    start_date: string;
+    end_date: string;
+    category: string;
+  };
+  status: string;
+  role: string;
+  created_at: string;
 }
 
 export interface AcademyData {
@@ -259,6 +287,14 @@ export async function markNotificationRead(id: number) {
     `${API_BASE}/notifications/${id}/read/`,
     { method: "POST" }
   );
+}
+
+export async function getMyCertificates(): Promise<{ success: boolean; message?: string; certificates?: CertificateData[] }> {
+  return apiFetch<{ success: boolean; message?: string; certificates?: CertificateData[] }>(`${API_BASE}/me/certificates/`);
+}
+
+export async function getMyAssignments(): Promise<{ success: boolean; message?: string; assignments?: EventAssignmentData[] }> {
+  return apiFetch<{ success: boolean; message?: string; assignments?: EventAssignmentData[] }>(`${API_BASE}/me/assignments/`);
 }
 
 
@@ -592,4 +628,224 @@ export async function getGlobalStats() {
     `${API_BASE}/stats/`,
     { cache: "no-store" }
   );
+}
+
+export interface CertificateData {
+  id: number;
+  title: string;
+  status: string;
+  details: string;
+  certificate_id: string;
+  icon_type: string;
+  created_at: string;
+}
+
+export interface EventAssignmentData {
+  id: number;
+  event: {
+    id: number;
+    name: string;
+    location: string;
+    start_date: string;
+    end_date: string;
+    category: string;
+  action: string;
+  applicant_name_ref: string;
+  details: string;
+  admin_name: string;
+  notes: string;
+  created_at: string;
+}
+
+export async function getDecisionLog() {
+  return apiFetch<{ success: boolean; decisions: DecisionLogData[] }>(
+    `${ADMIN_BASE}/decisions/`
+  );
+}
+
+// ─── Admin: Event Management ──────────────────────────────────────────────────
+
+export interface CreateEventPayload {
+  name: string;
+  location: string;
+  start_date: string;
+  end_date: string;
+  registration_end_date: string;
+  category: string;
+}
+
+export async function createEvent(payload: CreateEventPayload) {
+  return apiFetch<{ success: boolean; message: string; event: EventData }>(
+    `${ADMIN_BASE}/events/create/`,
+    { method: "POST", body: JSON.stringify(payload) }
+  );
+}
+
+export async function deleteEvent(eventId: number | string) {
+  return apiFetch<{ success: boolean; message: string }>(
+    `${ADMIN_BASE}/events/${eventId}/delete/`,
+    { method: "POST", body: JSON.stringify({}) }
+  );
+}
+
+export interface AddEventResultPayload {
+  player_id: number | string;
+  position: number;
+}
+
+export async function addEventResult(
+  eventId: number | string,
+  payload: AddEventResultPayload
+) {
+  return apiFetch<{ success: boolean; message: string; result: EventResultData }>(
+    `${ADMIN_BASE}/events/${eventId}/results/`,
+    { method: "POST", body: JSON.stringify(payload) }
+  );
+}
+
+// ─── Albums ───────────────────────────────────────────────────────────────────
+
+export interface AlbumData {
+  id: number;
+  title: string;
+  description: string;
+  date: string | null;
+  event: { id: number; name: string; location: string; category: string; } | null;
+  cover_photo: string | null;
+  photo_count: number;
+  created_at: string;
+}
+
+export async function listAlbums() {
+  return apiFetch<{ success: boolean; message: string; albums: AlbumData[] }>(
+    `${API_BASE}/gallery/albums/`
+  );
+}
+
+export async function createAlbum(formData: FormData) {
+  return multipartApiFetch<{ success: boolean; message: string; album: AlbumData }>(
+    `${API_BASE}/gallery/albums/create/`,
+    formData
+  );
+}
+
+// ─── Districts ─────────────────────────────────────────────────────────────
+
+export interface DistrictData {
+  id: number;
+  name: string;
+  district: string;
+  year_of_establishment: number;
+  logo: string | null;
+  trust_registration_number: string;
+  office_address: string;
+  office_phone_number: string;
+  email: string;
+  website: string | null;
+  no_of_players: number;
+  adhyaksha: UserData | null;
+  sachiv: UserData | null;
+  koshadhyaksha: UserData | null;
+  registration_certificate: string | null;
+  transaction_id: string;
+  transaction_image: string | null;
+  paid: boolean;
+}
+
+export async function listDistricts() {
+  return apiFetch<{ success: boolean; districts: DistrictData[] }>(
+    `${API_BASE}/districts/`
+  );
+}
+
+
+// ─── Achievements ─────────────────────────────────────────────────────────────
+
+export interface PlayerAchievementData {
+  id: string;
+  name: string;
+  district: string;
+  position: string;
+  player_id_str: string;
+  event_name: string;
+  event_location: string;
+  description: string;
+  category_tag: string;
+  color_theme: string;
+}
+
+export interface CoachAchievementData {
+  id: string;
+  name: string;
+  award_name: string;
+  year: string;
+  role_description: string;
+  coach_id_str: string;
+}
+
+export interface FederationAwardData {
+  id: string;
+  year: string;
+  award_name: string;
+  awarded_by: string;
+}
+
+export interface NationalMedalData {
+  id: number;
+  year: string;
+  medal_type: string;
+  title: string;
+  description: string;
+  category: string;
+  result: string;
+  created_at: string;
+}
+
+export async function listAchievements() {
+  return apiFetch<{
+    success: boolean;
+    players: PlayerAchievementData[];
+    coaches: CoachAchievementData[];
+    awards: FederationAwardData[];
+    medals: NationalMedalData[];
+  }>(`${API_BASE}/achievements/`);
+}
+
+export interface GlobalStatsData {
+  districts: number;
+  players: number;
+  coaches: number;
+  tournaments: number;
+}
+
+export async function getGlobalStats() {
+  return apiFetch<{ success: boolean; stats: GlobalStatsData }>(
+    `${API_BASE}/stats/`,
+    { cache: "no-store" }
+  );
+}
+
+export interface CertificateData {
+  id: number;
+  title: string;
+  status: string;
+  details: string;
+  certificate_id: string;
+  icon_type: string;
+  created_at: string;
+}
+
+export interface EventAssignmentData {
+  id: number;
+  event: {
+    id: number;
+    name: string;
+    location: string;
+    start_date: string;
+    end_date: string;
+    category: string;
+  };
+  status: string;
+  role: string;
+  created_at: string;
 }

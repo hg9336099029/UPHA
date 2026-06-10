@@ -139,3 +139,12 @@ class OfficeBearer(models.Model):
         
     def __str__(self):
         return f"{self.name} - {self.role}"
+
+class Certificate(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='certificates')
+    title = models.CharField(max_length=255)
+    status = models.CharField(max_length=255)
+    details = models.CharField(max_length=500)
+    certificate_id = models.CharField(max_length=255, unique=True)
+    icon_type = models.CharField(max_length=50, default='Award')
+    created_at = models.DateTimeField(auto_now_add=True)

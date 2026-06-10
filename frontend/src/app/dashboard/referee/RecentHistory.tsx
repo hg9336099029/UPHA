@@ -1,20 +1,20 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { listEvents, EventData } from "@/lib/api";
+import { getMyAssignments, EventAssignmentData } from "@/lib/api";
 
 export default function RecentHistory() {
-  const [history, setHistory] = useState<EventData[]>([]);
+  const [history, setHistory] = useState<EventAssignmentData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchHistory() {
       try {
-        const res = await listEvents();
-        if (res.success && res.events) {
-          const past = res.events
-            .filter((e) => new Date(e.start_date) < new Date())
-            .sort((a, b) => new Date(b.start_date).getTime() - new Date(a.start_date).getTime())
+        const res = await getMyAssignments();
+        if (res.success && res.assignments) {
+          const past = res.assignments
+            .filter((a) => new Date(a.event.start_date) < new Date())
+            .sort((a, b) => new Date(b.event.start_date).getTime() - new Date(a.event.start_date).getTime())
             .slice(0, 4);
           setHistory(past);
         }
@@ -47,7 +47,7 @@ export default function RecentHistory() {
           </div>
         ) : (
           history.map((item, idx) => {
-            const dateStr = new Date(item.start_date).toLocaleDateString("en-IN", {
+            const dateStr = new Date(item.event.start_date).toLocaleDateString("en-IN", {
               day: "2-digit", month: "short"
             });
             
@@ -59,13 +59,13 @@ export default function RecentHistory() {
                 </div>
                 
                 <div className="flex-1">
-                  <div className="text-sm font-bold text-gray-800 mb-0.5">{item.name}</div>
-                  <div className="text-[10px] text-gray-500">{item.event_type}</div>
+                  <div className="text-sm font-bold text-gray-800 mb-0.5">{item.event.name}</div>
+                  <div className="text-[10px] text-gray-500">{item.event.category} - {item.role}</div>
                 </div>
 
                 <div className="shrink-0">
                   <div className="bg-gray-50 text-gray-600 border border-gray-200 px-3 py-1.5 rounded-sm text-[9px] font-bold tracking-widest uppercase">
-                    COMPLETED
+                    {item.status}
                   </div>
                 </div>
 

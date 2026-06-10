@@ -708,3 +708,59 @@ def get_global_stats(request):
 		return json_success('Stats retrieved successfully', stats=stats)
 	except Exception as e:
 		return json_error(str(e), status=400)
+
+@require_http_methods(['GET'])
+def get_my_certificates(request):
+	user = getattr(request, 'user', None)
+	if not user or not user.is_authenticated:
+		return json_error('Authentication required.', status=401)
+	
+	from users.models import Certificate
+	certificates = Certificate.objects.filter(user=user).order_by('-created_at')
+	data = []
+	for c in certificates:
+		data.append({
+			'id': c.id,
+			'title': c.title,
+			'status': c.status,
+			'details': c.details,
+			'certificate_id': c.certificate_id,
+			'icon_type': c.icon_type,
+			'created_at': c.created_at.isoformat(),
+		})
+	return json_success('Certificates retrieved successfully.', certificates=data)
+
+@require_http_methods(['GET'])
+def get_my_assignments(request):
+	user = getattr(request, 'user', None)
+	if not user or not user.is_authenticated:
+		return json_error('Authentication required.', status=401)
+	
+	if user.role != 'referee':
+		return json_error('Only referee accounts can access this endpoint.', status=403)
+	
+	from users.models import Referee
+	from events.models import EventAssignment
+	referee = Referee.objects.filter(user=user).first()
+	if not referee:
+		return json_error('Referee profile not found.', status=404)
+	
+	assignments = EventAssignment.objects.filter(referee=referee).select_related('event').order_by('event__start_date')
+	data = []
+	for a in assignments:
+		data.append({
+			'id': a.id,
+			'event': {
+				'id': a.event.id,
+				'name': a.event.name,
+				'location': a.event.location,
+				'start_date': a.event.start_date.isoformat(),
+				'end_date': a.event.end_date.isoformat(),
+				'category': a.event.category,
+			},
+			'status': a.status,
+			'role': a.role,
+			'created_at': a.created_at.isoformat(),
+		})
+	return json_success('Assignments retrieved successfully.', assignments=data)
+

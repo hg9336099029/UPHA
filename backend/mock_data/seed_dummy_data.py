@@ -197,5 +197,48 @@ def seed_data():
     CoachAchievement.objects.create(name='Anil Sharma', award_name='Dronacharya Award Nominee', year='2023', role_description='Head Coach', coach_id_str='CCH-00128')
     FederationAward.objects.create(year='2024', award_name='BEST STATE FEDERATION AWARD', awarded_by='Handball Association of India')
 
+    from users.models import Certificate
+    from events.models import EventAssignment
+
+    print("Seeding Certificates...")
+    certificates_to_create = []
+    
+    for r in created_referees:
+        certificates_to_create.append(Certificate(
+            user=r, title="ANNUAL REFEREE ACCREDITATION · 2026", status="Active", details="Grade A · State Panel · Valid through 31 Mar 2027", certificate_id=f"CERT-RFR-2026-{r.id:05d}", icon_type="Award"
+        ))
+        certificates_to_create.append(Certificate(
+            user=r, title="REFEREEING GRADE CERTIFICATE - GRADE A", status="Permanent", details="Awarded 14 Jul 2023", certificate_id=f"CERT-GRD-RFR-23-{r.id:05d}", icon_type="Star"
+        ))
+
+    for c in created_coaches:
+        certificates_to_create.append(Certificate(
+            user=c, title="ANNUAL COACH ACCREDITATION · 2026", status="Active", details="Valid through 31 Mar 2027", certificate_id=f"CERT-CCH-2026-{c.id:05d}", icon_type="Award"
+        ))
+    
+    for p in created_players[:50]: # Just seed for a few players to save time
+        certificates_to_create.append(Certificate(
+            user=p, title="ANNUAL MEMBERSHIP CERTIFICATE · 2026", status="Active", details="Valid through 31 Mar 2027", certificate_id=f"CERT-PLR-2026-{p.id:05d}", icon_type="Award"
+        ))
+        
+    Certificate.objects.bulk_create(certificates_to_create, batch_size=500)
+
+    print("Seeding Event Assignments for Referees...")
+    assignments_to_create = []
+    
+    for r in created_referees:
+        # Assign to 3 random past events and 2 upcoming events
+        r_referee = Referee.objects.get(user=r)
+        
+        for e in random.sample(past_events, min(3, len(past_events))):
+            assignments_to_create.append(EventAssignment(event=e, referee=r_referee, status="COMPLETED", role="Match Referee"))
+            
+        upcoming_events = list(Event.objects.filter(start_date__gte=today))
+        if upcoming_events:
+            for e in random.sample(upcoming_events, min(2, len(upcoming_events))):
+                assignments_to_create.append(EventAssignment(event=e, referee=r_referee, status="ASSIGNED", role="Match Referee"))
+
+    EventAssignment.objects.bulk_create(assignments_to_create, batch_size=500)
+
 seed_data()
 print("Mass seeding completed successfully with high variation!")

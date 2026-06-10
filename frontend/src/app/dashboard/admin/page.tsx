@@ -40,12 +40,12 @@ export default function AdminDashboardPage() {
   };
 
   useEffect(() => {
-    if (!loading && (!meData || meData.role !== "admin")) {
+    if (!loading && (!meData || !("user" in meData) || meData.user.role !== "admin")) {
       router.push("/login");
     }
   }, [loading, meData, router]);
 
-  if (loading || !meData || meData.role !== "admin") {
+  if (loading || !meData || !("user" in meData) || meData.user.role !== "admin") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#fcfbf9]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#d97c55]"></div>

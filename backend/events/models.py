@@ -17,3 +17,10 @@ class EventResults(models.Model):
     event=models.ForeignKey(Event, on_delete=models.CASCADE)
     player=models.ForeignKey(Player, on_delete=models.CASCADE)
     position=models.IntegerField()
+
+class EventAssignment(models.Model):
+    event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='assignments')
+    referee = models.ForeignKey('users.Referee', on_delete=models.CASCADE, related_name='assignments')
+    status = models.CharField(max_length=50, choices=[('ASSIGNED', 'Assigned'), ('COMPLETED', 'Completed'), ('CANCELLED', 'Cancelled')], default='ASSIGNED')
+    role = models.CharField(max_length=255, default='Match Referee')
+    created_at = models.DateTimeField(auto_now_add=True)
