@@ -525,7 +525,7 @@ export async function listDistricts() {
 // ΓöÇΓöÇΓöÇ Achievements ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 export interface PlayerAchievementData {
-  id: string;
+  id: number;
   name: string;
   district: string;
   position: string;
@@ -538,7 +538,7 @@ export interface PlayerAchievementData {
 }
 
 export interface CoachAchievementData {
-  id: string;
+  id: number;
   name: string;
   award_name: string;
   year: string;
@@ -547,7 +547,7 @@ export interface CoachAchievementData {
 }
 
 export interface FederationAwardData {
-  id: string;
+  id: number;
   year: string;
   award_name: string;
   awarded_by: string;
