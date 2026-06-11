@@ -14,9 +14,9 @@ def register_academy(request):
 	files = request.FILES
 
 	required_fields = [
-		'name', 'district', 'year_of_establishment', 'trust_registration_number',
+		'name', 'district', 'year_of_establishment',
 		'office_address', 'office_phone_number', 'email', 'password', 'no_of_players',
-		'registration_certificate', 'transaction_id', 'transaction_image', 'logo',
+		'transaction_id', 'transaction_image', 'logo',
 	]
 	missing_fields = [field for field in required_fields if not (data.get(field) or files.get(field))]
 	if missing_fields:
@@ -120,7 +120,7 @@ def register_academy(request):
 
 @require_http_methods(['GET'])
 def list_academies(request):
-	academies = Academy.objects.select_related('adhyaksha', 'sachiv', 'koshadhyaksha').all().order_by('id')
+	academies = Academy.objects.select_related('director', 'user').all().order_by('id')
 	return json_success('Academies retrieved successfully.', academies=[serialize_academy(request, academy) for academy in academies])
 
 
@@ -130,17 +130,26 @@ def update_academy_payment_status(request, academy_id):
 	academy = Academy.objects.select_related('adhyaksha', 'sachiv', 'koshadhyaksha').filter(pk=academy_id).first()
 	if not academy:
 		return json_error('Academy not found.', status=404)
-
+  
 	data = get_request_data(request)
 	paid = str(data.get('paid', 'true')).lower() in {'true', '1', 'yes', 'on'}
 	academy.paid = paid
 	academy.save(update_fields=['paid'])
 	if paid:
-		from users.utils import log_decision
+		from users.utils import log_decision, create_user_notification
 		log_decision(
 			request, 'academy', academy.id, 'Approved',
 			f"{academy.name} (APP-ACA-{academy.id:05d})",
 			f"Academy ID ACA-2026-{academy.id:05d} issued",
 			data.get('notes', '')
 		)
+		
+		# Notify academy office bearers
+		for user in [academy.adhyaksha, academy.sachiv, academy.koshadhyaksha]:
+			if user:
+				create_user_notification(
+					user,
+					"Academy Registration Approved",
+					f"Registration for academy '{academy.name}' has been approved."
+				)
 	return json_success('Academy payment status updated successfully.', academy=serialize_academy(request, academy))

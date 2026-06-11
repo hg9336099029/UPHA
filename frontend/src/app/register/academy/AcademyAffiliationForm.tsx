@@ -49,6 +49,8 @@ export default function AcademyAffiliationForm() {
     setSubmitError("");
     setSubmitSuccess("");
 
+    const formData = new FormData(e.currentTarget);
+
     if (!academyType) {
       setSubmitError("Please select an Academy Type.");
       setIsSubmitting(false);
@@ -70,8 +72,23 @@ export default function AcademyAffiliationForm() {
       return;
     }
 
+    const password = String(formData.get("password") || "");
+    const confirmPassword = String(formData.get("confirm_password") || "");
+
+    if (password !== confirmPassword) {
+      setSubmitError("Passwords do not match.");
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (password.length < 8) {
+      setSubmitError("Password must be at least 8 characters long.");
+      setIsSubmitting(false);
+      return;
+    }
+
     try {
-      const formData = new FormData(e.currentTarget);
+      formData.delete("confirm_password");
       formData.append("academy_type", academyType);
       formData.append("discipline_focus", disciplineFocus.join(","));
       formData.append("categories_trained", categoriesTrained.join(","));
@@ -242,6 +259,17 @@ export default function AcademyAffiliationForm() {
             <div>
               <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">TRAINING FACILITY / VENUE <span className="text-accent">*</span></label>
               <input name="training_venue" type="text" placeholder="Court / ground name" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-100">
+            <div>
+              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">PASSWORD <span className="text-accent">*</span></label>
+              <input name="password" type="password" placeholder="Create a password" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">CONFIRM PASSWORD <span className="text-accent">*</span></label>
+              <input name="confirm_password" type="password" placeholder="Repeat password" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
             </div>
           </div>
         </div>
@@ -417,7 +445,7 @@ export default function AcademyAffiliationForm() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
           <div>
             <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">CURRENT PLAYERS TRAINED <span className="text-accent">*</span></label>
-            <input name="current_players" type="number" placeholder="e.g. 42" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+            <input name="no_of_players" type="number" placeholder="e.g. 42" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
           </div>
           <div>
             <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">COACHES EMPLOYED <span className="text-accent">*</span></label>
@@ -429,7 +457,7 @@ export default function AcademyAffiliationForm() {
           <label className="block relative cursor-pointer group">
             <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">REGISTRATION / INCORPORATION CERTIFICATE <span className="text-gray-400 lowercase normal-case text-[10px] font-normal">(if registered as society/trust/company)</span></label>
             <div className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-sm p-6 flex items-center gap-4 group-hover:bg-gray-50 transition-colors">
-              <input type="file" name="reg_certificate" accept=".pdf,image/*" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={(e) => setRegCertName(e.target.files?.[0]?.name || "")} />
+              <input type="file" name="registration_certificate" accept=".pdf,image/*" className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" onChange={(e) => setRegCertName(e.target.files?.[0]?.name || "")} />
               <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center shrink-0">
                 <Award className="w-4 h-4 text-gray-600" />
               </div>

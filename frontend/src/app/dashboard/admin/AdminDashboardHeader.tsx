@@ -3,14 +3,16 @@
 import React, { useEffect, useState } from "react";
 import { getAdminStats, AdminStatsData } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
-import { CheckSquare, CalendarDays, Trophy, Image as ImageIcon, UserPlus, Megaphone } from "lucide-react";
+import { CheckSquare, CalendarDays, Trophy, Image as ImageIcon, UserPlus, Megaphone, Users, Award } from "lucide-react";
+
+export type AdminTabType = "applications" | "create_event" | "upload_results" | "upload_gallery" | "invite_admin" | "publish_notice" | "council_members" | "manage_achievements";
 
 export default function AdminDashboardHeader({
   activeTab,
   onTabChange,
 }: {
-  activeTab: "applications" | "create_event" | "upload_results" | "upload_gallery" | "invite_admin" | "publish_notice";
-  onTabChange: (tab: "applications" | "create_event" | "upload_results" | "upload_gallery" | "invite_admin" | "publish_notice") => void;
+  activeTab: AdminTabType;
+  onTabChange: (tab: AdminTabType) => void;
 }) {
   const { authUser } = useAuth();
   const [stats, setStats] = useState<AdminStatsData | null>(null);
@@ -198,6 +200,52 @@ export default function AdminDashboardHeader({
               </div>
               <div className={`text-[9px] font-bold tracking-widest uppercase flex items-center gap-1 ${activeTab === "publish_notice" ? "text-[#d97c55]" : "text-[#111827] group-hover:text-[#d97c55]"}`}>
                 {activeTab === "publish_notice" ? "ACTIVE TAB" : "OPEN ↘"}
+              </div>
+            </div>
+          </div>
+
+          {/* Card 7 */}
+          <div 
+            onClick={() => onTabChange("council_members")}
+            className={`cursor-pointer border rounded shadow-sm p-6 flex flex-col justify-between group transition-colors ${activeTab === "council_members" ? "bg-[#fff8f6] border-[#d97c55]" : "bg-white border-gray-200 hover:border-gray-300"}`}
+          >
+            <div>
+              <div className="w-10 h-10 rounded-full bg-[#d97c55]/10 flex items-center justify-center mb-4 text-[#d97c55]">
+                <Users className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-sm tracking-widest uppercase text-[#111827] mb-2">MANAGE COUNCIL MEMBERS</h3>
+              <p className="text-xs text-gray-500 mb-6">Add, edit, or remove office bearers that appear on the council page and homepage.</p>
+            </div>
+            <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+              <div className="flex items-center gap-1.5 text-[9px] font-bold tracking-widest uppercase text-gray-500">
+                <span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
+                OFFICE BEARERS
+              </div>
+              <div className={`text-[9px] font-bold tracking-widest uppercase flex items-center gap-1 ${activeTab === "council_members" ? "text-[#d97c55]" : "text-[#111827] group-hover:text-[#d97c55]"}`}>
+                {activeTab === "council_members" ? "ACTIVE TAB" : "OPEN ↘"}
+              </div>
+            </div>
+          </div>
+
+          {/* Card 8 */}
+          <div 
+            onClick={() => onTabChange("manage_achievements")}
+            className={`cursor-pointer border rounded shadow-sm p-6 flex flex-col justify-between group transition-colors ${activeTab === "manage_achievements" ? "bg-[#fff8f6] border-[#d97c55]" : "bg-white border-gray-200 hover:border-gray-300"}`}
+          >
+            <div>
+              <div className="w-10 h-10 rounded-full bg-[#d97c55]/10 flex items-center justify-center mb-4 text-[#d97c55]">
+                <Award className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-sm tracking-widest uppercase text-[#111827] mb-2">MANAGE ACHIEVEMENTS</h3>
+              <p className="text-xs text-gray-500 mb-6">Add, edit, or remove national medals, player milestones, and federation awards.</p>
+            </div>
+            <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+              <div className="flex items-center gap-1.5 text-[9px] font-bold tracking-widest uppercase text-gray-500">
+                <span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
+                ACHIEVEMENTS
+              </div>
+              <div className={`text-[9px] font-bold tracking-widest uppercase flex items-center gap-1 ${activeTab === "manage_achievements" ? "text-[#d97c55]" : "text-[#111827] group-hover:text-[#d97c55]"}`}>
+                {activeTab === "manage_achievements" ? "ACTIVE TAB" : "OPEN ↘"}
               </div>
             </div>
           </div>

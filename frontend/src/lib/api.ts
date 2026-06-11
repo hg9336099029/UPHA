@@ -162,6 +162,7 @@ async function apiFetch<T = unknown>(
   }
 
   const res = await fetch(url, {
+    cache: "no-store",
     ...options,
     headers,
     credentials: "include",
@@ -365,6 +366,13 @@ export async function approveAcademyPayment(academyId: number | string, notes?: 
   );
 }
 
+export async function approveDistrictPayment(districtId: number | string, notes?: string) {
+  return apiFetch<{ success: boolean; message: string; district: DistrictData }>(
+    `${ADMIN_BASE}/districts/${districtId}/payment/`,
+    { method: "POST", body: JSON.stringify({ paid: true, notes }) }
+  );
+}
+
 export async function rejectApplication(type: string, id: number | string, notes: string) {
   return apiFetch<{ success: boolean; message: string }>(
     `${ADMIN_BASE}/reject/`,
@@ -372,7 +380,7 @@ export async function rejectApplication(type: string, id: number | string, notes
   );
 }
 
-export async function inviteAdmin(payload: { email: string; name: string }) {
+export async function inviteAdmin(payload: { email: string; name: string; password?: string }) {
   return apiFetch<{ success: boolean; message: string; credentials: { email: string; password: string; name: string } }>(
     `${API_BASE}/invite-admin/`,
     { method: "POST", body: JSON.stringify(payload) }
@@ -556,6 +564,27 @@ export interface NationalMedalData {
   created_at: string;
 }
 
+export interface TournamentStandingData {
+  position: number;
+  team_name: string;
+  notes: string;
+}
+
+export interface TournamentResultData {
+  event_id: number;
+  event_name: string;
+  event_location: string;
+  event_category: string;
+  final_date: string | null;
+  total_matches: number | null;
+  top_scorer: string;
+  best_player: string;
+  best_goalkeeper: string;
+  most_promising_junior: string;
+  uploaded_at: string;
+  standings: TournamentStandingData[];
+}
+
 export async function listAchievements() {
   return apiFetch<{
     success: boolean;
@@ -563,6 +592,7 @@ export async function listAchievements() {
     coaches: CoachAchievementData[];
     awards: FederationAwardData[];
     medals: NationalMedalData[];
+    tournament_results: TournamentResultData[];
   }>(`${API_BASE}/achievements/`);
 }
 
@@ -631,4 +661,183 @@ export async function createAnnouncement(payload: { title: string; message: stri
     `${ADMIN_BASE}/announcements/create/`,
     { method: 'POST', body: JSON.stringify(payload) }
   );
+}
+
+// --- Referee Stats ---
+
+export interface RefereeBoardMember {
+  name: string;
+  role: string;
+  initials: string;
+}
+
+export interface RefereeStats {
+  total_referees: number;
+  districts_represented: number;
+  board_count: number;
+  board_members: RefereeBoardMember[];
+}
+
+export async function getRefereeStats(): Promise<{ success: boolean } & RefereeStats> {
+  return apiFetch<{ success: boolean } & RefereeStats>(`${API_BASE}/referee-stats/`);
+}
+
+// --- District Stats ---
+
+export interface DistrictStats {
+  total_districts: number;
+  affiliated: number;
+  open: number;
+}
+
+export async function getDistrictStats(): Promise<{ success: boolean } & DistrictStats> {
+  return apiFetch<{ success: boolean } & DistrictStats>(`${API_BASE}/district-stats/`);
+}
+
+// --- Tournament Results Upload ---
+
+export interface StandingPayload {
+  team: string;
+  notes: string;
+}
+
+export async function uploadTournamentResults(
+  eventId: number | string,
+  payload: {
+    standings: StandingPayload[];
+    final_date?: string;
+    total_matches?: string;
+    top_scorer?: string;
+    best_player?: string;
+    best_goalkeeper?: string;
+    most_promising_junior?: string;
+    scoresheet?: File | null;
+  }
+): Promise<{ success: boolean; message: string; event_id: number; event_name: string; standings_saved: number }> {
+  const form = new FormData();
+  form.append("standings", JSON.stringify(payload.standings));
+  if (payload.final_date) form.append("final_date", payload.final_date);
+  if (payload.total_matches) form.append("total_matches", payload.total_matches);
+  if (payload.top_scorer) form.append("top_scorer", payload.top_scorer);
+  if (payload.best_player) form.append("best_player", payload.best_player);
+  if (payload.best_goalkeeper) form.append("best_goalkeeper", payload.best_goalkeeper);
+  if (payload.most_promising_junior) form.append("most_promising_junior", payload.most_promising_junior);
+  if (payload.scoresheet) form.append("scoresheet", payload.scoresheet);
+
+  return multipartApiFetch(
+    `${ADMIN_BASE}/events/${eventId}/upload-results/`,
+    form
+  );
+}
+
+// --- Council Members (Office Bearers) --------------------------
+
+export interface OfficeBearerData {
+  id: number;
+  name: string;
+  role: string;
+  image: string | null;
+  order: number;
+}
+
+export function getOfficeBearers() {
+  return apiFetch<{ success: boolean; office_bearers: OfficeBearerData[] }>(`${API_BASE}/office-bearers/`);
+}
+
+export function createOfficeBearer(data: FormData) {
+  return multipartApiFetch<{ success: boolean; message: string; bearer: OfficeBearerData }>(
+    `${ADMIN_BASE}/office-bearers/`,
+    data
+  );
+}
+
+export function updateOfficeBearer(data: FormData) {
+  return multipartApiFetch<{ success: boolean; message: string; }>(
+    `${ADMIN_BASE}/office-bearers/`,
+    data
+  );
+}
+
+export function deleteOfficeBearer(id: number) {
+  return apiFetch<{ success: boolean; message: string; }>(`${ADMIN_BASE}/office-bearers/`, {
+    method: 'DELETE',
+    body: JSON.stringify({ id }),
+  });
+}
+
+// Achievements Admin API
+export function createNationalMedal(data: Partial<NationalMedalData>) {
+  return apiFetch<{ success: boolean; message: string; }>(`${ADMIN_BASE}/achievements/medals/`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+export function updateNationalMedal(data: Partial<NationalMedalData>) {
+  return apiFetch<{ success: boolean; message: string; }>(`${ADMIN_BASE}/achievements/medals/`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+export function deleteNationalMedal(id: number) {
+  return apiFetch<{ success: boolean; message: string; }>(`${ADMIN_BASE}/achievements/medals/`, {
+    method: 'DELETE',
+    body: JSON.stringify({ id }),
+  });
+}
+
+export function createPlayerAchievement(data: Partial<PlayerAchievementData>) {
+  return apiFetch<{ success: boolean; message: string; }>(`${ADMIN_BASE}/achievements/players/`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+export function updatePlayerAchievement(data: Partial<PlayerAchievementData>) {
+  return apiFetch<{ success: boolean; message: string; }>(`${ADMIN_BASE}/achievements/players/`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+export function deletePlayerAchievement(id: number) {
+  return apiFetch<{ success: boolean; message: string; }>(`${ADMIN_BASE}/achievements/players/`, {
+    method: 'DELETE',
+    body: JSON.stringify({ id }),
+  });
+}
+
+export function createCoachAchievement(data: Partial<CoachAchievementData>) {
+  return apiFetch<{ success: boolean; message: string; }>(`${ADMIN_BASE}/achievements/coaches/`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+export function updateCoachAchievement(data: Partial<CoachAchievementData>) {
+  return apiFetch<{ success: boolean; message: string; }>(`${ADMIN_BASE}/achievements/coaches/`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+export function deleteCoachAchievement(id: number) {
+  return apiFetch<{ success: boolean; message: string; }>(`${ADMIN_BASE}/achievements/coaches/`, {
+    method: 'DELETE',
+    body: JSON.stringify({ id }),
+  });
+}
+
+export function createFederationAward(data: Partial<FederationAwardData>) {
+  return apiFetch<{ success: boolean; message: string; }>(`${ADMIN_BASE}/achievements/awards/`, {
+    method: 'POST',
+    body: JSON.stringify(data),
+  });
+}
+export function updateFederationAward(data: Partial<FederationAwardData>) {
+  return apiFetch<{ success: boolean; message: string; }>(`${ADMIN_BASE}/achievements/awards/`, {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  });
+}
+export function deleteFederationAward(id: number) {
+  return apiFetch<{ success: boolean; message: string; }>(`${ADMIN_BASE}/achievements/awards/`, {
+    method: 'DELETE',
+    body: JSON.stringify({ id }),
+  });
 }

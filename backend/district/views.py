@@ -18,7 +18,7 @@ def register_district(request):
     required_district_fields = [
         'name', 'district', 'year_of_establishment',
         'office_address', 'office_phone_number', 'email', 'password', 'no_of_players',
-        'registration_certificate', 'transaction_id', 'transaction_image', 'logo',
+        'transaction_id', 'transaction_image', 'logo',
     ]
     missing_fields = [field for field in required_district_fields if not (data.get(field) or files.get(field))]
     if missing_fields:
@@ -143,4 +143,19 @@ def update_district_payment_status(request, district_id):
     paid = str(data.get('paid', 'true')).lower() in {'true', '1', 'yes', 'on'}
     district.paid = paid
     district.save(update_fields=['paid'])
+    if paid:
+        from users.utils import log_decision, create_user_notification
+        log_decision(
+            request, 'district', district.id, 'Approved',
+            f"{district.name} (APP-DST-{district.id:05d})",
+            f"District ID DST-2026-{district.id:05d} issued",
+            data.get('notes', '')
+        )
+        for user in [district.adhyaksha, district.sachiv, district.koshadhyaksha]:
+            if user:
+                create_user_notification(
+                    user,
+                    "District Registration Approved",
+                    f"Registration for district unit '{district.name}' has been approved."
+                )
     return json_success('District payment status updated successfully.', district=serialize_district(request, district))

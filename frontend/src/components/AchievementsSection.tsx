@@ -6,6 +6,9 @@ import { listAchievements, NationalMedalData, PlayerAchievementData } from "@/li
 
 export default function AchievementsSection() {
   const [medals, setMedals] = useState<NationalMedalData[]>([]);
+  const [players, setPlayers] = useState<any[]>([]);
+  const [coaches, setCoaches] = useState<any[]>([]);
+  const [awards, setAwards] = useState<any[]>([]);
   const [featured, setFeatured] = useState<NationalMedalData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -13,13 +16,16 @@ export default function AchievementsSection() {
     async function fetchData() {
       try {
         const res = await listAchievements();
-        if (res.success && res.medals) {
-          setMedals(res.medals);
+        if (res.success) {
+          if (res.medals) setMedals(res.medals);
+          if (res.players) setPlayers(res.players);
+          if (res.coaches) setCoaches(res.coaches);
+          if (res.awards) setAwards(res.awards);
           // Set the most recent GOLD medal as the featured story, or just the most recent medal
-          const goldMedals = res.medals.filter(m => m.medal_type === 'GOLD');
+          const goldMedals = (res.medals || []).filter(m => m.medal_type === 'GOLD');
           if (goldMedals.length > 0) {
             setFeatured(goldMedals[0]);
-          } else if (res.medals.length > 0) {
+          } else if (res.medals && res.medals.length > 0) {
             setFeatured(res.medals[0]);
           }
         }

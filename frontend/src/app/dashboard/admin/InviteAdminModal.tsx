@@ -7,11 +7,13 @@ import { inviteAdmin } from "@/lib/api";
 export default function InviteAdminModal({ onClose }: { onClose: () => void }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  
+
   // Form fields
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
   // Results
   const [success, setSuccess] = useState(false);
   const [credentials, setCredentials] = useState<{ email: string; password: string; name: string } | null>(null);
@@ -19,10 +21,14 @@ export default function InviteAdminModal({ onClose }: { onClose: () => void }) {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    if (password && password.length < 8) {
+      setError("Password must be at least 8 characters long.");
+      return;
+    }
     setLoading(true);
     setError(null);
     try {
-      const res = await inviteAdmin({ email, name });
+      const res = await inviteAdmin({ email, name, password: password || undefined });
       if (res.success && res.credentials) {
         setCredentials(res.credentials);
         setSuccess(true);
@@ -38,7 +44,7 @@ export default function InviteAdminModal({ onClose }: { onClose: () => void }) {
 
   function handleCopy() {
     if (credentials) {
-      const text = `UPHA Admin Login Details\nName: ${credentials.name}\nEmail: ${credentials.email}\nPassword: ${credentials.password}\nLogin URL: https://upha.in/login`;
+      const text = `UPHA Admin Login Details\nName: ${credentials.name}\nEmail: ${credentials.email}\nPassword: ${credentials.password}\nLogin URL: http://localhost:3000/login`;
       navigator.clipboard.writeText(text);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
@@ -67,14 +73,14 @@ export default function InviteAdminModal({ onClose }: { onClose: () => void }) {
             </div>
             <h3 className="font-bold text-xl text-emerald-800 mb-2">Admin Account Created</h3>
             <p className="text-sm text-emerald-600 mb-6">
-              Please copy these credentials and share them securely with {credentials.name}.
+              Copy these credentials and share them securely with <strong>{credentials.name}</strong>.
             </p>
-            
-            <div className="bg-white border border-gray-200 rounded p-4 text-left font-mono text-sm relative group">
+
+            <div className="bg-white border border-gray-200 rounded p-4 text-left font-mono text-sm relative">
               <div className="mb-2"><span className="text-gray-400 select-none inline-block w-24">Email:</span> <span className="font-bold">{credentials.email}</span></div>
               <div><span className="text-gray-400 select-none inline-block w-24">Password:</span> <span className="font-bold text-[#d97c55]">{credentials.password}</span></div>
-              
-              <button 
+
+              <button
                 onClick={handleCopy}
                 className="absolute top-4 right-4 text-gray-400 hover:text-[#d97c55] transition-colors flex flex-col items-center"
                 title="Copy to clipboard"
@@ -86,7 +92,7 @@ export default function InviteAdminModal({ onClose }: { onClose: () => void }) {
           </div>
           <div className="flex justify-center">
             <button
-              onClick={() => { setSuccess(false); setCredentials(null); setName(""); setEmail(""); }}
+              onClick={() => { setSuccess(false); setCredentials(null); setName(""); setEmail(""); setPassword(""); }}
               className="bg-[#111827] text-white px-8 py-3 rounded text-[10px] font-bold tracking-widest uppercase hover:bg-gray-800 transition-colors"
             >
               INVITE ANOTHER
@@ -139,6 +145,29 @@ export default function InviteAdminModal({ onClose }: { onClose: () => void }) {
                 </div>
                 <div>
                   <label className="block text-[9px] font-bold tracking-widest text-gray-800 uppercase mb-1.5">
+                    PASSWORD <span className="text-[#d97c55]">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      required
+                      minLength={8}
+                      value={password}
+                      onChange={e => setPassword(e.target.value)}
+                      placeholder="Min. 8 characters"
+                      className="w-full bg-[#fcfbf9] border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-[#d97c55] text-gray-800 placeholder-gray-400 pr-16"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(v => !v)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[8px] font-bold tracking-widest uppercase text-gray-400 hover:text-[#d97c55] transition-colors"
+                    >
+                      {showPassword ? "HIDE" : "SHOW"}
+                    </button>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[9px] font-bold tracking-widest text-gray-800 uppercase mb-1.5">
                     DESIGNATION (Optional)
                   </label>
                   <input
@@ -146,15 +175,6 @@ export default function InviteAdminModal({ onClose }: { onClose: () => void }) {
                     placeholder="e.g. Vice President"
                     className="w-full bg-[#fcfbf9] border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-[#d97c55] text-gray-800 placeholder-gray-400"
                   />
-                </div>
-                <div>
-                  <label className="block text-[9px] font-bold tracking-widest text-gray-800 uppercase mb-1.5">
-                    OFFICE
-                  </label>
-                  <select className="w-full bg-[#fcfbf9] border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-[#d97c55] text-gray-800 appearance-none">
-                    <option>Federation Office</option>
-                    <option>District Unit</option>
-                  </select>
                 </div>
               </div>
             </section>
@@ -185,7 +205,7 @@ export default function InviteAdminModal({ onClose }: { onClose: () => void }) {
           {/* Footer */}
           <div className="p-6 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-4">
             <div className="text-[10px] text-gray-400 font-mono">
-              A secure password will be generated upon creation
+              Credentials shown on screen — share them securely with the new admin
             </div>
             <div className="flex gap-3 w-full sm:w-auto">
               <button

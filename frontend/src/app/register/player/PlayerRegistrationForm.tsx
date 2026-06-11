@@ -60,10 +60,35 @@ export default function PlayerRegistrationForm() {
     try {
       formData.delete("confirm_password");
       await registerPlayer(formData);
-console.log("SUCCESS");
-window.location.href = "/login";
+      window.location.href = "/login";
     } catch (error) {
-      setSubmitError(error instanceof Error ? error.message : "Registration failed.");
+      const raw = error instanceof Error ? error.message : "";
+
+      // Translate technical errors into plain, friendly messages
+      let friendlyMessage =
+        "Something went wrong while submitting your registration. Please try again in a moment.";
+
+      if (raw.toLowerCase().includes("email") && raw.toLowerCase().includes("already")) {
+        friendlyMessage =
+          "This email address is already registered. Please use a different email, or log in to your existing account.";
+      } else if (raw.toLowerCase().includes("transaction") && raw.toLowerCase().includes("already")) {
+        friendlyMessage =
+          "This payment transaction ID has already been used. Please check your payment details and enter the correct transaction ID from your UPI receipt.";
+      } else if (raw.toLowerCase().includes("aadhar") || raw.toLowerCase().includes("adhar")) {
+        friendlyMessage =
+          "This Aadhar number is already linked to another account. Please check the number and try again.";
+      } else if (raw.toLowerCase().includes("password")) {
+        friendlyMessage =
+          "Your password does not meet the requirements. Please choose a password that is at least 8 characters long.";
+      } else if (raw.toLowerCase().includes("network") || raw.toLowerCase().includes("fetch") || raw.toLowerCase().includes("failed to fetch")) {
+        friendlyMessage =
+          "Could not connect to the server. Please check your internet connection and try again.";
+      } else if (raw.includes("500") || raw.toLowerCase().includes("server error")) {
+        friendlyMessage =
+          "Our server is experiencing a problem right now. Please try again in a few minutes, or contact UPHA support if this continues.";
+      }
+
+      setSubmitError(friendlyMessage);
     } finally {
       setIsSubmitting(false);
     }
@@ -228,6 +253,18 @@ window.location.href = "/login";
               <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">WEIGHT <span className="text-accent">*</span></label>
               <input name="weight" type="number" placeholder="65" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
               <div className="text-[10px] text-gray-400 mt-2">In kilograms</div>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-6 border-t border-gray-100">
+            <div>
+              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">PASSWORD <span className="text-accent">*</span></label>
+              <input name="password" type="password" placeholder="Create a password" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
+              <div className="text-[10px] text-gray-400 mt-2">Required for login.</div>
+            </div>
+            <div>
+              <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">CONFIRM PASSWORD <span className="text-accent">*</span></label>
+              <input name="confirm_password" type="password" placeholder="Repeat password" className="w-full bg-[#fcfbf9] border border-gray-200 rounded-sm px-4 py-3 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-all" required />
             </div>
           </div>
         </div>

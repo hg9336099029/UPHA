@@ -8,7 +8,7 @@ class District(models.Model):
     district = models.CharField(max_length=255)
     year_of_establishment = models.IntegerField()
     logo = models.ImageField(upload_to='district_logos/')
-    trust_registration_number = models.CharField(max_length=255, unique=True)
+    trust_registration_number = models.CharField(max_length=255, blank=True, null=True)
     office_address = models.TextField()
     office_phone_number = models.CharField(max_length=20)
     email = models.EmailField(unique=True)
@@ -23,7 +23,7 @@ class District(models.Model):
     koshadhyaksha = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, related_name='district_koshadhyaksha'
     )
-    registration_certificate = models.ImageField(upload_to='registration_certificates/')
+    registration_certificate = models.ImageField(upload_to='registration_certificates/', blank=True, null=True)
     transaction_id = models.CharField(max_length=255, unique=True)
     transaction_image = models.ImageField(upload_to='transaction_images/')
     paid = models.BooleanField(default=False)

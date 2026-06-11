@@ -14,7 +14,7 @@ export default function LeadershipSection() {
       try {
         const res = await listOfficeBearers();
         if (res.success && res.office_bearers) {
-          setLeaders(res.office_bearers.slice(0, 5));
+          setLeaders(res.office_bearers.slice(0, 4));
         }
       } catch (error) {
         console.error("Failed to load office bearers:", error);
@@ -44,21 +44,21 @@ export default function LeadershipSection() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mt-12">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-12">
         {loading ? (
           <div className="col-span-full py-12 flex justify-center items-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
           </div>
         ) : (
-          Array.from({ length: Math.max(5, leaders.length) }).map((_, index) => {
+          Array.from({ length: Math.max(4, leaders.length) }).map((_, index) => {
             const leader = leaders[index];
             if (leader) {
               return (
                 <div key={index} className="border border-gray-100 rounded bg-white shadow-sm overflow-hidden flex flex-col">
-                  <div className="h-48 bg-gray-200 w-full relative flex items-center justify-center">
+                  <div className="h-64 bg-gray-200 w-full relative flex items-center justify-center">
                     <div className="w-full h-full relative">
                       {leader.image ? (
-                        <Image src={leader.image} alt={leader.name} fill className="object-cover object-center" />
+                        <img src={leader.image} alt={leader.name} className="w-full h-full object-cover object-center" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-gray-400 font-medium">No Image</div>
                       )}
@@ -78,7 +78,7 @@ export default function LeadershipSection() {
             } else {
               return (
                 <div key={`empty-${index}`} className="border border-dashed border-gray-200 rounded bg-gray-50 shadow-sm overflow-hidden flex flex-col opacity-60">
-                  <div className="h-48 bg-gray-100 w-full relative flex items-center justify-center">
+                  <div className="h-64 bg-gray-100 w-full relative flex items-center justify-center">
                     <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
                       <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
                     </div>

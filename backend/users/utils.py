@@ -3,6 +3,26 @@ from django.http import JsonResponse
 from events.models import EventResults
 
 
+def create_admin_notification(title, message):
+    """Send a notification to all admin users."""
+    from users.models import User, Notification
+    admins = User.objects.filter(role='admin')
+    for admin in admins:
+        Notification.objects.create(
+            user=admin,
+            title=title,
+            message=message,
+        )
+
+def create_user_notification(user, title, message):
+    """Send a notification to a specific user."""
+    from users.models import Notification
+    Notification.objects.create(
+        user=user,
+        title=title,
+        message=message,
+    )
+
 def get_request_data(request):
     if request.content_type and 'application/json' in request.content_type:
         import json
@@ -67,6 +87,13 @@ def serialize_user(request, user):
         'role': user.role,
         'phone_number': user.phone_number,
         'gender': user.gender,
+        'father_name': user.father_name,
+        'mother_name': user.mother_name,
+        'blood_group': user.blood_group,
+        'date_of_birth': str(user.date_of_birth) if user.date_of_birth else None,
+        'adhar_number': user.adhar_number,
+        'adhar_image': image_url(request, user.adhar_image),
+        'passport_image': image_url(request, user.passport_image),
         'created_at': user.created_at,
     }
 

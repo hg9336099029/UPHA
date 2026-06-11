@@ -3,12 +3,24 @@
 import { useState } from "react";
 import { CreateEventPayload } from "@/lib/api";
 
+const UP_DISTRICTS = [
+  "Agra", "Aligarh", "Ambedkar Nagar", "Amethi", "Amroha", "Auraiya", "Ayodhya", "Azamgarh", "Baghpat", "Bahraich",
+  "Ballia", "Balrampur", "Banda", "Barabanki", "Bareilly", "Basti", "Bhadohi", "Bijnor", "Budaun", "Bulandshahr",
+  "Chandauli", "Chitrakoot", "Deoria", "Etah", "Etawah", "Farrukhabad", "Fatehpur", "Firozabad", "Gautam Buddha Nagar",
+  "Ghaziabad", "Ghazipur", "Gonda", "Gorakhpur", "Hamirpur", "Hapur", "Hardoi", "Hathras", "Jalaun", "Jaunpur", "Jhansi",
+  "Kannauj", "Kanpur Dehat", "Kanpur Nagar", "Kasganj", "Kaushambi", "Kheri", "Kushinagar", "Lalitpur", "Lucknow",
+  "Maharajganj", "Mahoba", "Mainpuri", "Mathura", "Mau", "Meerut", "Mirzapur", "Moradabad", "Muzaffarnagar", "Pilibhit",
+  "Pratapgarh", "Prayagraj", "Raebareli", "Rampur", "Saharanpur", "Sambhal", "Sant Kabir Nagar", "Shahjahanpur",
+  "Shamli", "Shravasti", "Siddharthnagar", "Sitapur", "Sonbhadra", "Sultanpur", "Unnao", "Varanasi"
+];
+
 export default function CreateEventModal({
   onSubmit,
 }: {
   onSubmit: (form: CreateEventPayload) => Promise<void>;
 }) {
   const [loading, setLoading] = useState(false);
+  const [eventType, setEventType] = useState("TOURNAMENT");
   const [form, setForm] = useState<CreateEventPayload>({
     name: "",
     location: "",
@@ -21,7 +33,8 @@ export default function CreateEventModal({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
-    await onSubmit(form);
+    const finalForm = { ...form, category: `${eventType} - ${form.category}` };
+    await onSubmit(finalForm);
     setLoading(false);
   }
 
@@ -70,21 +83,20 @@ export default function CreateEventModal({
                   EVENT TYPE *
                 </label>
                 <div className="flex flex-wrap gap-2">
-                  <button type="button" className="bg-[#d97c55]/10 border border-[#d97c55] text-[#d97c55] px-4 py-2 text-xs font-bold uppercase tracking-widest rounded">
-                    TOURNAMENT
-                  </button>
-                  <button type="button" className="bg-[#fcfbf9] border border-gray-200 text-gray-600 px-4 py-2 text-xs font-bold uppercase tracking-widest rounded hover:bg-gray-100">
-                    TRIAL
-                  </button>
-                  <button type="button" className="bg-[#fcfbf9] border border-gray-200 text-gray-600 px-4 py-2 text-xs font-bold uppercase tracking-widest rounded hover:bg-gray-100">
-                    WORKSHOP
-                  </button>
-                  <button type="button" className="bg-[#fcfbf9] border border-gray-200 text-gray-600 px-4 py-2 text-xs font-bold uppercase tracking-widest rounded hover:bg-gray-100">
-                    MEET
-                  </button>
-                  <button type="button" className="bg-[#fcfbf9] border border-gray-200 text-gray-600 px-4 py-2 text-xs font-bold uppercase tracking-widest rounded hover:bg-gray-100">
-                    CLINIC / CAMP
-                  </button>
+                  {["TOURNAMENT", "TRIAL", "WORKSHOP", "MEET", "CLINIC / CAMP"].map((type) => (
+                    <button
+                      key={type}
+                      type="button"
+                      onClick={() => setEventType(type)}
+                      className={`px-4 py-2 text-xs font-bold uppercase tracking-widest rounded transition-colors ${
+                        eventType === type
+                          ? "bg-[#d97c55]/10 border border-[#d97c55] text-[#d97c55]"
+                          : "bg-[#fcfbf9] border border-gray-200 text-gray-600 hover:bg-gray-100"
+                      }`}
+                    >
+                      {type}
+                    </button>
+                  ))}
                 </div>
               </div>
 
@@ -138,7 +150,7 @@ export default function CreateEventModal({
                     className="w-full bg-[#fcfbf9] border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-[#d97c55] text-gray-800"
                   />
                 </div>
-                <div className="sm:col-span-2">
+                <div className="sm:col-span-2 mt-4 pt-4 border-t border-dashed border-gray-200">
                   <label className="block text-[9px] font-bold tracking-widest text-[#d97c55] uppercase mb-1.5">
                     REGISTRATION END DATE *
                   </label>
@@ -162,9 +174,9 @@ export default function CreateEventModal({
                     className="w-full bg-[#fcfbf9] border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-[#d97c55] text-gray-800 appearance-none"
                   >
                     <option value="">Select district...</option>
-                    <option value="Lucknow">Lucknow</option>
-                    <option value="Varanasi">Varanasi</option>
-                    <option value="Kanpur Nagar">Kanpur Nagar</option>
+                    {UP_DISTRICTS.map((d) => (
+                      <option key={d} value={d}>{d}</option>
+                    ))}
                   </select>
                 </div>
                 <div>

@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { AlbumData, listAlbums } from "@/lib/api";
-import { Image as ImageIcon, Search } from "lucide-react";
+import { Image as ImageIcon, Search, X, ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
 
 export default function GalleryPage() {
   const [albums, setAlbums] = useState<AlbumData[]>([]);
@@ -10,6 +10,10 @@ export default function GalleryPage() {
   const [filter, setFilter] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [imageErrors, setImageErrors] = useState<Record<number, boolean>>({});
+
+  // Lightbox state
+  const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [lightboxIndex, setLightboxIndex] = useState(0);
 
   useEffect(() => {
     listAlbums()
@@ -30,7 +34,6 @@ export default function GalleryPage() {
       })
     : "—";
 
-  // Categories extraction
   const albumsByCat = albums.reduce((acc, a) => {
     const cat = a.event?.category?.toUpperCase() || "OTHER";
     acc[cat] = (acc[cat] || 0) + 1;
@@ -39,23 +42,155 @@ export default function GalleryPage() {
 
   const categories = ["ALL", "TOURNAMENTS", "TRIALS", "WORKSHOPS", "FEDERATION EVENTS"];
 
-  const filteredAlbums = albums.filter((a) => {
-    const eventCat = (a.event?.category || "OTHER").toUpperCase();
-    if (filter === "ALL") return true;
-    if (filter === "TOURNAMENTS" && eventCat.includes("TOURNAMENT")) return true;
-    if (filter === "TRIALS" && eventCat.includes("TRIAL")) return true;
-    if (filter === "WORKSHOPS" && eventCat.includes("WORKSHOP")) return true;
-    if (filter === "FEDERATION EVENTS" && eventCat.includes("FEDERATION")) return true;
-    return false;
-  }).filter((a) => {
-    const searchMatch = !searchQuery || 
-      a.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      a.event?.location?.toLowerCase().includes(searchQuery.toLowerCase());
-    return searchMatch;
-  });
+  const filteredAlbums = albums
+    .filter((a) => {
+      const eventCat = (a.event?.category || "OTHER").toUpperCase();
+      if (filter === "ALL") return true;
+      if (filter === "TOURNAMENTS" && eventCat.includes("TOURNAMENT")) return true;
+      if (filter === "TRIALS" && eventCat.includes("TRIAL")) return true;
+      if (filter === "WORKSHOPS" && eventCat.includes("WORKSHOP")) return true;
+      if (filter === "FEDERATION EVENTS" && eventCat.includes("FEDERATION")) return true;
+      return false;
+    })
+    .filter((a) => {
+      const searchMatch =
+        !searchQuery ||
+        a.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        a.event?.location?.toLowerCase().includes(searchQuery.toLowerCase());
+      return searchMatch;
+    });
+
+  // Only albums that have a visible cover photo (for lightbox cycling)
+  const photoAlbums = filteredAlbums.filter(
+    (a) => a.cover_photo && !imageErrors[a.id]
+  );
+
+  const openLightbox = (filteredIdx: number) => {
+    const album = filteredAlbums[filteredIdx];
+    const photoIdx = photoAlbums.findIndex((a) => a.id === album.id);
+    if (photoIdx === -1) return;
+    setLightboxIndex(photoIdx);
+    setLightboxOpen(true);
+    document.body.style.overflow = "hidden";
+  };
+
+  const closeLightbox = () => {
+    setLightboxOpen(false);
+    document.body.style.overflow = "";
+  };
+
+  const lightboxPrev = useCallback(() => {
+    setLightboxIndex((i) => (i - 1 + photoAlbums.length) % photoAlbums.length);
+  }, [photoAlbums.length]);
+
+  const lightboxNext = useCallback(() => {
+    setLightboxIndex((i) => (i + 1) % photoAlbums.length);
+  }, [photoAlbums.length]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    if (!lightboxOpen) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === "Escape") closeLightbox();
+      if (e.key === "ArrowLeft") lightboxPrev();
+      if (e.key === "ArrowRight") lightboxNext();
+    };
+    window.addEventListener("keydown", handler);
+    return () => window.removeEventListener("keydown", handler);
+  }, [lightboxOpen, lightboxPrev, lightboxNext]);
+
+  const lightboxAlbum = photoAlbums[lightboxIndex];
 
   return (
     <div className="flex-1 flex flex-col bg-[#fcfbf9] w-full">
+
+      {/* ── LIGHTBOX POPUP ── */}
+      {lightboxOpen && lightboxAlbum && (
+        <div
+          className="fixed inset-0 z-[9999] bg-black/92 backdrop-blur-md flex items-center justify-center"
+          onClick={closeLightbox}
+        >
+          {/* Close button */}
+          <button
+            onClick={closeLightbox}
+            className="absolute top-5 right-5 z-10 w-11 h-11 bg-white/10 hover:bg-white/25 rounded-full flex items-center justify-center text-white transition-colors"
+            aria-label="Close"
+          >
+            <X className="w-5 h-5" />
+          </button>
+
+          {/* Counter */}
+          <div className="absolute top-6 left-1/2 -translate-x-1/2 text-white/50 text-[11px] font-mono tracking-widest select-none">
+            {lightboxIndex + 1} / {photoAlbums.length}
+          </div>
+
+          {/* Prev arrow */}
+          {photoAlbums.length > 1 && (
+            <button
+              onClick={(e) => { e.stopPropagation(); lightboxPrev(); }}
+              className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white/10 hover:bg-white/25 rounded-full flex items-center justify-center text-white transition-colors"
+              aria-label="Previous photo"
+            >
+              <ChevronLeft className="w-6 h-6" />
+            </button>
+          )}
+
+          {/* Next arrow */}
+          {photoAlbums.length > 1 && (
+            <button
+              onClick={(e) => { e.stopPropagation(); lightboxNext(); }}
+              className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white/10 hover:bg-white/25 rounded-full flex items-center justify-center text-white transition-colors"
+              aria-label="Next photo"
+            >
+              <ChevronRight className="w-6 h-6" />
+            </button>
+          )}
+
+          {/* Image + caption — click stops propagation so clicking image doesn't close */}
+          <div
+            className="flex flex-col items-center gap-5 max-w-[90vw]"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src={lightboxAlbum.cover_photo!}
+              alt={lightboxAlbum.title}
+              className="max-w-[88vw] max-h-[76vh] w-auto h-auto object-contain rounded-sm shadow-2xl select-none"
+              draggable={false}
+            />
+            {/* Caption */}
+            <div className="text-center">
+              <div className="text-white font-heading font-bold uppercase tracking-wider text-xl">
+                {lightboxAlbum.title}
+              </div>
+              <div className="flex items-center justify-center gap-3 text-white/40 text-[10px] font-mono tracking-widest uppercase mt-2">
+                {lightboxAlbum.event?.category && (
+                  <span className="bg-[#d97c55]/30 text-[#d97c55] px-2 py-0.5 rounded-sm">
+                    {lightboxAlbum.event.category}
+                  </span>
+                )}
+                {lightboxAlbum.event?.location && (
+                  <><span>·</span><span>{lightboxAlbum.event.location}</span></>
+                )}
+                {lightboxAlbum.date && (
+                  <>
+                    <span>·</span>
+                    <span>
+                      {new Date(lightboxAlbum.date).toLocaleDateString("en-IN", {
+                        day: "2-digit",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </span>
+                  </>
+                )}
+                <span>·</span>
+                <span>{lightboxAlbum.photo_count} photos</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Hero Section */}
       <section className="bg-[#111827] text-white pt-16 pb-12">
         <div className="max-w-7xl mx-auto px-6">
@@ -95,25 +230,31 @@ export default function GalleryPage() {
       <div className="border-b border-gray-200 bg-white relative z-40">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row md:items-center justify-between gap-4 py-3">
           <div className="flex gap-1 overflow-x-auto no-scrollbar py-1">
-            {categories.map(cat => {
+            {categories.map((cat) => {
               let count = 0;
               if (cat === "ALL") count = albums.length;
               else if (cat === "TOURNAMENTS") count = albumsByCat["TOURNAMENT"] || 0;
               else if (cat === "TRIALS") count = albumsByCat["TRIAL"] || 0;
               else if (cat === "WORKSHOPS") count = albumsByCat["WORKSHOP"] || 0;
               else if (cat === "FEDERATION EVENTS") count = albumsByCat["FEDERATION"] || 0;
-              
+
               const isActive = filter === cat;
               return (
                 <button
                   key={cat}
                   onClick={() => setFilter(cat)}
                   className={`flex items-center gap-2 px-4 py-2 rounded-sm text-[10px] font-bold tracking-widest uppercase transition-colors whitespace-nowrap ${
-                    isActive ? "bg-[#111827] text-white" : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
+                    isActive
+                      ? "bg-[#111827] text-white"
+                      : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
                   }`}
                 >
                   {cat}
-                  <span className={`px-1.5 py-0.5 rounded-full text-[8px] ${isActive ? "bg-white/20 text-white" : "bg-orange-50 text-orange-600"}`}>
+                  <span
+                    className={`px-1.5 py-0.5 rounded-full text-[8px] ${
+                      isActive ? "bg-white/20 text-white" : "bg-orange-50 text-orange-600"
+                    }`}
+                  >
                     {count}
                   </span>
                 </button>
@@ -134,20 +275,21 @@ export default function GalleryPage() {
         </div>
       </div>
 
-      {/* Main Content */}
+      {/* Main Grid */}
       <main className="flex-1 max-w-7xl mx-auto w-full px-6 py-12">
         <div className="flex items-end justify-between mb-8">
           <h2 className="font-heading text-2xl font-bold uppercase tracking-wide text-[#111827]">
             2025 - <span className="text-[#d97c55]">2026 SEASON</span>
           </h2>
           <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">
-            SHOWING {filteredAlbums.length} ALBUMS &middot; {filteredAlbums.reduce((acc, a) => acc + a.photo_count, 0)} PHOTOS
+            SHOWING {filteredAlbums.length} ALBUMS &middot;{" "}
+            {filteredAlbums.reduce((acc, a) => acc + a.photo_count, 0)} PHOTOS
           </div>
         </div>
 
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-pulse">
-            {[1, 2, 3, 4, 5, 6].map(i => (
+            {[1, 2, 3, 4, 5, 6].map((i) => (
               <div key={i} className="bg-white border border-gray-200 rounded-sm h-[320px]"></div>
             ))}
           </div>
@@ -159,52 +301,78 @@ export default function GalleryPage() {
           </div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredAlbums.map((album) => {
+            {filteredAlbums.map((album, filteredIdx) => {
               const displayCat = album.event?.category || "Federation";
               let catColor = "bg-[#d97c55]";
               if (displayCat.toLowerCase() === "trial") catColor = "bg-emerald-600";
               else if (displayCat.toLowerCase() === "workshop") catColor = "bg-amber-600";
               else if (displayCat.toLowerCase() === "federation") catColor = "bg-[#111827]";
 
-              const formattedDate = album.date 
-                ? new Date(album.date).toLocaleDateString("en-IN", { day: "2-digit", month: "short", year: "numeric" }) 
+              const formattedDate = album.date
+                ? new Date(album.date).toLocaleDateString("en-IN", {
+                    day: "2-digit",
+                    month: "short",
+                    year: "numeric",
+                  })
                 : "TBD";
 
+              const hasPhoto = album.cover_photo && !imageErrors[album.id];
+
               return (
-                <div key={album.id} className="bg-white border border-gray-200 shadow-sm rounded-sm overflow-hidden group cursor-pointer hover:border-[#d97c55] transition-colors flex flex-col">
+                <div
+                  key={album.id}
+                  className={`bg-white border border-gray-200 shadow-sm rounded-sm overflow-hidden group flex flex-col transition-colors ${
+                    hasPhoto
+                      ? "cursor-pointer hover:border-[#d97c55]"
+                      : "cursor-default"
+                  }`}
+                  onClick={() => hasPhoto && openLightbox(filteredIdx)}
+                >
                   {/* Image Area */}
                   <div className="relative aspect-[4/3] bg-gray-100 overflow-hidden">
-                    {album.cover_photo && !imageErrors[album.id] ? (
-                      <img 
-                        src={album.cover_photo} 
-                        alt={album.title} 
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                        onError={() => setImageErrors(prev => ({ ...prev, [album.id]: true }))}
-                      />
+                    {hasPhoto ? (
+                      <>
+                        <img
+                          src={album.cover_photo!}
+                          alt={album.title}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          onError={() =>
+                            setImageErrors((prev) => ({ ...prev, [album.id]: true }))
+                          }
+                        />
+                        {/* Hover zoom overlay */}
+                        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/35 transition-colors duration-300 flex items-center justify-center">
+                          <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30">
+                            <ZoomIn className="w-6 h-6 text-white" />
+                          </div>
+                        </div>
+                      </>
                     ) : (
                       <div className="w-full h-full flex items-center justify-center bg-gray-200">
                         <ImageIcon className="w-8 h-8 text-gray-400" />
                       </div>
                     )}
-                    
-                    {/* Category Tag */}
-                    <div className={`absolute top-4 left-4 ${catColor} text-white px-2 py-1 text-[8px] font-bold tracking-widest uppercase rounded-sm`}>
+
+                    {/* Category badge */}
+                    <div
+                      className={`absolute top-4 left-4 ${catColor} text-white px-2 py-1 text-[8px] font-bold tracking-widest uppercase rounded-sm`}
+                    >
                       {displayCat}
                     </div>
 
-                    {/* Photo Count */}
+                    {/* Photo count badge */}
                     <div className="absolute bottom-4 right-4 bg-black/70 backdrop-blur-sm text-white px-2 py-1 text-[9px] font-bold tracking-widest uppercase rounded-sm flex items-center gap-1.5">
                       <ImageIcon className="w-3 h-3" />
                       {album.photo_count} PHOTOS
                     </div>
                   </div>
 
-                  {/* Details Area */}
+                  {/* Details */}
                   <div className="p-5 flex-1 flex flex-col justify-between bg-white">
                     <h3 className="font-heading text-lg font-bold uppercase tracking-wide text-[#111827] line-clamp-2 leading-tight">
                       {album.title}
                     </h3>
-                    
+
                     <div className="flex items-center gap-2 mt-4 text-[9px] font-bold tracking-widest uppercase text-gray-500">
                       <span className="text-[#d97c55]">{displayCat}</span>
                       <span>&middot;</span>

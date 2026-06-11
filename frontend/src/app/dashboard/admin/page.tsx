@@ -10,21 +10,24 @@ import PublishNoticeModal from "./PublishNoticeModal";
 import CreateEventModal from "./CreateEventModal";
 import UploadResultsModal from "./UploadResultsModal";
 import UploadGalleryModal from "./UploadGalleryModal";
+import CouncilMembersTable from "./CouncilMembersTable";
+import ManageAchievements from "./ManageAchievements";
+import { AdminTabType } from "./AdminDashboardHeader";
 
 import { createEvent, CreateEventPayload } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 
-type TabType = "applications" | "create_event" | "upload_results" | "upload_gallery" | "invite_admin" | "publish_notice";
+
 
 export default function AdminDashboardPage() {
   const { authUser, loading } = useAuth();
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<TabType>("applications");
+  const [activeTab, setActiveTab] = useState<AdminTabType>("applications");
   const [toast, setToast] = useState<string | null>(null);
 
-  const handleTabChange = (tab: TabType) => {
+  const handleTabChange = (tab: AdminTabType) => {
     setActiveTab(tab);
   };
 
@@ -98,6 +101,8 @@ export default function AdminDashboardPage() {
                   }} />}
                   {activeTab === "upload_results" && <UploadResultsModal />}
                   {activeTab === "upload_gallery" && <UploadGalleryModal />}
+                  {activeTab === "council_members" && <CouncilMembersTable />}
+                  {activeTab === "manage_achievements" && <ManageAchievements />}
                 </div>
               </div>
             </div>

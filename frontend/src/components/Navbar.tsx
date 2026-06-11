@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { LayoutDashboard, ChevronDown, LogOut, User, Phone, Mail, Key, Bell } from "lucide-react";
+import { LayoutDashboard, ChevronDown, LogOut, User, Phone, Mail, Key, Bell, ShieldCheck } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
@@ -21,7 +21,7 @@ export default function Navbar() {
   const notifRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (authUser && authUser.role === "admin") {
+    if (authUser) {
       getNotifications().then((res) => {
         if (res.success && res.notifications) {
           setNotifications(res.notifications);
@@ -33,7 +33,8 @@ export default function Navbar() {
   const handleNotificationClick = async (notif: NotificationData) => {
     if (!notif.is_read) {
       await markNotificationRead(notif.id);
-      setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, is_read: true } : n));
+      // Immediately remove the notification from the list since it's deleted on the backend
+      setNotifications(prev => prev.filter(n => n.id !== notif.id));
     }
   };
 
@@ -91,7 +92,7 @@ export default function Navbar() {
             <div className="flex items-center gap-4">
               <Link href="/database" className="hover:text-white transition-colors tracking-wide">Affiliated Districts</Link>
               <span className="text-gray-600 text-[10px]">■</span>
-              <Link href="/#announcements" className="hover:text-white transition-colors tracking-wide">Announcements</Link>
+              <Link href="/announcements" className="hover:text-white transition-colors tracking-wide">Announcements</Link>
               <span className="text-gray-600 text-[10px]">■</span>
               {loading ? (
                 <div className="w-24 h-4 bg-gray-700 animate-pulse rounded-sm"></div>
@@ -124,7 +125,7 @@ export default function Navbar() {
             <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-primary">
               <Link href="/" className={getNavClass("/")}>Home</Link>
               <Link href="/about" className={getNavClass("/about")}>About</Link>
-              <Link href="/#events" className={getNavClass("/#events")}>Events</Link>
+              <Link href="/calendar" className={getNavClass("/calendar")}>Events</Link>
               <Link href="/database" className={getNavClass("/database")}>Database</Link>
               <Link href="/achievements" className={getNavClass("/achievements")}>Achievements</Link>
               <Link href="/gallery" className={getNavClass("/gallery")}>Gallery</Link>
@@ -137,8 +138,8 @@ export default function Navbar() {
                 <div className="w-[140px] h-[36px] bg-gray-200 animate-pulse rounded-sm"></div>
               ) : authUser ? (
                 <div className="flex items-center gap-2">
-                  {/* ── Admin Notifications ── */}
-                  {authUser.role === "admin" && (
+                  {/* Notifications */}
+                  {authUser && (
                     <div className="relative" ref={notifRef}>
                       <button
                         type="button"
@@ -218,6 +219,30 @@ export default function Navbar() {
                         <p className="text-xs font-semibold text-primary truncate mt-0.5">{authUser.name || authUser.email}</p>
                         <p className="text-[10px] text-gray-400 capitalize">{authUser.role}</p>
                       </div>
+
+                      {/* Admin Dashboard shortcut — only for admins */}
+                      {authUser.role === "admin" && (
+                        <Link
+                          href="/dashboard/admin"
+                          onClick={() => setDropdownOpen(false)}
+                          className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-[#d97c55] hover:bg-orange-50 transition-colors"
+                        >
+                          <ShieldCheck className="w-3.5 h-3.5" />
+                          Admin Dashboard
+                        </Link>
+                      )}
+
+                      {/* My Dashboard — for all non-admin roles */}
+                      {authUser.role !== "admin" && (
+                        <Link
+                          href={dashboardPath}
+                          onClick={() => setDropdownOpen(false)}
+                          className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 hover:text-accent transition-colors"
+                        >
+                          <LayoutDashboard className="w-3.5 h-3.5" />
+                          My Dashboard
+                        </Link>
+                      )}
 
                       {/* Settings Modal Trigger */}
                       <button

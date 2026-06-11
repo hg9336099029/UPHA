@@ -11,4 +11,5 @@ urlpatterns = [
     path('stats/', views.get_admin_stats, name='get_admin_stats'),
     path('decisions/', views.get_recent_decisions, name='get_recent_decisions'),
     path('announcements/create/', views.create_announcement, name='create_announcement'),
+    path('office-bearers/', views.manage_office_bearers, name='manage_office_bearers'),
 ]

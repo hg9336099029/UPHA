@@ -339,6 +339,12 @@ def update_player_payment_status(request, player_id):
 			f"Player ID PLR-2026-{player.id:05d} issued",
 			data.get('notes', '')
 		)
+		from users.utils import create_user_notification
+		create_user_notification(
+			player.user,
+			"Registration Approved",
+			"Your registration has been approved. You are now officially registered as a Player."
+		)
 	return json_success('Player payment status updated successfully.', player=serialize_player(request, player))
 
 
@@ -361,6 +367,12 @@ def update_coach_payment_status(request, coach_id):
 			f"Coach ID CCH-2026-{coach.id:05d} issued",
 			data.get('notes', '')
 		)
+		from users.utils import create_user_notification
+		create_user_notification(
+			coach.user,
+			"Registration Approved",
+			"Your registration has been approved. You are now officially registered as a Coach."
+		)
 	return json_success('Coach payment status updated successfully.', coach=serialize_coach(request, coach))
 
 
@@ -382,6 +394,12 @@ def update_referee_payment_status(request, referee_id):
 			f"{referee.user.name} (APP-REF-{referee.id:05d})",
 			f"Referee ID REF-2026-{referee.id:05d} issued",
 			data.get('notes', '')
+		)
+		from users.utils import create_user_notification
+		create_user_notification(
+			referee.user,
+			"Registration Approved",
+			"Your registration has been approved. You are now officially registered as a Referee."
 		)
 	return json_success('Referee payment status updated successfully.', referee=serialize_referee(request, referee))
 
@@ -506,11 +524,13 @@ def get_admin_stats(request):
 	approved_this_week = DecisionLog.objects.filter(action='Approved', created_at__gte=week_start).count()
 	rejected_this_month = DecisionLog.objects.filter(action='Rejected', created_at__gte=month_start).count()
 
+	from district.models import District
 	pending_p = Player.objects.filter(paid=False).count()
 	pending_c = Coach.objects.filter(paid=False).count()
 	pending_r = Referee.objects.filter(paid=False).count()
 	pending_a = Academy.objects.filter(paid=False).count()
-	total_pending = pending_p + pending_c + pending_r + pending_a
+	pending_d = District.objects.filter(paid=False).count()
+	total_pending = pending_p + pending_c + pending_r + pending_a + pending_d
 
 	active_events = Event.objects.count()
 	draft_events = 0
@@ -532,6 +552,7 @@ def get_admin_stats(request):
 		'pending_coaches': pending_c,
 		'pending_referees': pending_r,
 		'pending_academies': pending_a,
+		'pending_districts': pending_d,
 		'active_events': active_events,
 		'draft_events': draft_events,
 		'results_awaiting': results_awaiting,
@@ -569,6 +590,8 @@ def invite_admin(request):
 	email = data.get('email', '').strip()
 	name = data.get('name', '').strip()
 
+	password = data.get('password', '').strip()
+
 	if not email or not name:
 		return json_error('Email and name are required.')
 
@@ -577,8 +600,11 @@ def invite_admin(request):
 
 	import string
 	import random
-	chars = string.ascii_letters + string.digits + "!@#$%"
-	temp_password = ''.join(random.choice(chars) for _ in range(12))
+	if password:
+		temp_password = password
+	else:
+		chars = string.ascii_letters + string.digits + "!@#$%"
+		temp_password = ''.join(random.choice(chars) for _ in range(12))
 
 	try:
 		with transaction.atomic():
@@ -670,9 +696,8 @@ def mark_notification_read(request, notif_id):
 	if not notif:
 		return json_error('Notification not found.', status=404)
 	
-	notif.is_read = True
-	notif.save(update_fields=['is_read'])
-	return json_success('Notification marked as read.')
+	notif.delete()
+	return json_success('Notification marked as read and removed.')
 
 @require_http_methods(['GET'])
 def list_office_bearers(request):
@@ -807,3 +832,100 @@ def create_announcement(request):
 		'created_at': announcement.created_at.isoformat(),
 	})
 
+
+@csrf_exempt
+@require_http_methods(['POST', 'DELETE'])
+def manage_office_bearers(request):
+	admin_response = admin_required_response(request)
+	if admin_response:
+		return admin_response
+
+	try:
+		from users.models import OfficeBearer
+		
+		if request.method == 'POST':
+			bearer_id = request.POST.get('id')
+			name = request.POST.get('name')
+			role = request.POST.get('role')
+			order = request.POST.get('order', 0)
+			image = request.FILES.get('image')
+			
+			if not name or not role:
+				return json_error('Name and Role are required.')
+				
+			if bearer_id:
+				# Update
+				bearer = OfficeBearer.objects.get(id=bearer_id)
+				bearer.name = name
+				bearer.role = role
+				bearer.order = int(order)
+				if image:
+					bearer.image = image
+				bearer.save()
+				return json_success('Office bearer updated successfully.')
+			else:
+				# Create
+				bearer = OfficeBearer.objects.create(
+					name=name,
+					role=role,
+					order=int(order),
+					image=image
+				)
+				return json_success('Office bearer added successfully.', bearer={
+					'id': bearer.id,
+					'name': bearer.name,
+					'role': bearer.role,
+					'order': bearer.order,
+					'image': request.build_absolute_uri(bearer.image.url) if bearer.image else None
+				})
+
+		elif request.method == 'DELETE':
+			import json
+			try:
+				data = json.loads(request.body)
+				bearer_id = data.get('id')
+			except:
+				bearer_id = request.GET.get('id')
+				
+			if not bearer_id:
+				return json_error('Office bearer ID is required for deletion.')
+				
+			bearer = OfficeBearer.objects.get(id=bearer_id)
+			if bearer.image:
+				bearer.image.delete()
+			bearer.delete()
+			return json_success('Office bearer deleted successfully.')
+			
+	except Exception as exc:
+		return json_error(str(exc))
+
+@require_http_methods(['GET'])
+def get_referee_stats(request):
+	try:
+		from users.models import Referee
+		
+		total_referees = Referee.objects.count()
+		districts_represented = Referee.objects.values('district').distinct().count()
+		
+		return json_success('Stats retrieved successfully', **{
+			'total_referees': total_referees,
+			'districts_represented': districts_represented,
+			'board_count': 0,
+			'board_members': []
+		})
+	except Exception as e:
+		return json_error(str(e), status=400)
+
+@require_http_methods(['GET'])
+def get_district_stats(request):
+	try:
+		from district.models import District
+		total_districts = District.objects.count()
+		
+		return json_success('Stats retrieved successfully', **{
+			'total_districts': total_districts,
+			'affiliated': total_districts,
+			'open': 0
+		})
+	except Exception as e:
+		return json_error(str(e), status=400)

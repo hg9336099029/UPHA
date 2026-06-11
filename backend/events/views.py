@@ -1,11 +1,12 @@
 from django.shortcuts import get_object_or_404
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+import json
 
 from users.models import Player
 from users.utils import get_request_data, json_error, json_success, serialize_event, serialize_event_result
 
-from .models import Event, EventResults
+from .models import Event, EventResults, TournamentResult, TournamentStanding
 
 
 def _event_year_label(event):
@@ -104,3 +105,70 @@ def add_event_result(request, event_id):
 def list_event_results(request):
 	results = EventResults.objects.select_related('event', 'player__user').all().order_by('event_id', 'position')
 	return json_success('Event results retrieved successfully.', results=[serialize_event_result(request, result) for result in results])
+
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def upload_tournament_results(request, event_id):
+	"""Admin endpoint: save full tournament result (standings + awards + scoresheet)."""
+	from users.utils import admin_required_response
+	guard = admin_required_response(request)
+	if guard:
+		return guard
+
+	event = get_object_or_404(Event, pk=event_id)
+
+	# standings come as a JSON string in the multipart form
+	standings_raw = request.POST.get('standings', '[]')
+	try:
+		standings_list = json.loads(standings_raw)
+	except (json.JSONDecodeError, TypeError):
+		standings_list = []
+
+	final_date = request.POST.get('final_date') or None
+	total_matches_raw = request.POST.get('total_matches', '')
+	total_matches = int(total_matches_raw) if total_matches_raw.isdigit() else None
+	top_scorer = request.POST.get('top_scorer', '')
+	best_player = request.POST.get('best_player', '')
+	best_goalkeeper = request.POST.get('best_goalkeeper', '')
+	most_promising_junior = request.POST.get('most_promising_junior', '')
+	scoresheet = request.FILES.get('scoresheet')
+
+	# Upsert TournamentResult
+	result, _ = TournamentResult.objects.update_or_create(
+		event=event,
+		defaults=dict(
+			final_date=final_date,
+			total_matches=total_matches,
+			top_scorer=top_scorer,
+			best_player=best_player,
+			best_goalkeeper=best_goalkeeper,
+			most_promising_junior=most_promising_junior,
+			**({'scoresheet': scoresheet} if scoresheet else {}),
+		),
+	)
+
+	# Replace all standings for this event
+	TournamentStanding.objects.filter(event=event).delete()
+	for i, s in enumerate(standings_list):
+		team = str(s.get('team', '')).strip()
+		if team:
+			TournamentStanding.objects.create(
+				event=event,
+				position=i + 1,
+				team_name=team,
+				notes=str(s.get('notes', '')).strip(),
+			)
+
+	from users.utils import create_admin_notification
+	create_admin_notification(
+		'Tournament Results Uploaded',
+		f'Results for "{event.name}" have been published.',
+	)
+
+	return json_success(
+		'Tournament results uploaded successfully.',
+		event_id=event.id,
+		event_name=event.name,
+		standings_saved=TournamentStanding.objects.filter(event=event).count(),
+	)

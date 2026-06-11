@@ -40,11 +40,16 @@ export default function CouncilPage() {
   const jointSecretaries = leaders.filter((l) => l.role === "JOINT SECRETARY");
   const executiveMembers = leaders.filter((l) => l.role === "EXECUTIVE MEMBER");
 
+  const otherMembers = leaders.filter(
+    (l) => !executiveBoardRoles.includes(l.role) && l.role !== "VICE PRESIDENT" && l.role !== "JOINT SECRETARY" && l.role !== "EXECUTIVE MEMBER"
+  );
+
   const groups = [
     { title: "EXECUTIVE BOARD", members: executiveBoard },
     { title: "VICE PRESIDENTS", members: vicePresidents },
     { title: "JOINT SECRETARIES", members: jointSecretaries },
     { title: "EXECUTIVE MEMBERS", members: executiveMembers },
+    { title: "OTHER MEMBERS", members: otherMembers },
   ].filter((g) => g.members.length > 0);
 
   return (
@@ -86,20 +91,19 @@ export default function CouncilPage() {
                   <div className="h-[1px] bg-gray-200 flex-1"></div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
                   {group.members.map((member, idx) => (
                     <div
                       key={idx}
                       className="border border-gray-100 rounded bg-white shadow-sm overflow-hidden flex flex-col hover:-translate-y-1 transition-transform duration-300"
                     >
-                      <div className="h-56 bg-gray-100 w-full relative flex items-center justify-center">
+                      <div className="h-72 bg-gray-100 w-full relative flex items-center justify-center">
                         {member.image ? (
                           <div className="w-full h-full relative">
-                            <Image
+                            <img
                               src={member.image}
                               alt={member.name}
-                              fill
-                              className="object-cover object-center"
+                              className="w-full h-full object-cover object-center"
                             />
                           </div>
                         ) : (

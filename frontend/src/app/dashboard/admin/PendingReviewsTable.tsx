@@ -7,14 +7,17 @@ import {
   listCoaches,
   listReferees,
   listAcademies,
+  listDistricts,
   approvePlayerPayment,
   approveCoachPayment,
   approveRefereePayment,
   approveAcademyPayment,
+  approveDistrictPayment,
   PlayerData,
   CoachData,
   RefereeData,
   AcademyData,
+  DistrictData,
 } from "@/lib/api";
 
 type Tab = "ALL" | "PLAYERS" | "COACHES" | "REFEREES" | "ACADEMIES";
@@ -23,14 +26,15 @@ export type Applicant =
   | { type: "player"; data: PlayerData }
   | { type: "coach"; data: CoachData }
   | { type: "referee"; data: RefereeData }
-  | { type: "academy"; data: AcademyData };
+  | { type: "academy"; data: AcademyData }
+  | { type: "district"; data: DistrictData };
 
 function getName(a: Applicant) {
-  if (a.type === "academy") return a.data.name;
+  if (a.type === "academy" || a.type === "district") return a.data.name;
   return a.data.user.name;
 }
 function getEmail(a: Applicant) {
-  if (a.type === "academy") return a.data.email;
+  if (a.type === "academy" || a.type === "district") return (a.data as any).email || "—";
   return a.data.user.email;
 }
 function getDistrict(a: Applicant) {
@@ -40,7 +44,7 @@ function getId(a: Applicant) {
   return a.data.id;
 }
 function isPaid(a: Applicant) {
-  return a.data.paid;
+  return (a.data as any).paid;
 }
 function getReference(a: Applicant) {
   const prefix =
@@ -50,7 +54,9 @@ function getReference(a: Applicant) {
       ? "APP-CCH"
       : a.type === "referee"
       ? "APP-RFR"
-      : "APP-ACA";
+      : a.type === "academy"
+      ? "APP-ACA"
+      : "APP-DST";
   return `${prefix}-${String(a.data.id).padStart(5, "0")}`;
 }
 
@@ -59,6 +65,7 @@ export default function PendingReviewsTable() {
   const [coaches, setCoaches] = useState<CoachData[]>([]);
   const [referees, setReferees] = useState<RefereeData[]>([]);
   const [academies, setAcademies] = useState<AcademyData[]>([]);
+  const [districts, setDistricts] = useState<DistrictData[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [approving, setApproving] = useState<string | null>(null);
@@ -66,12 +73,13 @@ export default function PendingReviewsTable() {
   const [toast, setToast] = useState<string | null>(null);
 
   useEffect(() => {
-    Promise.all([listPlayers(), listCoaches(), listReferees(), listAcademies()])
-      .then(([p, c, r, a]) => {
+    Promise.all([listPlayers(), listCoaches(), listReferees(), listAcademies(), listDistricts()])
+      .then(([p, c, r, a, d]) => {
         setPlayers(p.players);
         setCoaches(c.coaches);
         setReferees(r.referees);
         setAcademies(a.academies);
+        setDistricts(d.districts);
       })
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -83,6 +91,7 @@ export default function PendingReviewsTable() {
     ...coaches.map((d): Applicant => ({ type: "coach", data: d })),
     ...referees.map((d): Applicant => ({ type: "referee", data: d })),
     ...academies.map((d): Applicant => ({ type: "academy", data: d })),
+    ...districts.map((d): Applicant => ({ type: "district", data: d })),
   ];
 
   // Only show pending applications
@@ -105,9 +114,12 @@ export default function PendingReviewsTable() {
       } else if (a.type === "referee") {
         const res = await approveRefereePayment(getId(a), notes);
         setReferees((prev) => prev.map((r) => (r.id === getId(a) ? res.referee : r)));
-      } else {
+      } else if (a.type === "academy") {
         const res = await approveAcademyPayment(getId(a), notes);
         setAcademies((prev) => prev.map((ac) => (ac.id === getId(a) ? res.academy : ac)));
+      } else {
+        const res = await approveDistrictPayment(getId(a), notes);
+        setDistricts((prev) => prev.map((d) => (d.id === getId(a) ? res.district : d)));
       }
       setToast(`Application approved for ${getName(a)}`);
       setTimeout(() => setToast(null), 3000);
@@ -132,8 +144,10 @@ export default function PendingReviewsTable() {
           setCoaches((prev) => prev.filter((c) => c.id !== getId(a)));
         } else if (a.type === "referee") {
           setReferees((prev) => prev.filter((r) => r.id !== getId(a)));
-        } else {
+        } else if (a.type === "academy") {
           setAcademies((prev) => prev.filter((ac) => ac.id !== getId(a)));
+        } else {
+          setDistricts((prev) => prev.filter((d) => d.id !== getId(a)));
         }
         setToast(`Application rejected for ${getName(a)}`);
         setTimeout(() => setToast(null), 3000);
@@ -208,6 +222,7 @@ export default function PendingReviewsTable() {
               else if (a.type === "coach") typeColor = "bg-[#d97c55]/10 text-[#d97c55] border-[#d97c55]/20";
               else if (a.type === "academy") typeColor = "bg-amber-50 text-amber-600 border-amber-200";
               else if (a.type === "referee") typeColor = "bg-blue-50 text-blue-600 border-blue-200";
+              else if (a.type === "district") typeColor = "bg-purple-50 text-purple-600 border-purple-200";
 
               return (
                 <React.Fragment key={key}>
@@ -219,7 +234,7 @@ export default function PendingReviewsTable() {
                     </td>
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
-                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${a.type === 'coach' ? 'bg-[#d97c55] text-white' : a.type === 'academy' ? 'bg-[#d9b855] text-white' : a.type === 'referee' ? 'bg-[#111827] text-white' : 'bg-[#111827] text-white'}`}>
+                        <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${a.type === 'coach' ? 'bg-[#d97c55] text-white' : a.type === 'academy' ? 'bg-[#d9b855] text-white' : a.type === 'referee' ? 'bg-[#111827] text-white' : a.type === 'district' ? 'bg-purple-600 text-white' : 'bg-[#111827] text-white'}`}>
                           <span className="font-heading text-xs font-bold tracking-wider">{initials}</span>
                         </div>
                         <div>

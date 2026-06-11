@@ -9,7 +9,6 @@ import AchievementsSection from "@/components/AchievementsSection";
 import LeadershipSection from "@/components/LeadershipSection";
 import CTABanner from "@/components/CTABanner";
 
-
 export default function Home() {
   return (
     <main className="flex-1 bg-background text-foreground flex flex-col">

@@ -20,6 +20,8 @@ urlpatterns = [
     path('api/admin/', include('academy.admin_urls')),
     path('api/admin/', include('events.admin_urls')),
     path('api/admin/', include('gallery.admin_urls')),
+    path('api/admin/', include('achievements.admin_urls')),
+    path('api/admin/', include('district.admin_urls')),
     path('api/', include('district.urls')),
     path('api/', include('gallery.urls')),
     path('api/', include('achievements.urls')),

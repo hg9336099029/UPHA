@@ -2,13 +2,14 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { ArrowRight, Award } from "lucide-react";
+import { ArrowRight, Award, Trophy, MapPin, Calendar } from "lucide-react";
 import {
   listAchievements,
   PlayerAchievementData,
   CoachAchievementData,
   FederationAwardData,
   NationalMedalData,
+  TournamentResultData,
 } from "@/lib/api";
 
 export default function AchievementsPage() {
@@ -16,6 +17,7 @@ export default function AchievementsPage() {
   const [coaches, setCoaches] = useState<CoachAchievementData[]>([]);
   const [awards, setAwards] = useState<FederationAwardData[]>([]);
   const [medals, setMedals] = useState<NationalMedalData[]>([]);
+  const [tournamentResults, setTournamentResults] = useState<TournamentResultData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -26,6 +28,7 @@ export default function AchievementsPage() {
           setCoaches(res.coaches);
           setAwards(res.awards);
           setMedals(res.medals || []);
+          setTournamentResults(res.tournament_results || []);
         }
       })
       .catch(console.error)
@@ -54,19 +57,19 @@ export default function AchievementsPage() {
           <div className="border-t border-gray-800 mt-12 pt-8 flex flex-wrap gap-12 md:gap-20">
             <div>
               <div className="text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-1">NATIONAL MEDALS</div>
-              <div className="text-white font-bold text-sm font-mono tracking-wide">23 Since 1996</div>
+              <div className="text-white font-bold text-sm font-mono tracking-wide">{loading ? "..." : medals.length} Since 1996</div>
             </div>
             <div>
               <div className="text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-1">INDIA INTERNATIONALS</div>
-              <div className="text-white font-bold text-sm font-mono tracking-wide">14 Players</div>
+              <div className="text-white font-bold text-sm font-mono tracking-wide">{loading ? "..." : players.length} Players</div>
             </div>
             <div>
               <div className="text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-1">COACHES HONOURED</div>
-              <div className="text-white font-bold text-sm font-mono tracking-wide">06 Awarded</div>
+              <div className="text-white font-bold text-sm font-mono tracking-wide">{loading ? "..." : coaches.length} Awarded</div>
             </div>
             <div>
               <div className="text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-1">YEARS ACTIVE</div>
-              <div className="text-white font-bold text-sm font-mono tracking-wide">54 Years</div>
+              <div className="text-white font-bold text-sm font-mono tracking-wide">{new Date().getFullYear() - 1970} Years</div>
             </div>
           </div>
         </div>
@@ -76,22 +79,22 @@ export default function AchievementsPage() {
       <section className="relative -mt-16 z-10 max-w-7xl mx-auto px-6 w-full mb-24">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div className="bg-white p-6 shadow-sm border-t-4 border-[#d97c55] rounded-sm">
-            <div className="text-5xl font-heading font-bold text-[#111827]">07</div>
+            <div className="text-5xl font-heading font-bold text-[#111827]">{loading ? "—" : medals.filter(m => m.medal_type === 'GOLD').length.toString().padStart(2, '0')}</div>
             <div className="text-[10px] font-bold tracking-widest uppercase text-[#111827] mt-3 mb-2">GOLD MEDALS</div>
             <p className="text-[10px] text-gray-500 leading-relaxed">National Championships across Senior, Junior & Sub-Junior categories</p>
           </div>
           <div className="bg-white p-6 shadow-sm border-t-4 border-[#3c8c7c] rounded-sm">
-            <div className="text-5xl font-heading font-bold text-[#111827]">14</div>
+            <div className="text-5xl font-heading font-bold text-[#111827]">{loading ? "—" : players.length.toString().padStart(2, '0')}</div>
             <div className="text-[10px] font-bold tracking-widest uppercase text-[#111827] mt-3 mb-2">INDIA INTERNATIONALS</div>
             <p className="text-[10px] text-gray-500 leading-relaxed">U.P. players selected to represent India at Asian & South Asian events</p>
           </div>
           <div className="bg-white p-6 shadow-sm border-t-4 border-[#d97c55] rounded-sm">
-            <div className="text-5xl font-heading font-bold text-[#111827]">06</div>
+            <div className="text-5xl font-heading font-bold text-[#111827]">{loading ? "—" : coaches.length.toString().padStart(2, '0')}</div>
             <div className="text-[10px] font-bold tracking-widest uppercase text-[#111827] mt-3 mb-2">COACHES HONOURED</div>
             <p className="text-[10px] text-gray-500 leading-relaxed">U.P. coaches with national/state recognition for service to handball</p>
           </div>
           <div className="bg-white p-6 shadow-sm border-t-4 border-[#1e3a5f] rounded-sm">
-            <div className="text-5xl font-heading font-bold text-[#111827]">03</div>
+            <div className="text-5xl font-heading font-bold text-[#111827]">{loading ? "—" : awards.length.toString().padStart(2, '0')}</div>
             <div className="text-[10px] font-bold tracking-widest uppercase text-[#111827] mt-3 mb-2">FEDERATION AWARDS</div>
             <p className="text-[10px] text-gray-500 leading-relaxed">National-level recognition of UPHA for governance & grassroots work</p>
           </div>
@@ -160,7 +163,121 @@ export default function AchievementsPage() {
         </div>
       </section>
 
-      {/* 1. U.P. PLAYERS IN INDIA COLOURS */}
+      {/* TOURNAMENT RESULTS */}
+      {(loading || tournamentResults.length > 0) && (
+        <section className="max-w-7xl mx-auto px-6 w-full mb-24">
+          <div className="mb-12">
+            <div className="flex items-center gap-4 mb-4">
+              <div className="w-8 h-[1px] bg-[#d97c55]"></div>
+              <div className="text-[10px] font-bold tracking-widest text-[#d97c55] uppercase">
+                TOURNAMENT RESULTS
+              </div>
+            </div>
+            <h2 className="font-heading text-4xl md:text-5xl font-bold uppercase tracking-wide mb-6 text-[#111827]">
+              OFFICIAL <span className="text-[#d97c55]">STANDINGS</span>
+            </h2>
+            <p className="text-gray-500 font-serif italic text-lg max-w-3xl">
+              Final standings and individual awards from UPHA tournaments — published by the federation.
+            </p>
+          </div>
+
+          {loading ? (
+            <div className="animate-pulse space-y-6">
+              {[1, 2].map(i => <div key={i} className="bg-white border border-gray-100 rounded-sm h-52"></div>)}
+            </div>
+          ) : (
+            <div className="space-y-8">
+              {tournamentResults.map((result) => {
+                const positionColors = ["bg-[#d19b67] text-[#111827]", "bg-[#b3b0a7] text-[#111827]", "bg-[#9e6d4c] text-white"];
+                return (
+                  <div key={result.event_id} className="bg-white border border-gray-100 rounded-sm shadow-sm overflow-hidden">
+                    {/* Event Header */}
+                    <div className="bg-[#111827] px-6 py-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 bg-[#d97c55]/20 rounded-full flex items-center justify-center shrink-0">
+                          <Trophy className="w-5 h-5 text-[#d97c55]" />
+                        </div>
+                        <div>
+                          <h3 className="font-heading text-xl font-bold uppercase tracking-wide text-white">
+                            {result.event_name}
+                          </h3>
+                          <div className="flex items-center gap-3 text-[9px] font-bold tracking-widest text-gray-400 uppercase mt-1">
+                            <span className="flex items-center gap-1"><MapPin className="w-3 h-3" />{result.event_location}</span>
+                            {result.final_date && <span className="flex items-center gap-1"><Calendar className="w-3 h-3" />{result.final_date}</span>}
+                            <span className="bg-[#d97c55]/20 text-[#d97c55] px-2 py-0.5 rounded-sm">{result.event_category}</span>
+                          </div>
+                        </div>
+                      </div>
+                      {result.total_matches && (
+                        <div className="text-right">
+                          <div className="text-[9px] font-bold tracking-widest text-gray-500 uppercase">Total Matches</div>
+                          <div className="text-2xl font-heading font-bold text-white">{result.total_matches}</div>
+                        </div>
+                      )}
+                    </div>
+
+                    <div className="p-6 grid md:grid-cols-2 gap-8">
+                      {/* Standings */}
+                      {result.standings.length > 0 && (
+                        <div>
+                          <div className="text-[10px] font-bold tracking-widest text-[#d97c55] uppercase mb-4">Final Standings</div>
+                          <div className="space-y-2">
+                            {result.standings.map((s, idx) => (
+                              <div key={idx} className="flex items-center gap-3 bg-[#fcfbf9] border border-gray-100 rounded px-3 py-2.5">
+                                <div className={`w-12 text-center py-1.5 rounded text-xs font-bold tracking-widest shrink-0 ${positionColors[idx] || "bg-[#18202f] text-white"}`}>
+                                  {["1ST","2ND","3RD","4TH","5TH","6TH","7TH","8TH"][idx] ?? `${idx+1}TH`}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <div className="font-bold text-sm text-[#111827] truncate">{s.team_name}</div>
+                                  {s.notes && <div className="text-[10px] text-gray-400 truncate">{s.notes}</div>}
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Individual Awards */}
+                      {(result.top_scorer || result.best_player || result.best_goalkeeper || result.most_promising_junior) && (
+                        <div>
+                          <div className="text-[10px] font-bold tracking-widest text-[#d97c55] uppercase mb-4">Individual Awards</div>
+                          <div className="space-y-3">
+                            {result.top_scorer && (
+                              <div className="flex items-start gap-3">
+                                <div className="text-[8px] font-bold tracking-widest uppercase text-gray-400 w-28 shrink-0 pt-0.5">Top Scorer</div>
+                                <div className="text-sm text-[#111827] font-medium">{result.top_scorer}</div>
+                              </div>
+                            )}
+                            {result.best_player && (
+                              <div className="flex items-start gap-3">
+                                <div className="text-[8px] font-bold tracking-widest uppercase text-gray-400 w-28 shrink-0 pt-0.5">Best Player</div>
+                                <div className="text-sm text-[#111827] font-medium">{result.best_player}</div>
+                              </div>
+                            )}
+                            {result.best_goalkeeper && (
+                              <div className="flex items-start gap-3">
+                                <div className="text-[8px] font-bold tracking-widest uppercase text-gray-400 w-28 shrink-0 pt-0.5">Best Goalkeeper</div>
+                                <div className="text-sm text-[#111827] font-medium">{result.best_goalkeeper}</div>
+                              </div>
+                            )}
+                            {result.most_promising_junior && (
+                              <div className="flex items-start gap-3">
+                                <div className="text-[8px] font-bold tracking-widest uppercase text-gray-400 w-28 shrink-0 pt-0.5">Best Junior</div>
+                                <div className="text-sm text-[#111827] font-medium">{result.most_promising_junior}</div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
+      )}
+
       <section className="py-24 bg-[#fcfbf9] border-t border-gray-100">
         <div className="max-w-7xl mx-auto px-6 w-full">
           <div className="mb-12">

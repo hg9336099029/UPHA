@@ -1,12 +1,32 @@
 "use client";
 
-import { X, Upload, FileText } from "lucide-react";
-import { useState, useEffect } from "react";
-import { EventData, listEvents } from "@/lib/api";
+import { X, Upload, FileText, CheckCircle, AlertCircle } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { EventData, listEvents, uploadTournamentResults } from "@/lib/api";
 
 export default function UploadResultsModal() {
   const [loading, setLoading] = useState(false);
   const [events, setEvents] = useState<EventData[]>([]);
+  const [scoresheetFile, setScoresheetFile] = useState<File | null>(null);
+  const [scoresheetError, setScoresheetError] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+  const [standings, setStandings] = useState([
+    { id: 1, team: "", notes: "" },
+    { id: 2, team: "", notes: "" },
+    { id: 3, team: "", notes: "" },
+    { id: 4, team: "", notes: "" },
+  ]);
+  const nextId = standings.length > 0 ? Math.max(...standings.map(s => s.id)) + 1 : 1;
+
+  // Form field refs
+  const eventSelectRef = useRef<HTMLSelectElement>(null);
+  const finalDateRef = useRef<HTMLInputElement>(null);
+  const totalMatchesRef = useRef<HTMLInputElement>(null);
+  const topScorerRef = useRef<HTMLInputElement>(null);
+  const bestPlayerRef = useRef<HTMLInputElement>(null);
+  const bestGoalkeeperRef = useRef<HTMLInputElement>(null);
+  const mostPromisingJuniorRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     listEvents().then((res) => {
@@ -16,10 +36,93 @@ export default function UploadResultsModal() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
+    setErrorMsg("");
+    setSuccessMsg("");
+
+    const eventId = eventSelectRef.current?.value;
+    if (!eventId) {
+      setErrorMsg("Please select a tournament first.");
+      return;
+    }
+
+    const filledStandings = standings.filter(s => s.team.trim() !== "");
+    if (filledStandings.length === 0) {
+      setErrorMsg("Please add at least one standing (team name required).");
+      return;
+    }
+
     setLoading(true);
-    setTimeout(() => {
+    try {
+      const res = await uploadTournamentResults(eventId, {
+        standings: filledStandings,
+        final_date: finalDateRef.current?.value || undefined,
+        total_matches: totalMatchesRef.current?.value || undefined,
+        top_scorer: topScorerRef.current?.value || undefined,
+        best_player: bestPlayerRef.current?.value || undefined,
+        best_goalkeeper: bestGoalkeeperRef.current?.value || undefined,
+        most_promising_junior: mostPromisingJuniorRef.current?.value || undefined,
+        scoresheet: scoresheetFile,
+      });
+      setSuccessMsg(`Results for "${res.event_name}" published successfully! (${res.standings_saved} standing${res.standings_saved !== 1 ? 's' : ''} saved)`);
+      // Reset form
+      setScoresheetFile(null);
+      setStandings([{ id: 1, team: "", notes: "" }, { id: 2, team: "", notes: "" }, { id: 3, team: "", notes: "" }, { id: 4, team: "", notes: "" }]);
+      if (eventSelectRef.current) eventSelectRef.current.value = "";
+      if (finalDateRef.current) finalDateRef.current.value = "";
+      if (totalMatchesRef.current) totalMatchesRef.current.value = "";
+      if (topScorerRef.current) topScorerRef.current.value = "";
+      if (bestPlayerRef.current) bestPlayerRef.current.value = "";
+      if (bestGoalkeeperRef.current) bestGoalkeeperRef.current.value = "";
+      if (mostPromisingJuniorRef.current) mostPromisingJuniorRef.current.value = "";
+    } catch (err: any) {
+      setErrorMsg(err?.message || "Something went wrong. Please try again.");
+    } finally {
       setLoading(false);
-    }, 1000);
+    }
+  }
+
+  function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const allowed = ["application/pdf", "application/vnd.ms-excel",
+      "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "text/csv", "image/png", "image/jpeg", "image/jpg"];
+    if (!allowed.includes(file.type) && !file.name.match(/\.(pdf|xls|xlsx|csv|png|jpg|jpeg)$/i)) {
+      setScoresheetError("Please upload a PDF, Excel, CSV, or image file.");
+      setScoresheetFile(null);
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      setScoresheetError("File is too large. Maximum size is 10 MB.");
+      setScoresheetFile(null);
+      return;
+    }
+    setScoresheetError("");
+    setScoresheetFile(file);
+  }
+
+  function addStanding() {
+    setStandings(prev => [...prev, { id: nextId, team: "", notes: "" }]);
+  }
+
+  function removeStanding(id: number) {
+    setStandings(prev => prev.filter(s => s.id !== id));
+  }
+
+  function updateStanding(id: number, field: "team" | "notes", value: string) {
+    setStandings(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s));
+  }
+
+  function getPositionLabel(index: number) {
+    const labels = ["1ST", "2ND", "3RD", "4TH", "5TH", "6TH", "7TH", "8TH"];
+    return labels[index] ?? `${index + 1}TH`;
+  }
+
+  function getPositionStyle(index: number) {
+    if (index === 0) return "bg-[#d19b67] text-[#111827]";
+    if (index === 1) return "bg-[#b3b0a7] text-[#111827]";
+    if (index === 2) return "bg-[#9e6d4c] text-white";
+    return "bg-[#18202f] text-white";
   }
 
   return (
@@ -37,6 +140,19 @@ export default function UploadResultsModal() {
       </div>
 
       <form onSubmit={handleSubmit}>
+        {/* Success / Error banners */}
+        {successMsg && (
+          <div className="mx-6 mt-4 flex items-start gap-3 bg-green-50 border border-green-200 text-green-800 rounded p-4 text-sm">
+            <CheckCircle className="w-5 h-5 shrink-0 mt-0.5 text-green-600" />
+            <span>{successMsg}</span>
+          </div>
+        )}
+        {errorMsg && (
+          <div className="mx-6 mt-4 flex items-start gap-3 bg-red-50 border border-red-200 text-red-700 rounded p-4 text-sm">
+            <AlertCircle className="w-5 h-5 shrink-0 mt-0.5 text-red-500" />
+            <span>{errorMsg}</span>
+          </div>
+        )}
         <div className="p-6 space-y-8">
           {/* 01 TOURNAMENT */}
           <section>
@@ -52,7 +168,7 @@ export default function UploadResultsModal() {
                   SELECT TOURNAMENT *
                 </label>
                 <select
-                  required
+                  ref={eventSelectRef}
                   className="w-full bg-[#fcfbf9] border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-[#d97c55] text-gray-800 appearance-none"
                 >
                   <option value="">Select a completed event...</option>
@@ -69,6 +185,7 @@ export default function UploadResultsModal() {
                     FINAL DATE PLAYED
                   </label>
                   <input
+                    ref={finalDateRef}
                     type="date"
                     className="w-full bg-[#fcfbf9] border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-[#d97c55] text-gray-800"
                   />
@@ -78,8 +195,9 @@ export default function UploadResultsModal() {
                     TOTAL MATCHES PLAYED
                   </label>
                   <input
+                    ref={totalMatchesRef}
                     type="text"
-                    defaultValue="24"
+                    placeholder="e.g. 24"
                     className="w-full bg-[#fcfbf9] border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-[#d97c55] text-gray-800"
                   />
                 </div>
@@ -96,86 +214,49 @@ export default function UploadResultsModal() {
               </h3>
             </div>
             <div className="space-y-3">
-              {/* 1st Place */}
-              <div className="flex gap-3 items-center bg-[#fcfbf9] p-2 border border-gray-100 rounded">
-                <div className="w-16 bg-[#d19b67] text-[#111827] text-center py-2.5 rounded text-sm font-bold tracking-widest shadow-sm">
-                  1ST
+              {standings.map((standing, index) => (
+                <div key={standing.id} className="flex gap-3 items-center bg-[#fcfbf9] p-2 border border-gray-100 rounded">
+                  <div className={`w-16 text-center py-2.5 rounded text-sm font-bold tracking-widest shadow-sm shrink-0 ${getPositionStyle(index)}`}>
+                    {getPositionLabel(index)}
+                  </div>
+                  <input
+                    type="text"
+                    value={standing.team}
+                    onChange={(e) => updateStanding(standing.id, "team", e.target.value)}
+                    placeholder="Team / District name"
+                    className="flex-1 bg-white border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-[#d97c55]"
+                  />
+                  <input
+                    type="text"
+                    value={standing.notes}
+                    onChange={(e) => updateStanding(standing.id, "notes", e.target.value)}
+                    placeholder="e.g. 5 wins, 1 loss"
+                    className="flex-[1.5] bg-white border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-[#d97c55]"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeStanding(standing.id)}
+                    className="text-gray-400 hover:text-red-500 transition-colors p-2 shrink-0"
+                    title="Remove this standing"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
                 </div>
-                <input
-                  type="text"
-                  defaultValue="Lucknow"
-                  className="flex-1 bg-white border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-[#d97c55]"
-                />
-                <input
-                  type="text"
-                  defaultValue="District Champion - 5 wins 1 loss"
-                  className="flex-[1.5] bg-white border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-[#d97c55]"
-                />
-                <button type="button" className="text-gray-400 hover:text-red-500 transition-colors p-2">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-              {/* 2nd Place */}
-              <div className="flex gap-3 items-center bg-[#fcfbf9] p-2 border border-gray-100 rounded">
-                <div className="w-16 bg-[#b3b0a7] text-[#111827] text-center py-2.5 rounded text-sm font-bold tracking-widest shadow-sm">
-                  2ND
+              ))}
+
+              {standings.length === 0 && (
+                <div className="text-center py-6 text-gray-400 text-xs border border-dashed border-gray-200 rounded">
+                  No standings added yet. Click "+ ADD STANDING" below.
                 </div>
-                <input
-                  type="text"
-                  defaultValue="Varanasi"
-                  className="flex-1 bg-white border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-[#d97c55]"
-                />
-                <input
-                  type="text"
-                  defaultValue="Runner-up - 4 wins 2 losses"
-                  className="flex-[1.5] bg-white border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-[#d97c55]"
-                />
-                <button type="button" className="text-gray-400 hover:text-red-500 transition-colors p-2">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-              {/* 3rd Place */}
-              <div className="flex gap-3 items-center bg-[#fcfbf9] p-2 border border-gray-100 rounded">
-                <div className="w-16 bg-[#9e6d4c] text-white text-center py-2.5 rounded text-sm font-bold tracking-widest shadow-sm">
-                  3RD
-                </div>
-                <input
-                  type="text"
-                  defaultValue="Aligarh"
-                  className="flex-1 bg-white border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-[#d97c55]"
-                />
-                <input
-                  type="text"
-                  defaultValue="Third place - 3 wins 3 losses"
-                  className="flex-[1.5] bg-white border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-[#d97c55]"
-                />
-                <button type="button" className="text-gray-400 hover:text-red-500 transition-colors p-2">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-              {/* 4th Place */}
-              <div className="flex gap-3 items-center bg-[#fcfbf9] p-2 border border-gray-100 rounded">
-                <div className="w-16 bg-[#18202f] text-white text-center py-2.5 rounded text-sm font-bold tracking-widest shadow-sm">
-                  4TH
-                </div>
-                <input
-                  type="text"
-                  defaultValue="Jhansi"
-                  className="flex-1 bg-white border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-[#d97c55]"
-                />
-                <input
-                  type="text"
-                  defaultValue="Semi-finalist - 2 wins 4 losses"
-                  className="flex-[1.5] bg-white border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-[#d97c55]"
-                />
-                <button type="button" className="text-gray-400 hover:text-red-500 transition-colors p-2">
-                  <X className="w-4 h-4" />
-                </button>
-              </div>
-              
+              )}
+
               {/* Add Standing Button */}
               <div className="pt-2">
-                <button type="button" className="border border-dashed border-[#d97c55]/50 text-[#d97c55] px-4 py-2 text-[9px] font-bold uppercase tracking-widest rounded hover:bg-[#d97c55]/5 transition-colors">
+                <button
+                  type="button"
+                  onClick={addStanding}
+                  className="border border-dashed border-[#d97c55]/50 text-[#d97c55] px-4 py-2 text-[9px] font-bold uppercase tracking-widest rounded hover:bg-[#d97c55]/5 transition-colors"
+                >
                   + ADD STANDING
                 </button>
               </div>
@@ -197,8 +278,9 @@ export default function UploadResultsModal() {
                   TOP SCORER
                 </label>
                 <input
+                  ref={topScorerRef}
                   type="text"
-                  defaultValue="Arjun Verma - Lucknow - 28 goals"
+                  placeholder="Name - District - Goals"
                   className="w-full bg-[#fcfbf9] border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-[#d97c55] text-gray-800"
                 />
               </div>
@@ -207,8 +289,9 @@ export default function UploadResultsModal() {
                   BEST PLAYER (MVP)
                 </label>
                 <input
+                  ref={bestPlayerRef}
                   type="text"
-                  defaultValue="Rohit Kashyap - Lucknow"
+                  placeholder="Name - District"
                   className="w-full bg-[#fcfbf9] border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-[#d97c55] text-gray-800"
                 />
               </div>
@@ -217,8 +300,9 @@ export default function UploadResultsModal() {
                   BEST GOALKEEPER
                 </label>
                 <input
+                  ref={bestGoalkeeperRef}
                   type="text"
-                  defaultValue="Saurabh Kumar - Varanasi"
+                  placeholder="Name - District"
                   className="w-full bg-[#fcfbf9] border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-[#d97c55] text-gray-800"
                 />
               </div>
@@ -227,8 +311,9 @@ export default function UploadResultsModal() {
                   MOST PROMISING JUNIOR
                 </label>
                 <input
+                  ref={mostPromisingJuniorRef}
                   type="text"
-                  defaultValue="Vivek Singh - Aligarh"
+                  placeholder="Name - District"
                   className="w-full bg-[#fcfbf9] border border-gray-200 rounded px-3 py-2.5 text-sm focus:outline-none focus:border-[#d97c55] text-gray-800"
                 />
               </div>
@@ -247,17 +332,62 @@ export default function UploadResultsModal() {
             <div className="space-y-4">
               <div>
                 <label className="block text-[9px] font-bold tracking-widest text-gray-800 uppercase mb-1.5">
-                  MATCH-BY-MATCH SCORESHEET (PDF / Excel)
+                  MATCH-BY-MATCH SCORESHEET (PDF / Image)
                 </label>
-                <div className="border border-dashed border-gray-300 bg-[#fcfbf9] rounded-md p-4 flex items-center gap-4 cursor-pointer hover:bg-gray-50 transition-colors">
+
+                {/* Clickable upload zone — wraps a real hidden file input */}
+                <label
+                  htmlFor="scoresheet-upload"
+                  className={`border border-dashed rounded-md p-4 flex items-center gap-4 cursor-pointer transition-colors ${
+                    scoresheetFile
+                      ? "border-[#d97c55] bg-orange-50"
+                      : "border-gray-300 bg-[#fcfbf9] hover:bg-gray-50"
+                  }`}
+                >
                   <div className="w-10 h-10 bg-white border border-gray-200 rounded-full flex items-center justify-center text-gray-500 shrink-0 shadow-sm">
-                    <FileText className="w-4 h-4" />
+                    {scoresheetFile ? (
+                      <Upload className="w-4 h-4 text-[#d97c55]" />
+                    ) : (
+                      <FileText className="w-4 h-4" />
+                    )}
                   </div>
-                  <div>
-                    <div className="text-[10px] font-bold tracking-widest text-[#111827] uppercase">UPLOAD OFFICIAL SCORESHEET</div>
-                    <div className="text-[9px] font-mono text-gray-500 uppercase mt-0.5">PDF, EXCEL OR CSV &middot; MAX 10 MB</div>
+                  <div className="flex-1 min-w-0">
+                    {scoresheetFile ? (
+                      <>
+                        <div className="text-[10px] font-bold tracking-widest text-[#d97c55] uppercase">FILE SELECTED</div>
+                        <div className="text-xs text-gray-800 mt-0.5 truncate">{scoresheetFile.name}</div>
+                        <div className="text-[9px] text-gray-400 mt-0.5">{(scoresheetFile.size / 1024).toFixed(0)} KB</div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="text-[10px] font-bold tracking-widest text-[#111827] uppercase">CLICK TO UPLOAD SCORESHEET</div>
+                        <div className="text-[9px] font-mono text-gray-500 uppercase mt-0.5">PDF, IMAGE, EXCEL OR CSV · MAX 10 MB</div>
+                      </>
+                    )}
                   </div>
-                </div>
+                  {scoresheetFile && (
+                    <button
+                      type="button"
+                      onClick={(e) => { e.preventDefault(); setScoresheetFile(null); }}
+                      className="shrink-0 text-gray-400 hover:text-red-500 transition-colors p-1"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </label>
+
+                {/* Hidden actual file input */}
+                <input
+                  id="scoresheet-upload"
+                  type="file"
+                  accept=".pdf,.xls,.xlsx,.csv,.png,.jpg,.jpeg,application/pdf,image/*"
+                  className="hidden"
+                  onChange={handleFileChange}
+                />
+
+                {scoresheetError && (
+                  <p className="text-xs text-red-500 mt-1.5">{scoresheetError}</p>
+                )}
               </div>
               
               <div className="grid grid-cols-2 gap-6">
