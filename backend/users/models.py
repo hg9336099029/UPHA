@@ -148,3 +148,16 @@ class Certificate(models.Model):
     certificate_id = models.CharField(max_length=255, unique=True)
     icon_type = models.CharField(max_length=50, default='Award')
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+class Announcement(models.Model):
+    title = models.CharField(max_length=255)
+    message = models.TextField()
+    created_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='announcements')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('-created_at',)
+
+    def __str__(self):
+        return self.title

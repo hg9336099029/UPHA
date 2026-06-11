@@ -19,7 +19,7 @@ import { useEffect } from "react";
 type TabType = "applications" | "create_event" | "upload_results" | "upload_gallery" | "invite_admin" | "publish_notice";
 
 export default function AdminDashboardPage() {
-  const { meData, loading } = useAuth();
+  const { authUser, loading } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<TabType>("applications");
   const [toast, setToast] = useState<string | null>(null);
@@ -40,12 +40,12 @@ export default function AdminDashboardPage() {
   };
 
   useEffect(() => {
-    if (!loading && (!meData || !("user" in meData) || meData.user.role !== "admin")) {
+    if (!loading && (!authUser || authUser.role !== "admin")) {
       router.push("/login");
     }
-  }, [loading, meData, router]);
+  }, [loading, authUser, router]);
 
-  if (loading || !meData || !("user" in meData) || meData.user.role !== "admin") {
+  if (loading || !authUser || authUser.role !== "admin") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#fcfbf9]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#d97c55]"></div>

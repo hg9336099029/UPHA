@@ -764,3 +764,46 @@ def get_my_assignments(request):
 		})
 	return json_success('Assignments retrieved successfully.', assignments=data)
 
+
+@require_http_methods(['GET'])
+def get_announcements(request):
+	from users.models import Announcement
+	announcements = Announcement.objects.all().order_by('-created_at')[:20]
+	data = []
+	for a in announcements:
+		data.append({
+			'id': a.id,
+			'title': a.title,
+			'message': a.message,
+			'created_at': a.created_at.isoformat(),
+		})
+	return json_success('Announcements retrieved successfully.', announcements=data)
+
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def create_announcement(request):
+	admin_response = admin_required_response(request)
+	if admin_response:
+		return admin_response
+
+	data = get_request_data(request)
+	title = (data.get('title') or '').strip()
+	message = (data.get('message') or '').strip()
+
+	if not title or not message:
+		return json_error('title and message are required.')
+
+	from users.models import Announcement
+	announcement = Announcement.objects.create(
+		title=title,
+		message=message,
+		created_by=request.user if request.user.is_authenticated else None,
+	)
+	return json_success('Announcement published successfully.', announcement={
+		'id': announcement.id,
+		'title': announcement.title,
+		'message': announcement.message,
+		'created_at': announcement.created_at.isoformat(),
+	})
+

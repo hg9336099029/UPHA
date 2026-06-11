@@ -57,9 +57,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       .then((res) => {
         const payload = res.user as MePayload;
         setMeData(payload);
-        // Extract user from the nested object
+        // For admin: user object is flat (no nested .user)
+        // For player/coach/referee/academy: user is nested inside payload.user
         const user =
-          "user" in payload ? payload.user : null;
+          "user" in payload ? (payload as { user: UserData }).user : (payload as unknown as UserData);
         setAuthUser(user);
       })
       .catch(() => {
@@ -76,9 +77,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Fetch full profile
       try {
         const me = await getMe();
-        setMeData(me.user as MePayload);
+        const payload = me.user as MePayload;
+        setMeData(payload);
+        // Handle flat admin vs nested player/coach/referee response
+        const user =
+          "user" in payload ? (payload as { user: UserData }).user : (payload as unknown as UserData);
+        setAuthUser(user);
       } catch {
-        // ok
+        // ok — keep the user from login response
       }
       router.push(roleToPath(res.user.role));
     },

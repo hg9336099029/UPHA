@@ -1,21 +1,21 @@
 "use client";
-import { Trophy, Megaphone } from "lucide-react";
+import { Megaphone } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { getNotifications, NotificationData } from "@/lib/api";
+import { getAnnouncements, AnnouncementData } from "@/lib/api";
 
 export default function AcademyNotices() {
-  const [notices, setNotices] = useState<NotificationData[]>([]);
+  const [notices, setNotices] = useState<AnnouncementData[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchNotices() {
       try {
-        const res = await getNotifications();
-        if (res.success && res.notifications) {
-          setNotices(res.notifications.slice(0, 3));
+        const res = await getAnnouncements();
+        if (res.success && res.announcements) {
+          setNotices(res.announcements.slice(0, 3));
         }
       } catch (error) {
-        console.error("Failed to fetch notices:", error);
+        console.error("Failed to fetch announcements:", error);
       } finally {
         setLoading(false);
       }

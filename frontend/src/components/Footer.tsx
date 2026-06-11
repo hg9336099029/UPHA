@@ -65,7 +65,7 @@ export default function Footer() {
               <li><Link href="/council" className="hover:text-accent transition-colors">Office Bearers</Link></li>
               <li><Link href="/districts" className="hover:text-accent transition-colors">Affiliated Districts</Link></li>
               <li><Link href="/constitution" className="hover:text-accent transition-colors">Constitution</Link></li>
-              <li><Link href="/press" className="hover:text-accent transition-colors">Press Releases</Link></li>
+              <li><Link href="/announcements" className="hover:text-accent transition-colors">Announcements</Link></li>
             </ul>
           </div>
 

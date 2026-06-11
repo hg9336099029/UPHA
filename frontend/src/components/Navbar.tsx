@@ -91,7 +91,7 @@ export default function Navbar() {
             <div className="flex items-center gap-4">
               <Link href="/database" className="hover:text-white transition-colors tracking-wide">Affiliated Districts</Link>
               <span className="text-gray-600 text-[10px]">■</span>
-              <Link href="/#press" className="hover:text-white transition-colors tracking-wide">Press Releases</Link>
+              <Link href="/#announcements" className="hover:text-white transition-colors tracking-wide">Announcements</Link>
               <span className="text-gray-600 text-[10px]">■</span>
               {loading ? (
                 <div className="w-24 h-4 bg-gray-700 animate-pulse rounded-sm"></div>

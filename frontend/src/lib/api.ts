@@ -612,3 +612,23 @@ export async function getMyCertificates(): Promise<{ success: boolean; message?:
 export async function getMyAssignments(): Promise<{ success: boolean; message?: string; assignments?: EventAssignmentData[] }> {
   return apiFetch<{ success: boolean; message?: string; assignments?: EventAssignmentData[] }>(`${API_BASE}/me/assignments/`);
 }
+
+// --- Announcements ---
+
+export interface AnnouncementData {
+  id: number;
+  title: string;
+  message: string;
+  created_at: string;
+}
+
+export async function getAnnouncements(): Promise<{ success: boolean; announcements: AnnouncementData[] }> {
+  return apiFetch<{ success: boolean; announcements: AnnouncementData[] }>(`${API_BASE}/announcements/`);
+}
+
+export async function createAnnouncement(payload: { title: string; message: string }): Promise<{ success: boolean; message: string; announcement: AnnouncementData }> {
+  return apiFetch<{ success: boolean; message: string; announcement: AnnouncementData }>(
+    `${ADMIN_BASE}/announcements/create/`,
+    { method: 'POST', body: JSON.stringify(payload) }
+  );
+}

@@ -1,20 +1,34 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, authUser, loading } = useAuth();
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  // Redirect already-logged-in users to their dashboard
+  useEffect(() => {
+    if (!loading && authUser) {
+      const path =
+        authUser.role === "admin" ? "/dashboard/admin" :
+        authUser.role === "coach" ? "/dashboard/coach" :
+        authUser.role === "referee" ? "/dashboard/player" :
+        "/dashboard/player";
+      router.replace(path);
+    }
+  }, [loading, authUser, router]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    setLoading(true);
+    setSubmitting(true);
     try {
       await login(email, password);
     } catch (err: unknown) {
@@ -31,7 +45,7 @@ export default function LoginPage() {
       
       setError(msg);
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   }
 
@@ -95,10 +109,10 @@ export default function LoginPage() {
 
             <button
               type="submit"
-              disabled={loading}
+              disabled={submitting}
               className="w-full bg-[#111827] hover:bg-[#1f2937] disabled:opacity-50 text-white py-4 rounded-sm text-[10px] font-bold tracking-widest uppercase transition-colors shadow-sm mt-2"
             >
-              {loading ? "SIGNING IN…" : "SIGN IN"}
+              {submitting ? "SIGNING IN…" : "SIGN IN"}
             </button>
           </form>
 
