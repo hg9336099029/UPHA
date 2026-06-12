@@ -725,9 +725,9 @@ def get_global_stats(request):
 		from events.models import Event
 		
 		stats = {
-			'districts': District.objects.count(),
-			'players': Player.objects.count(),
-			'coaches': Coach.objects.count(),
+			'districts': District.objects.filter(paid=True).count(),
+			'players': Player.objects.filter(paid=True).count(),
+			'coaches': Coach.objects.filter(paid=True).count(),
 			'tournaments': Event.objects.filter(category='TOURNAMENT').count()
 		}
 		return json_success('Stats retrieved successfully', stats=stats)

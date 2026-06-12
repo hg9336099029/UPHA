@@ -27,11 +27,11 @@ export default function DatabaseStatsBar() {
         ]);
 
         setCounts({
-          referees: (refRes as any).referees?.length || 0,
-          players: (playRes as any).players?.length || 0,
-          coaches: (coachRes as any).coaches?.length || 0,
-          academies: (acadRes as any).academies?.length || 0,
-          districts: (distRes as any).districts?.length || 0,
+          referees: ((refRes as any).referees || []).filter((p: any) => p.paid).length,
+          players: ((playRes as any).players || []).filter((p: any) => p.paid).length,
+          coaches: ((coachRes as any).coaches || []).filter((p: any) => p.paid).length,
+          academies: ((acadRes as any).academies || []).filter((p: any) => p.paid).length,
+          districts: ((distRes as any).districts || []).filter((p: any) => p.paid).length,
         });
       } catch (error) {
         console.error("Failed to load counts:", error);
