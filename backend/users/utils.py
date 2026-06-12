@@ -149,7 +149,7 @@ def serialize_referee(request, referee):
 def serialize_academy(request, academy):
     return {
         'id': academy.id,
-        'user': serialize_user(request, academy.user),
+        'user': serialize_user(request, academy.user) if getattr(academy, 'user_id', None) else None,
         'name': academy.name,
         'district': academy.district,
         'year_of_establishment': academy.year_of_establishment,
@@ -186,7 +186,7 @@ def serialize_academy(request, academy):
 def serialize_district(request, district):
     return {
         'id': district.id,
-        'user': serialize_user(request, district.user),
+        'user': serialize_user(request, district.user) if getattr(district, 'user_id', None) else None,
         'name': district.name,
         'district': district.district,
         'year_of_establishment': district.year_of_establishment,
