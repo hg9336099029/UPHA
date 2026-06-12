@@ -68,8 +68,15 @@ export default function GalleryPage() {
 
   const openLightbox = (filteredIdx: number) => {
     const album = filteredAlbums[filteredIdx];
-    if (!album.photos || album.photos.length === 0) return;
-    setActiveAlbum(album);
+    
+    // Fallback to cover_photo if the backend hasn't been updated to return the 'photos' array yet
+    const photos = album.photos && album.photos.length > 0 
+      ? album.photos 
+      : (album.cover_photo ? [album.cover_photo] : []);
+
+    if (photos.length === 0) return;
+
+    setActiveAlbum({ ...album, photos });
     setLightboxIndex(0);
     setLightboxOpen(true);
     document.body.style.overflow = "hidden";
