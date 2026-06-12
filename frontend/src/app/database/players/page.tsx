@@ -94,6 +94,7 @@ export default function PlayersDatabasePage() {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-primary text-white">
+                    <th className="py-4 px-6 font-bold uppercase tracking-wider text-xs">ID No.</th>
                     <th className="py-4 px-6 font-bold uppercase tracking-wider text-xs">Name</th>
                     <th className="py-4 px-6 font-bold uppercase tracking-wider text-xs">District</th>
                     <th className="py-4 px-6 font-bold uppercase tracking-wider text-xs">Club / School</th>
@@ -104,6 +105,9 @@ export default function PlayersDatabasePage() {
                 <tbody className="divide-y divide-gray-100">
                   {filteredPlayers.map((player) => (
                     <tr key={player.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="py-4 px-6 font-mono text-xs font-bold text-gray-500 whitespace-nowrap">
+                        UPHA-P-{player.id.toString().padStart(4, '0')}
+                      </td>
                       <td className="py-4 px-6 font-medium text-primary">
                         {player.user.name}
                       </td>
