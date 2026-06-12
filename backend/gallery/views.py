@@ -42,6 +42,7 @@ def serialize_album(request, album):
         'event': event_data,
         'cover_photo': image_url(request, cover_photo.image) if cover_photo else None,
         'photo_count': album.photos.count(),
+        'photos': [image_url(request, photo.image) for photo in album.photos.all()],
         'created_at': album.created_at,
     }
 

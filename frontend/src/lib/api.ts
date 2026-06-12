@@ -495,6 +495,7 @@ export interface AlbumData {
   event: { id: number; name: string; location: string; category: string; } | null;
   cover_photo: string | null;
   photo_count: number;
+  photos: string[];
   created_at: string;
 }
 

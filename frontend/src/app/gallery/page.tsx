@@ -13,6 +13,7 @@ export default function GalleryPage() {
 
   // Lightbox state
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const [activeAlbum, setActiveAlbum] = useState<AlbumData | null>(null);
   const [lightboxIndex, setLightboxIndex] = useState(0);
 
   useEffect(() => {
@@ -67,25 +68,28 @@ export default function GalleryPage() {
 
   const openLightbox = (filteredIdx: number) => {
     const album = filteredAlbums[filteredIdx];
-    const photoIdx = photoAlbums.findIndex((a) => a.id === album.id);
-    if (photoIdx === -1) return;
-    setLightboxIndex(photoIdx);
+    if (!album.photos || album.photos.length === 0) return;
+    setActiveAlbum(album);
+    setLightboxIndex(0);
     setLightboxOpen(true);
     document.body.style.overflow = "hidden";
   };
 
   const closeLightbox = () => {
     setLightboxOpen(false);
+    setActiveAlbum(null);
     document.body.style.overflow = "";
   };
 
   const lightboxPrev = useCallback(() => {
-    setLightboxIndex((i) => (i - 1 + photoAlbums.length) % photoAlbums.length);
-  }, [photoAlbums.length]);
+    if (!activeAlbum || !activeAlbum.photos) return;
+    setLightboxIndex((i) => (i - 1 + activeAlbum.photos.length) % activeAlbum.photos.length);
+  }, [activeAlbum]);
 
   const lightboxNext = useCallback(() => {
-    setLightboxIndex((i) => (i + 1) % photoAlbums.length);
-  }, [photoAlbums.length]);
+    if (!activeAlbum || !activeAlbum.photos) return;
+    setLightboxIndex((i) => (i + 1) % activeAlbum.photos.length);
+  }, [activeAlbum]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -99,13 +103,13 @@ export default function GalleryPage() {
     return () => window.removeEventListener("keydown", handler);
   }, [lightboxOpen, lightboxPrev, lightboxNext]);
 
-  const lightboxAlbum = photoAlbums[lightboxIndex];
+  // lightboxAlbum removed since we use activeAlbum directly
 
   return (
     <div className="flex-1 flex flex-col bg-[#fcfbf9] w-full">
 
       {/* ── LIGHTBOX POPUP ── */}
-      {lightboxOpen && lightboxAlbum && (
+      {lightboxOpen && activeAlbum && activeAlbum.photos && (
         <div
           className="fixed inset-0 z-[9999] bg-black/92 backdrop-blur-md flex items-center justify-center"
           onClick={closeLightbox}
@@ -121,11 +125,11 @@ export default function GalleryPage() {
 
           {/* Counter */}
           <div className="absolute top-6 left-1/2 -translate-x-1/2 text-white/50 text-[11px] font-mono tracking-widest select-none">
-            {lightboxIndex + 1} / {photoAlbums.length}
+            {lightboxIndex + 1} / {activeAlbum.photos.length}
           </div>
 
           {/* Prev arrow */}
-          {photoAlbums.length > 1 && (
+          {activeAlbum.photos.length > 1 && (
             <button
               onClick={(e) => { e.stopPropagation(); lightboxPrev(); }}
               className="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white/10 hover:bg-white/25 rounded-full flex items-center justify-center text-white transition-colors"
@@ -136,7 +140,7 @@ export default function GalleryPage() {
           )}
 
           {/* Next arrow */}
-          {photoAlbums.length > 1 && (
+          {activeAlbum.photos.length > 1 && (
             <button
               onClick={(e) => { e.stopPropagation(); lightboxNext(); }}
               className="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white/10 hover:bg-white/25 rounded-full flex items-center justify-center text-white transition-colors"
@@ -152,30 +156,30 @@ export default function GalleryPage() {
             onClick={(e) => e.stopPropagation()}
           >
             <img
-              src={lightboxAlbum.cover_photo!}
-              alt={lightboxAlbum.title}
+              src={activeAlbum.photos[lightboxIndex]}
+              alt={activeAlbum.title}
               className="max-w-[88vw] max-h-[76vh] w-auto h-auto object-contain rounded-sm shadow-2xl select-none"
               draggable={false}
             />
             {/* Caption */}
             <div className="text-center">
               <div className="text-white font-heading font-bold uppercase tracking-wider text-xl">
-                {lightboxAlbum.title}
+                {activeAlbum.title}
               </div>
               <div className="flex items-center justify-center gap-3 text-white/40 text-[10px] font-mono tracking-widest uppercase mt-2">
-                {lightboxAlbum.event?.category && (
+                {activeAlbum.event?.category && (
                   <span className="bg-[#d97c55]/30 text-[#d97c55] px-2 py-0.5 rounded-sm">
-                    {lightboxAlbum.event.category}
+                    {activeAlbum.event.category}
                   </span>
                 )}
-                {lightboxAlbum.event?.location && (
-                  <><span>·</span><span>{lightboxAlbum.event.location}</span></>
+                {activeAlbum.event?.location && (
+                  <><span>·</span><span>{activeAlbum.event.location}</span></>
                 )}
-                {lightboxAlbum.date && (
+                {activeAlbum.date && (
                   <>
                     <span>·</span>
                     <span>
-                      {new Date(lightboxAlbum.date).toLocaleDateString("en-IN", {
+                      {new Date(activeAlbum.date).toLocaleDateString("en-IN", {
                         day: "2-digit",
                         month: "short",
                         year: "numeric",
@@ -184,7 +188,7 @@ export default function GalleryPage() {
                   </>
                 )}
                 <span>·</span>
-                <span>{lightboxAlbum.photo_count} photos</span>
+                <span>{activeAlbum.photos.length} photos</span>
               </div>
             </div>
           </div>
