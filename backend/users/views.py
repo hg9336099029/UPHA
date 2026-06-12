@@ -300,7 +300,7 @@ def me_view(request):
 
 	if user.role == 'academy':
 		from academy.models import Academy
-		academy = Academy.objects.select_related('user', 'director').filter(user=user).first()
+		academy = Academy.objects.select_related('user', 'adhyaksha', 'sachiv', 'koshadhyaksha').filter(user=user).first()
 		if not academy:
 			return json_error('Academy profile not found.', status=404)
 		from users.utils import serialize_academy
@@ -929,3 +929,26 @@ def get_district_stats(request):
 		})
 	except Exception as e:
 		return json_error(str(e), status=400)
+
+
+@require_http_methods(['GET'])
+def get_my_academy_players(request):
+	"""Return players belonging to the logged-in academy (matched by club_name)."""
+	user = getattr(request, 'user', None)
+	if not user or not user.is_authenticated:
+		return json_error('Authentication required.', status=401)
+	if user.role != 'academy':
+		return json_error('Only academy accounts can access this endpoint.', status=403)
+
+	from academy.models import Academy
+	academy = Academy.objects.filter(user=user).first()
+	if not academy:
+		return json_error('Academy profile not found.', status=404)
+
+	players = Player.objects.select_related('user').filter(
+		club_name__iexact=academy.name
+	).order_by('id')
+	return json_success(
+		'Academy players retrieved successfully.',
+		players=[serialize_player(request, p) for p in players]
+	)

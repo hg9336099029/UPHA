@@ -25,5 +25,6 @@ urlpatterns = [
     path('stats/', views.get_global_stats, name='get_global_stats'),
     path('me/certificates/', views.get_my_certificates, name='get_my_certificates'),
     path('me/assignments/', views.get_my_assignments, name='get_my_assignments'),
+    path('me/academy/players/', views.get_my_academy_players, name='get_my_academy_players'),
     path('announcements/', views.get_announcements, name='get_announcements'),
 ]

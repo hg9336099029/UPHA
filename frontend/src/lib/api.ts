@@ -79,6 +79,10 @@ export interface AcademyData {
   adhyaksha: UserData | null;
   sachiv: UserData | null;
   koshadhyaksha: UserData | null;
+  coach_name: string | null;
+  coach_mobile: string | null;
+  coach_email: string | null;
+  coach_experience: number;
   registration_certificate: string | null;
   transaction_id: string;
   transaction_image: string | null;
@@ -320,6 +324,12 @@ export async function listReferees() {
 export async function listAcademies() {
   return apiFetch<{ success: boolean; academies: AcademyData[] }>(
     `${API_BASE}/academies/`
+  );
+}
+
+export async function getMyAcademyPlayers() {
+  return apiFetch<{ success: boolean; players: PlayerData[] }>(
+    `${API_BASE}/me/academy/players/`
   );
 }
 
