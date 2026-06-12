@@ -2,7 +2,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.db import IntegrityError, transaction
 
-from .models import Academy
+from .models import Academy, AcademyFacilityPhoto
 from users.models import User
 from users.utils import get_request_data, json_error, json_success, serialize_academy
 
@@ -30,6 +30,7 @@ def register_academy(request):
 	def create_office_bearer(prefix):
 		email = data.get(f'{prefix}_email')
 		adhar = data.get(f'{prefix}_adhar_number')
+		dob = data.get(f'{prefix}_dob') or None
 		if not email or not adhar:
 			role_name = prefix.replace('_', ' ').title()
 			raise ValueError(f"Missing Email or Aadhar number for {role_name}. Both are required to create their login account.")
@@ -52,15 +53,19 @@ def register_academy(request):
 			father_name=data.get(f'{prefix}_father_name', ''),
 			phone_number=data.get(f'{prefix}_phone_number', ''),
 			adhar_number=adhar,
-			role='admin',
+			date_of_birth=dob,
 		)
 
 		needs_save = False
-		if files.get(f'{prefix}_adhar_image'):
-			user.adhar_image = files[f'{prefix}_adhar_image']
+		# Check both frontend field names (e.g. director_adhar and director_adhar_image)
+		adhar_file = files.get(f'{prefix}_adhar') or files.get(f'{prefix}_adhar_image')
+		photo_file = files.get(f'{prefix}_photo') or files.get(f'{prefix}_passport_image')
+
+		if adhar_file:
+			user.adhar_image = adhar_file
 			needs_save = True
-		if files.get(f'{prefix}_passport_image'):
-			user.passport_image = files[f'{prefix}_passport_image']
+		if photo_file:
+			user.passport_image = photo_file
 			needs_save = True
 		if needs_save:
 			user.save()
@@ -69,9 +74,7 @@ def register_academy(request):
 
 	try:
 		with transaction.atomic():
-			adhyaksha = create_office_bearer('adhyaksha')
-			sachiv = create_office_bearer('sachiv')
-			koshadhyaksha = create_office_bearer('koshadhyaksha')
+			director = create_office_bearer('director')
 
 			academy_user = User.objects.create_user(
 				email=academy_email,
@@ -93,14 +96,31 @@ def register_academy(request):
 				email=academy_email,
 				website=data.get('website') or None,
 				no_of_players=int(data.get('no_of_players')),
-				adhyaksha=adhyaksha,
-				sachiv=sachiv,
-				koshadhyaksha=koshadhyaksha,
 				registration_certificate=files.get('registration_certificate'),
 				transaction_id=data.get('transaction_id', ''),
 				transaction_image=files.get('transaction_image'),
 				paid=str(data.get('paid', '')).lower() in {'true', '1', 'yes'},
+				
+				# New sync fields
+				director=director,
+				academy_type=data.get('academy_type', ''),
+				discipline_focus=data.get('discipline_focus', ''),
+				categories_trained=data.get('categories_trained', ''),
+				coach_grade=data.get('coach_grade', ''),
+				pin_code=data.get('pin_code', ''),
+				training_venue=data.get('training_venue', ''),
+				coaches_employed=int(data.get('coaches_employed') or 0),
+				address_proof=files.get('address_proof'),
+				bank_details=files.get('bank_details'),
 			)
+
+			# Save multiple facility photos
+			facility_photos = files.getlist('facility_photos')
+			for photo in facility_photos:
+				AcademyFacilityPhoto.objects.create(
+					academy=academy,
+					image=photo
+				)
 	except ValueError as ve:
 		return json_error(str(ve))
 	except IntegrityError as e:
@@ -120,14 +140,14 @@ def register_academy(request):
 
 @require_http_methods(['GET'])
 def list_academies(request):
-	academies = Academy.objects.select_related('director', 'user').all().order_by('id')
+	academies = Academy.objects.select_related('director', 'user').prefetch_related('facility_photos').all().order_by('id')
 	return json_success('Academies retrieved successfully.', academies=[serialize_academy(request, academy) for academy in academies])
 
 
 @csrf_exempt
 @require_http_methods(['POST'])
 def update_academy_payment_status(request, academy_id):
-	academy = Academy.objects.select_related('adhyaksha', 'sachiv', 'koshadhyaksha').filter(pk=academy_id).first()
+	academy = Academy.objects.select_related('director').filter(pk=academy_id).first()
 	if not academy:
 		return json_error('Academy not found.', status=404)
   
@@ -144,12 +164,12 @@ def update_academy_payment_status(request, academy_id):
 			data.get('notes', '')
 		)
 		
-		# Notify academy office bearers
-		for user in [academy.adhyaksha, academy.sachiv, academy.koshadhyaksha]:
-			if user:
-				create_user_notification(
-					user,
-					"Academy Registration Approved",
-					f"Registration for academy '{academy.name}' has been approved."
-				)
+		# Notify academy director
+		if academy.director:
+			create_user_notification(
+				academy.director,
+				"Academy Registration Approved",
+				f"Registration for academy '{academy.name}' has been approved."
+			)
 	return json_success('Academy payment status updated successfully.', academy=serialize_academy(request, academy))
+

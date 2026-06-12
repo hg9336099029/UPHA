@@ -23,3 +23,21 @@ class Academy(models.Model):
     transaction_id = models.CharField(max_length=255, unique=True)
     transaction_image = models.ImageField(upload_to='transaction_images/')
     paid = models.BooleanField(default=False)
+    academy_type = models.CharField(max_length=100, blank=True, null=True)
+    discipline_focus = models.CharField(max_length=255, blank=True, null=True)
+    categories_trained = models.CharField(max_length=255, blank=True, null=True)
+    coach_grade = models.CharField(max_length=100, blank=True, null=True)
+    pin_code = models.CharField(max_length=10, blank=True, null=True)
+    training_venue = models.CharField(max_length=255, blank=True, null=True)
+    coaches_employed = models.IntegerField(default=0)
+    address_proof = models.ImageField(upload_to='address_proofs/', blank=True, null=True)
+    bank_details = models.ImageField(upload_to='bank_details/', blank=True, null=True)
+
+
+class AcademyFacilityPhoto(models.Model):
+    academy = models.ForeignKey(Academy, on_delete=models.CASCADE, related_name='facility_photos')
+    image = models.ImageField(upload_to='academy_facilities/')
+
+    def __str__(self):
+        return f"Photo for {self.academy.name}"
+
