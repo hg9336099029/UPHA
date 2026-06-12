@@ -78,6 +78,15 @@ def log_decision(request, applicant_type, applicant_id, action, applicant_name_r
     )
 
 
+def notify_admins(title, message):
+    from users.models import Notification, User
+    admins = User.objects.filter(role='admin')
+    notifications = [
+        Notification(user=admin, title=title, message=message)
+        for admin in admins
+    ]
+    Notification.objects.bulk_create(notifications)
+
 def serialize_user(request, user):
     return {
         'id': user.id,

@@ -10,7 +10,7 @@ from django.views.decorators.http import require_http_methods
 from django.db.models import Q
 
 from .models import Coach, Player, Referee, User
-from .utils import admin_required_response, get_request_data, json_error, json_success, serialize_coach, serialize_player, serialize_referee, serialize_user
+from .utils import admin_required_response, get_request_data, json_error, json_success, serialize_coach, serialize_player, serialize_referee, serialize_user, notify_admins
 
 
 def _create_user_account(request, data, role, is_staff=False):
@@ -123,6 +123,8 @@ def register_player(request):
 	except Exception as exc:
 		return json_error(str(exc))
 
+	notify_admins('New Player Application', f'{user.name} has submitted a new player application from {player.district}.')
+
 	return json_success('Player registered successfully.', player=serialize_player(request, player))
 
 
@@ -156,6 +158,8 @@ def register_coach(request):
 			)
 	except Exception as exc:
 		return json_error(str(exc))
+
+	notify_admins('New Coach Application', f'{user.name} has submitted a new coach application from {coach.district}.')
 
 	return json_success('Coach registered successfully.', coach=serialize_coach(request, coach))
 
@@ -201,6 +205,8 @@ def register_referee(request):
 			)
 	except Exception as exc:
 		return json_error(str(exc))
+
+	notify_admins('New Referee Application', f'{user.name} has submitted a new referee application from {referee.district}.')
 
 	return json_success('Referee registered successfully.', referee=serialize_referee(request, referee))
 

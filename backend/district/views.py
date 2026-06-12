@@ -3,7 +3,7 @@ from django.views.decorators.http import require_http_methods
 from django.db import IntegrityError, transaction
 
 from .models import District
-from users.utils import get_request_data, json_error, json_success, serialize_district
+from users.utils import get_request_data, json_error, json_success, serialize_district, notify_admins
 
 
 from django.contrib.auth.hashers import make_password
@@ -121,6 +121,8 @@ def register_district(request):
         return json_error('Registration failed due to duplicate information provided. Please check your data.')
     except Exception as exc:
         return json_error(str(exc))
+
+    notify_admins('New District Unit Application', f'{district.name} has submitted a new district unit application from {district.district}.')
 
     return json_success('District registered successfully.', district=serialize_district(request, district))
 

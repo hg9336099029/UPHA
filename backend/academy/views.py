@@ -4,7 +4,7 @@ from django.db import IntegrityError, transaction
 
 from .models import Academy, AcademyFacilityPhoto
 from users.models import User
-from users.utils import get_request_data, json_error, json_success, serialize_academy
+from users.utils import get_request_data, json_error, json_success, serialize_academy, notify_admins
 
 
 @csrf_exempt
@@ -134,6 +134,8 @@ def register_academy(request):
 		return json_error('Registration failed due to duplicate information provided. Please check your data.')
 	except Exception as exc:
 		return json_error(str(exc))
+
+	notify_admins('New Academy Application', f'{academy.name} has submitted a new academy application from {academy.district}.')
 
 	return json_success('Academy registered successfully.', academy=serialize_academy(request, academy))
 
