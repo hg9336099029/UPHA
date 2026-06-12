@@ -23,11 +23,6 @@ const nextConfig: NextConfig = {
         hostname: "upha.onrender.com",
         pathname: "/media/**",
       },
-      {
-        protocol: "https",
-        hostname: "upha-production.up.railway.app",
-        pathname: "/media/**",
-      },
     ],
   },
   // Only proxy API/media to local backend in development
