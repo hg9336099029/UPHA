@@ -620,6 +620,8 @@ export interface GlobalStatsData {
   districts: number;
   players: number;
   coaches: number;
+  referees: number;
+  academies: number;
   tournaments: number;
 }
 

@@ -721,13 +721,16 @@ def list_office_bearers(request):
 def get_global_stats(request):
 	try:
 		from district.models import District
-		from users.models import Player, Coach
+		from users.models import Player, Coach, Referee
 		from events.models import Event
+		from academy.models import Academy
 		
 		stats = {
 			'districts': District.objects.filter(paid=True).count(),
 			'players': Player.objects.filter(paid=True).count(),
 			'coaches': Coach.objects.filter(paid=True).count(),
+			'referees': Referee.objects.filter(paid=True).count(),
+			'academies': Academy.objects.filter(paid=True).count(),
 			'tournaments': Event.objects.filter(category='TOURNAMENT').count()
 		}
 		return json_success('Stats retrieved successfully', stats=stats)

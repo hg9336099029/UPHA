@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Shield, Users, Briefcase, MapPin, GraduationCap } from "lucide-react";
-import { listReferees, listPlayers, listCoaches, listAcademies, listDistricts } from "@/lib/api";
+import { getGlobalStats } from "@/lib/api";
 
 export default function DatabaseStatsBar() {
   const [counts, setCounts] = useState({
@@ -18,23 +18,18 @@ export default function DatabaseStatsBar() {
   useEffect(() => {
     async function fetchCounts() {
       try {
-        const [refRes, playRes, coachRes, acadRes, distRes] = await Promise.all([
-          listReferees().catch(() => ({ referees: [] })),
-          listPlayers().catch(() => ({ players: [] })),
-          listCoaches().catch(() => ({ coaches: [] })),
-          listAcademies().catch(() => ({ academies: [] })),
-          listDistricts().catch(() => ({ districts: [] })),
-        ]);
-
-        setCounts({
-          referees: ((refRes as any).referees || []).filter((p: any) => p.paid).length,
-          players: ((playRes as any).players || []).filter((p: any) => p.paid).length,
-          coaches: ((coachRes as any).coaches || []).filter((p: any) => p.paid).length,
-          academies: ((acadRes as any).academies || []).filter((p: any) => p.paid).length,
-          districts: ((distRes as any).districts || []).filter((p: any) => p.paid).length,
-        });
+        const res = await getGlobalStats();
+        if (res.success && res.stats) {
+          setCounts({
+            referees: res.stats.referees || 0,
+            players: res.stats.players || 0,
+            coaches: res.stats.coaches || 0,
+            academies: res.stats.academies || 0,
+            districts: res.stats.districts || 0,
+          });
+        }
       } catch (error) {
-        console.error("Failed to load counts:", error);
+        console.error("Failed to load database counts:", error);
       } finally {
         setLoading(false);
       }
