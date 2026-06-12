@@ -131,8 +131,8 @@ export default function AchievementsPage() {
             if (medal.medal_type === "BRONZE") badgeColor = "bg-[#c88d68]";
 
             return (
-              <div key={idx} className="bg-white border border-gray-100 p-5 rounded-sm shadow-sm flex flex-col md:flex-row md:items-center gap-6 hover:shadow transition-shadow">
-                <div className="font-heading text-3xl font-bold text-[#111827] w-16 shrink-0">
+              <div key={idx} className="bg-white border border-gray-100 p-5 rounded-sm shadow-sm flex flex-col md:flex-row md:items-center gap-4 hover:shadow transition-shadow">
+                <div className="font-heading text-2xl md:text-3xl font-bold text-[#111827] min-w-[4rem] max-w-[10rem] break-words shrink-0">
                   {medal.year}
                 </div>
                 
