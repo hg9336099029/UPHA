@@ -300,11 +300,7 @@ def me_view(request):
 
 	if user.role == 'academy':
 		from academy.models import Academy
-<<<<<<< HEAD
-		academy = Academy.objects.select_related('user', 'adhyaksha', 'sachiv', 'koshadhyaksha').filter(user=user).first()
-=======
 		academy = Academy.objects.select_related('user', 'director').prefetch_related('facility_photos').filter(user=user).first()
->>>>>>> 537d77df6e57d81a56c786ae3d83fde6e4796348
 		if not academy:
 			return json_error('Academy profile not found.', status=404)
 		from users.utils import serialize_academy

@@ -159,17 +159,12 @@ def serialize_academy(request, academy):
         'email': academy.email,
         'website': academy.website,
         'no_of_players': academy.no_of_players,
-<<<<<<< HEAD
-        'adhyaksha': serialize_user(request, academy.adhyaksha) if academy.adhyaksha_id else None,
-        'sachiv': serialize_user(request, academy.sachiv) if academy.sachiv_id else None,
-        'koshadhyaksha': serialize_user(request, academy.koshadhyaksha) if academy.koshadhyaksha_id else None,
+        'director': serialize_user(request, academy.director) if academy.director_id else None,
         'coach_name': academy.coach_name,
         'coach_mobile': academy.coach_mobile,
         'coach_email': academy.coach_email,
         'coach_experience': academy.coach_experience,
-=======
-        'adhyaksha': serialize_user(request, academy.director) if academy.director_id else None,
->>>>>>> 537d77df6e57d81a56c786ae3d83fde6e4796348
+        'coach_upha_id': academy.coach_upha_id,
         'registration_certificate': image_url(request, academy.registration_certificate),
         'transaction_id': academy.transaction_id,
         'transaction_image': image_url(request, academy.transaction_image),

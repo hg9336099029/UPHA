@@ -70,23 +70,32 @@ export interface AcademyData {
   district: string;
   year_of_establishment: number;
   logo: string | null;
-  trust_registration_number: string;
+  trust_registration_number: string | null;
   office_address: string;
   office_phone_number: string;
   email: string;
   website: string | null;
   no_of_players: number;
-  adhyaksha: UserData | null;
-  sachiv: UserData | null;
-  koshadhyaksha: UserData | null;
+  director: UserData | null;
   coach_name: string | null;
   coach_mobile: string | null;
   coach_email: string | null;
+  coach_upha_id: string | null;
   coach_experience: number;
   registration_certificate: string | null;
   transaction_id: string;
   transaction_image: string | null;
   paid: boolean;
+  academy_type: string | null;
+  discipline_focus: string | null;
+  categories_trained: string | null;
+  coach_grade: string | null;
+  pin_code: string | null;
+  training_venue: string | null;
+  coaches_employed: number;
+  address_proof: string | null;
+  bank_details: string | null;
+  facility_photos: (string | null)[];
 }
 
 export interface DistrictData {

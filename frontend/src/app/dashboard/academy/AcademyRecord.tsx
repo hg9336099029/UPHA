@@ -54,10 +54,10 @@ export default function AcademyRecord() {
           <div className="text-[10px] text-gray-500 uppercase">ACTIVE ROSTER</div>
         </div>
 
-        {/* Stat 2 – Coach */}
+        {/* Stat 2 – Coaches */}
         <div className="flex flex-col items-center justify-center text-center py-4 lg:py-0">
           <div className="font-heading text-6xl md:text-7xl font-bold text-[#d97c55] mb-2 tracking-tight truncate w-full px-2">
-            {academy?.coach_name ? 1 : 0}
+            {academy?.coaches_employed ?? (academy?.coach_name ? 1 : 0)}
           </div>
           <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mb-1">COACHES REGISTERED</div>
           <div className="text-[10px] text-gray-500 uppercase">ACTIVE STAFF</div>
