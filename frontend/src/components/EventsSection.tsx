@@ -98,9 +98,9 @@ export default function EventsSection() {
                     </div>
                     <div className="flex justify-between items-center pt-4 border-t border-gray-100">
                       <span className="text-xs text-gray-500 font-medium">Reg. closes <strong>{formattedRegDate}</strong></span>
-                      <Link href={`/events/${event.id}/register`} className="text-accent text-xs font-bold uppercase tracking-widest hover:text-primary transition-colors">
-                        REGISTER &rarr;
-                      </Link>
+                      <span className="text-accent text-[10px] font-bold uppercase tracking-widest">
+                        UPCOMING
+                      </span>
                     </div>
                   </div>
                 </div>

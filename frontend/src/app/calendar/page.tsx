@@ -220,9 +220,9 @@ export default function CalendarPage() {
                         REG. CLOSES <span className={regDate < today ? "text-red-500" : "text-[#111827]"}>{formattedRegDate}</span>
                       </span>
                       {status === "UPCOMING" || status === "ONGOING" ? (
-                        <Link href={`/events/${event.id}/register`} className="text-[#d97c55] text-[10px] font-bold uppercase tracking-widest hover:text-[#111827] transition-colors border-b border-transparent hover:border-[#111827] pb-0.5">
-                          REGISTER &rarr;
-                        </Link>
+                        <span className="text-accent text-[10px] font-bold uppercase tracking-widest">
+                          {status}
+                        </span>
                       ) : (
                         <span className="text-gray-400 text-[10px] font-bold uppercase tracking-widest">
                           CONCLUDED
