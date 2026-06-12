@@ -190,12 +190,12 @@ export default function Navbar() {
                       className="flex items-center gap-3 pl-1.5 pr-2 py-1.5 rounded-l-full"
                     >
                       <div className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-[11px] font-bold tracking-wider">
-                        {authUser.name ? authUser.name.split(' ').map((n: string) => n[0]).join('').substring(0,2).toUpperCase() : 'U'}
+                        {authUser?.name ? authUser.name.split(' ').map((n: string) => n[0]).join('').substring(0,2).toUpperCase() : 'U'}
                       </div>
                       <div className="flex flex-col items-start text-left">
-                        <span className="text-xs font-bold text-primary leading-none">{authUser.name || authUser.email}</span>
+                        <span className="text-xs font-bold text-primary leading-none">{authUser?.name || authUser?.email}</span>
                         <span className="text-[9px] font-mono text-gray-400 font-medium uppercase tracking-widest leading-none mt-1">
-                          UPHA-{authUser.role.substring(0,3).toUpperCase()}-{(authUser.id || 0).toString().padStart(5, '0')}
+                          UPHA-{authUser?.role ? authUser.role.substring(0,3).toUpperCase() : 'USR'}-{(authUser?.id || 0).toString().padStart(5, '0')}
                         </span>
                       </div>
                     </Link>
