@@ -107,6 +107,13 @@ export default function AcademyAffiliationForm() {
         formData.set("director_phone_number", directorMobile);
         formData.delete("director_mobile");
       }
+      
+      // "director_aadhar" (file) → "director_adhar"
+      const directorAadharFile = formData.get("director_aadhar");
+      if (directorAadharFile) {
+        formData.set("director_adhar", directorAadharFile);
+        formData.delete("director_aadhar");
+      }
 
       await registerAcademy(formData);
       setSubmitSuccess("Academy Affiliation Request Submitted Successfully!");
