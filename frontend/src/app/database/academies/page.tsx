@@ -99,6 +99,7 @@ export default function AcademiesDatabasePage() {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-primary text-white">
+                    <th className="py-4 px-6 font-bold uppercase tracking-wider text-xs">ID No.</th>
                     <th className="py-4 px-6 font-bold uppercase tracking-wider text-xs">Academy Name</th>
                     <th className="py-4 px-6 font-bold uppercase tracking-wider text-xs">District</th>
                     <th className="py-4 px-6 font-bold uppercase tracking-wider text-xs">Establishment</th>
@@ -109,6 +110,9 @@ export default function AcademiesDatabasePage() {
                 <tbody className="divide-y divide-gray-100">
                   {filteredAcademies.map((academy) => (
                     <tr key={academy.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="py-4 px-6 font-mono text-xs font-bold text-gray-500 whitespace-nowrap">
+                        UPHA-A-{academy.id.toString().padStart(4, '0')}
+                      </td>
                       <td className="py-4 px-6 font-medium text-primary">
                         {academy.name}
                       </td>

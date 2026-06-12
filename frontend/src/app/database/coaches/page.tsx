@@ -99,6 +99,7 @@ export default function CoachesDatabasePage() {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-primary text-white">
+                    <th className="py-4 px-6 font-bold uppercase tracking-wider text-xs">ID No.</th>
                     <th className="py-4 px-6 font-bold uppercase tracking-wider text-xs">Name</th>
                     <th className="py-4 px-6 font-bold uppercase tracking-wider text-xs">District</th>
                     <th className="py-4 px-6 font-bold uppercase tracking-wider text-xs">Occupation</th>
@@ -108,6 +109,9 @@ export default function CoachesDatabasePage() {
                 <tbody className="divide-y divide-gray-100">
                   {filteredCoaches.map((coach) => (
                     <tr key={coach.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="py-4 px-6 font-mono text-xs font-bold text-gray-500 whitespace-nowrap">
+                        UPHA-C-{coach.id.toString().padStart(4, '0')}
+                      </td>
                       <td className="py-4 px-6 font-medium text-primary">
                         {coach.user.name}
                       </td>

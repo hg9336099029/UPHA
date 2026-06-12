@@ -13,7 +13,7 @@ export default function DirectoryTable({ districts }: { districts: DistrictData[
       <table className="w-full text-left bg-white whitespace-nowrap min-w-[900px]">
         <thead>
           <tr className="bg-[#111827] text-white text-[10px] font-bold tracking-widest uppercase">
-            <th className="py-4 px-6 w-16">#</th>
+            <th className="py-4 px-6 w-24">ID No.</th>
             <th className="py-4 px-6 w-20">LOGO</th>
             <th className="py-4 px-6 w-1/4">DISTRICT</th>
             <th className="py-4 px-6 w-1/3">PRESIDENT &mdash; NAME & ADDRESS</th>
@@ -33,7 +33,7 @@ export default function DirectoryTable({ districts }: { districts: DistrictData[
                 className={`${index % 2 === 0 ? 'bg-white' : 'bg-gray-50/50'} border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer`}
               >
                 <td className="py-6 px-6 align-middle">
-                  <span className="text-[#d97c55] font-mono font-bold text-xs">{rowNumber}</span>
+                  <span className="text-gray-500 font-mono font-bold text-xs whitespace-nowrap">UPHA-D-{row.id.toString().padStart(4, '0')}</span>
                 </td>
                 <td className="py-6 px-6 align-middle">
                   {row.logo ? (
