@@ -38,7 +38,7 @@ export default function StatsBanner() {
           
           <div className="p-8 md:p-12 border-b md:border-b-0 md:border-r border-white/10 flex flex-col justify-center">
             <div className="font-heading text-5xl md:text-6xl font-bold text-accent mb-2 flex items-baseline">
-              {players.toLocaleString()}<span className="text-3xl ml-1">+</span>
+              {players.toLocaleString()}
             </div>
             <div className="text-[10px] md:text-xs font-bold tracking-widest text-gray-500 uppercase">
               REGISTERED PLAYERS
@@ -47,7 +47,7 @@ export default function StatsBanner() {
           
           <div className="p-8 md:p-12 border-r border-white/10 flex flex-col justify-center">
             <div className="font-heading text-5xl md:text-6xl font-bold text-accent mb-2 flex items-baseline">
-              {coaches.toLocaleString()}<span className="text-3xl ml-1">+</span>
+              {coaches.toLocaleString()}
             </div>
             <div className="text-[10px] md:text-xs font-bold tracking-widest text-gray-500 uppercase">
               CERTIFIED COACHES
@@ -56,7 +56,7 @@ export default function StatsBanner() {
           
           <div className="p-8 md:p-12 flex flex-col justify-center">
             <div className="font-heading text-5xl md:text-6xl font-bold text-accent mb-2 flex items-baseline">
-              {tournaments.toLocaleString()}<span className="text-3xl ml-1">+</span>
+              {tournaments.toLocaleString()}
             </div>
             <div className="text-[10px] md:text-xs font-bold tracking-widest text-gray-500 uppercase">
               ANNUAL TOURNAMENTS
