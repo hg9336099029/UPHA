@@ -594,7 +594,7 @@ export default function AcademyAffiliationForm() {
             <svg className="absolute w-3 h-3 text-white pointer-events-none opacity-0 peer-checked:opacity-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
           </div>
           <span className="text-sm text-gray-300 leading-relaxed group-hover:text-white transition-colors">
-            <strong className="text-white">I declare</strong> on behalf of the academy that all information provided is true and accurate, that the academy operates lawfully and meets safe coaching standards, and that we agree to abide by UPHA&apos;s affiliation terms and code of conduct for affiliated academies.
+            <strong className="text-white">I declare</strong>{" "}on behalf of the academy that all information provided is true and accurate, that the academy operates lawfully and meets safe coaching standards, and that we agree to abide by UPHA&apos;s affiliation terms and code of conduct for affiliated academies.
           </span>
         </label>
         

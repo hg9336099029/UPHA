@@ -461,7 +461,7 @@ export default function PlayerRegistrationForm() {
             <svg className="absolute w-3 h-3 text-white pointer-events-none opacity-0 peer-checked:opacity-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
           </div>
           <span className="text-sm text-gray-300 leading-relaxed group-hover:text-white transition-colors">
-            <strong className="text-white">I confirm</strong> that all information provided is true and accurate, that I have read and agree to UPHA&apos;s player registration terms, and that I authorise the federation to contact me regarding tournaments, certifications, and federation business.
+            <strong className="text-white">I confirm</strong>{" "}that all information provided is true and accurate, that I have read and agree to UPHA&apos;s player registration terms, and that I authorise the federation to contact me regarding tournaments, certifications, and federation business.
           </span>
         </label>
         

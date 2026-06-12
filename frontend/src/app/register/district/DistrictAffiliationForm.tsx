@@ -457,7 +457,7 @@ export default function DistrictAffiliationForm() {
             <svg className="absolute w-3 h-3 text-white pointer-events-none opacity-0 peer-checked:opacity-100" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
           </div>
           <span className="text-sm text-gray-300 leading-relaxed group-hover:text-white transition-colors">
-            <strong className="text-white">I declare</strong> that all information and documents submitted are true and accurate, that I have been duly authorized by the district committee to file this affiliation request, and that I accept UPHA&apos;s affiliation terms including the obligation to file annual returns and maintain federation standards.
+            <strong className="text-white">I declare</strong>{" "}that all information and documents submitted are true and accurate, that I have been duly authorized by the district committee to file this affiliation request, and that I accept UPHA&apos;s affiliation terms including the obligation to file annual returns and maintain federation standards.
           </span>
         </label>
         
