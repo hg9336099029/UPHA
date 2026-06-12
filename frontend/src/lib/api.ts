@@ -490,8 +490,9 @@ export async function addEventResult(
 export interface AlbumData {
   id: number;
   title: string;
-  description: string;
-  date: string | null;
+  category?: string;
+  description?: string;
+  date?: string | null;
   event: { id: number; name: string; location: string; category: string; } | null;
   cover_photo: string | null;
   photo_count: number;

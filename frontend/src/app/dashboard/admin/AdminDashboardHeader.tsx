@@ -144,8 +144,8 @@ export default function AdminDashboardHeader({
               <div className="w-10 h-10 rounded-full bg-[#d97c55]/10 flex items-center justify-center mb-4 text-[#d97c55]">
                 <ImageIcon className="w-5 h-5" />
               </div>
-              <h3 className="font-bold text-sm tracking-widest uppercase text-[#111827] mb-2">UPLOAD TOURNAMENT GALLERY</h3>
-              <p className="text-xs text-gray-500 mb-6">Add photos, highlights and event-day pictures to the public tournament albums.</p>
+              <h3 className="font-bold text-sm tracking-widest uppercase text-[#111827] mb-2">UPLOAD GALLERY</h3>
+              <p className="text-xs text-gray-500 mb-6">Add photos, highlights and event-day pictures to the public albums.</p>
             </div>
             <div className="flex items-center justify-between pt-4 border-t border-gray-100">
               <div className="flex items-center gap-1.5 text-[9px] font-bold tracking-widest uppercase text-gray-500">

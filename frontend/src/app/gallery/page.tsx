@@ -36,8 +36,12 @@ export default function GalleryPage() {
     : "—";
 
   const albumsByCat = albums.reduce((acc, a) => {
-    const cat = a.event?.category?.toUpperCase() || "OTHER";
-    acc[cat] = (acc[cat] || 0) + 1;
+    const cat = (a.category || a.event?.category || "OTHER").toUpperCase();
+    if (cat.includes("TOURNAMENT")) acc["TOURNAMENT"] = (acc["TOURNAMENT"] || 0) + 1;
+    else if (cat.includes("TRIAL")) acc["TRIAL"] = (acc["TRIAL"] || 0) + 1;
+    else if (cat.includes("WORKSHOP")) acc["WORKSHOP"] = (acc["WORKSHOP"] || 0) + 1;
+    else if (cat.includes("FEDERATION")) acc["FEDERATION"] = (acc["FEDERATION"] || 0) + 1;
+    else acc["OTHER"] = (acc["OTHER"] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
@@ -45,7 +49,7 @@ export default function GalleryPage() {
 
   const filteredAlbums = albums
     .filter((a) => {
-      const eventCat = (a.event?.category || "OTHER").toUpperCase();
+      const eventCat = (a.category || a.event?.category || "OTHER").toUpperCase();
       if (filter === "ALL") return true;
       if (filter === "TOURNAMENTS" && eventCat.includes("TOURNAMENT")) return true;
       if (filter === "TRIALS" && eventCat.includes("TRIAL")) return true;
@@ -174,9 +178,9 @@ export default function GalleryPage() {
                 {activeAlbum.title}
               </div>
               <div className="flex items-center justify-center gap-3 text-white/40 text-[10px] font-mono tracking-widest uppercase mt-2">
-                {activeAlbum.event?.category && (
+                {(activeAlbum.category || activeAlbum.event?.category) && (
                   <span className="bg-[#d97c55]/30 text-[#d97c55] px-2 py-0.5 rounded-sm">
-                    {activeAlbum.event.category}
+                    {activeAlbum.category || activeAlbum.event?.category}
                   </span>
                 )}
                 {activeAlbum.event?.location && (

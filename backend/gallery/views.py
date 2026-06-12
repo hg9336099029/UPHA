@@ -37,6 +37,7 @@ def serialize_album(request, album):
     return {
         'id': album.id,
         'title': album.title,
+        'category': album.category,
         'description': album.description,
         'date': album.date,
         'event': event_data,
@@ -138,6 +139,7 @@ def create_album(request):
 
     title = request.POST.get('title', '').strip()
     description = request.POST.get('description', '').strip()
+    category = request.POST.get('category', '').strip()
     date_str = request.POST.get('date', '').strip()
     event_id = request.POST.get('event_id')
     cover_index = request.POST.get('cover_index', '0')
@@ -158,6 +160,7 @@ def create_album(request):
 
     album = GalleryAlbum.objects.create(
         title=title,
+        category=category,
         description=description,
         date=date_str if date_str else None,
         event=event

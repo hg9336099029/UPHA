@@ -39,6 +39,7 @@ def album_photo_upload_path(instance, filename):
 class GalleryAlbum(models.Model):
     event = models.ForeignKey(Event, on_delete=models.SET_NULL, null=True, blank=True, related_name='gallery_albums')
     title = models.CharField(max_length=255)
+    category = models.CharField(max_length=255, blank=True, default='')
     date = models.DateField(null=True, blank=True)
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)

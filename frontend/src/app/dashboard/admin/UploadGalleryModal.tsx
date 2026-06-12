@@ -10,6 +10,7 @@ export default function UploadGalleryModal() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState("");
+  const [category, setCategory] = useState("TOURNAMENT");
   const [eventId, setEventId] = useState("");
   
   const [photos, setPhotos] = useState<File[]>([]);
@@ -68,6 +69,7 @@ export default function UploadGalleryModal() {
       formData.append("title", title);
       formData.append("description", description);
       if (date) formData.append("date", date);
+      formData.append("category", category);
       if (eventId) formData.append("event_id", eventId);
       formData.append("cover_index", coverIndex.toString());
       
@@ -82,6 +84,7 @@ export default function UploadGalleryModal() {
         setTitle("");
         setDescription("");
         setDate("");
+        setCategory("TOURNAMENT");
         setEventId("");
         setPhotos([]);
         setPhotoPreviews([]);
@@ -128,13 +131,39 @@ export default function UploadGalleryModal() {
                 </label>
                 <select 
                   value={eventId}
-                  onChange={(e) => setEventId(e.target.value)}
+                  onChange={(e) => {
+                    setEventId(e.target.value);
+                    if (e.target.value) {
+                      const selectedEv = events.find(ev => ev.id.toString() === e.target.value);
+                      if (selectedEv && selectedEv.category) {
+                        setCategory(selectedEv.category.toUpperCase().includes("TRIAL") ? "TRIAL" : selectedEv.category.toUpperCase().includes("WORKSHOP") ? "WORKSHOP" : selectedEv.category.toUpperCase().includes("FEDERATION") ? "FEDERATION" : "TOURNAMENT");
+                      }
+                    }
+                  }}
                   className="w-full bg-[#fcfbf9] border border-gray-100 rounded-sm px-4 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-[#d97c55]"
                 >
                   <option value="">Select a tournament...</option>
                   {events.map(ev => (
                     <option key={ev.id} value={ev.id}>{ev.name}</option>
                   ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[9px] font-bold tracking-widest text-[#111827] uppercase mb-2 font-mono">
+                  ALBUM CATEGORY <span className="text-[#d97c55]">*</span>
+                </label>
+                <select 
+                  value={category}
+                  onChange={(e) => setCategory(e.target.value)}
+                  className="w-full bg-[#fcfbf9] border border-gray-100 rounded-sm px-4 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-[#d97c55]"
+                  required
+                >
+                  <option value="TOURNAMENT">TOURNAMENT</option>
+                  <option value="TRIAL">SELECTION TRIAL</option>
+                  <option value="WORKSHOP">COACHING/REFEREE WORKSHOP</option>
+                  <option value="FEDERATION">FEDERATION EVENT</option>
+                  <option value="OTHER">OTHER</option>
                 </select>
               </div>
               
