@@ -94,6 +94,20 @@ export default function AcademyAffiliationForm() {
       formData.append("categories_trained", categoriesTrained.join(","));
       formData.append("coach_grade", coachGrade);
 
+      // Remap frontend field names to match backend expectations:
+      // "director_aadhar_number" → "director_adhar_number" (backend uses single-'a' spelling)
+      const aadharNumber = formData.get("director_aadhar_number");
+      if (aadharNumber) {
+        formData.set("director_adhar_number", aadharNumber);
+        formData.delete("director_aadhar_number");
+      }
+      // "director_mobile" → "director_phone_number"
+      const directorMobile = formData.get("director_mobile");
+      if (directorMobile) {
+        formData.set("director_phone_number", directorMobile);
+        formData.delete("director_mobile");
+      }
+
       await registerAcademy(formData);
       setSubmitSuccess("Academy Affiliation Request Submitted Successfully!");
       window.location.href = "/login";
