@@ -159,6 +159,7 @@ def serialize_academy(request, academy):
         'email': academy.email,
         'website': academy.website,
         'no_of_players': academy.no_of_players,
+<<<<<<< HEAD
         'adhyaksha': serialize_user(request, academy.adhyaksha) if academy.adhyaksha_id else None,
         'sachiv': serialize_user(request, academy.sachiv) if academy.sachiv_id else None,
         'koshadhyaksha': serialize_user(request, academy.koshadhyaksha) if academy.koshadhyaksha_id else None,
@@ -166,10 +167,23 @@ def serialize_academy(request, academy):
         'coach_mobile': academy.coach_mobile,
         'coach_email': academy.coach_email,
         'coach_experience': academy.coach_experience,
+=======
+        'adhyaksha': serialize_user(request, academy.director) if academy.director_id else None,
+>>>>>>> 537d77df6e57d81a56c786ae3d83fde6e4796348
         'registration_certificate': image_url(request, academy.registration_certificate),
         'transaction_id': academy.transaction_id,
         'transaction_image': image_url(request, academy.transaction_image),
         'paid': academy.paid,
+        'academy_type': academy.academy_type,
+        'discipline_focus': academy.discipline_focus,
+        'categories_trained': academy.categories_trained,
+        'coach_grade': academy.coach_grade,
+        'pin_code': academy.pin_code,
+        'training_venue': academy.training_venue,
+        'coaches_employed': academy.coaches_employed,
+        'address_proof': image_url(request, academy.address_proof),
+        'bank_details': image_url(request, academy.bank_details),
+        'facility_photos': [image_url(request, photo.image) for photo in academy.facility_photos.all()] if hasattr(academy, 'facility_photos') else [],
     }
 
 

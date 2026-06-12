@@ -81,7 +81,7 @@ def seed_data():
         Academy.objects.create(
             user=u, name=f'{city} {random.choice(["Elite", "Pro", "Youth", "National"])} Handball Academy {i}', district=city, year_of_establishment=2000 + random.randint(0, 23),
             trust_registration_number=f'ATR-{random.randint(1000, 9999)}{i}', office_address=f'Main Road, {city}', office_phone_number=f'88765{random.randint(10000,99999)}',
-            email=f'contact{i}@academy.com', no_of_players=random.randint(20, 300), adhyaksha=admin_users[2], sachiv=admin_users[3], koshadhyaksha=super_admin,
+            email=f'contact{i}@academy.com', no_of_players=random.randint(20, 300), director=admin_users[2],
             transaction_id=f'TXN-ACA-{random.randint(10000,99999)}{i}', paid=True
         )
 
