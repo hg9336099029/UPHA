@@ -1,10 +1,30 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
+import { listOfficeBearers, OfficeBearerData } from "@/lib/api";
 
 export default function AboutPage() {
+  const [leaders, setLeaders] = useState<OfficeBearerData[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchLeaders() {
+      try {
+        const res = await listOfficeBearers();
+        if (res.success && res.office_bearers) {
+          setLeaders(res.office_bearers.slice(0, 4));
+        }
+      } catch (error) {
+        console.error("Failed to load office bearers:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchLeaders();
+  }, []);
+
   return (
     <div className="flex-1 flex flex-col bg-[#fcfbf9] w-full">
       {/* 1. HERO BANNER */}
@@ -253,25 +273,43 @@ export default function AboutPage() {
               The current executive committee of the Uttar Pradesh Handball Association, elected for the 2024-2027 term.
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {[
-                { initials: "MP", role: "PRESIDENT", name: "DR. M. PANDEY", color: "bg-[#1e3a5f] text-white" },
-                { initials: "KS", role: "VICE PRESIDENT", name: "SMT. K. SINHA", color: "bg-[#111827] text-white" },
-                { initials: "RV", role: "GENERAL SECRETARY", name: "R. VERMA", color: "bg-[#d97c55] text-[#111827]" },
-                { initials: "AS", role: "TREASURER", name: "A. SAXENA", color: "bg-[#eecab5] text-[#111827]" }
-              ].map((ldr, idx) => (
-                <div key={idx} className="bg-white border border-gray-100 shadow-sm rounded-sm flex flex-col hover:shadow-md transition-shadow">
-                  <div className={`${ldr.color} aspect-[4/5] flex items-center justify-center`}>
-                    <span className="font-heading text-5xl md:text-6xl font-bold tracking-widest">{ldr.initials}</span>
-                  </div>
-                  <div className="p-5 flex flex-col">
-                    <div className="text-[8px] font-bold tracking-widest text-[#d97c55] uppercase mb-1">{ldr.role}</div>
-                    <div className="font-heading text-lg font-bold uppercase tracking-wide text-[#111827] mb-3">{ldr.name}</div>
-                    <div className="text-[9px] font-mono tracking-widest text-gray-400 uppercase mt-auto">Term: 2024 - 2027</div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            {loading ? (
+              <div className="py-12 flex justify-center items-center">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#d97c55]"></div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {leaders.map((ldr, idx) => {
+                  const colors = [
+                    "bg-[#1e3a5f] text-white",
+                    "bg-[#111827] text-white",
+                    "bg-[#d97c55] text-[#111827]",
+                    "bg-[#eecab5] text-[#111827]"
+                  ];
+                  const colorClass = colors[idx % colors.length];
+                  const initials = ldr.name ? ldr.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() : 'UP';
+
+                  return (
+                    <div key={idx} className="bg-white border border-gray-100 shadow-sm rounded-sm flex flex-col hover:shadow-md transition-shadow">
+                      {ldr.image ? (
+                        <div className="aspect-[4/5] w-full relative">
+                          <img src={ldr.image} alt={ldr.name} className="w-full h-full object-cover object-center" />
+                        </div>
+                      ) : (
+                        <div className={`${colorClass} aspect-[4/5] flex items-center justify-center`}>
+                          <span className="font-heading text-5xl md:text-6xl font-bold tracking-widest">{initials}</span>
+                        </div>
+                      )}
+                      <div className="p-5 flex flex-col flex-1">
+                        <div className="text-[8px] font-bold tracking-widest text-[#d97c55] uppercase mb-1">{ldr.role}</div>
+                        <div className="font-heading text-lg font-bold uppercase tracking-wide text-[#111827] mb-3">{ldr.name}</div>
+                        <div className="text-[9px] font-mono tracking-widest text-gray-400 uppercase mt-auto">Term: 2024 - 2027</div>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* AFFILIATIONS */}
