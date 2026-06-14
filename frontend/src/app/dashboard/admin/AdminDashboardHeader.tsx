@@ -45,7 +45,7 @@ export default function AdminDashboardHeader({
             </div>
           </div>
           <h1 className="font-heading text-4xl md:text-5xl font-bold uppercase tracking-wide text-[#111827]">
-            WELCOME, <span className="text-[#d97c55]">DR. PANDEY</span>
+            WELCOME, <span className="text-accent">{authUser?.name?.toUpperCase() || 'ADMIN'}</span>
           </h1>
         </div>
         <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase mt-4 md:mt-0 md:text-right">
