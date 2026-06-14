@@ -5,11 +5,11 @@ from users.models import User
 from users.utils import create_user_notification
 
 class Command(BaseCommand):
-    help = 'Generates notifications for users whose validity expires in 15 days.'
+    help = 'Generates notifications for users whose validity expires in 25 days.'
 
     def handle(self, *args, **options):
         now = timezone.now()
-        target_date = now + timedelta(days=15)
+        target_date = now + timedelta(days=25)
         
         # We look for users whose valid_through is strictly between 14 and 15 days from now
         # so we only notify them once.
@@ -25,7 +25,7 @@ class Command(BaseCommand):
             create_user_notification(
                 user,
                 "Renewal Required",
-                "Your membership/accreditation will expire in 15 days. Please click 'Renew' on your dashboard to submit your renewal."
+                "Your membership/accreditation will expire in 25 days. Please click 'Renew' on your dashboard to submit your renewal."
             )
             count += 1
 

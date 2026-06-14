@@ -16,7 +16,7 @@ export default function RefereeIdCard() {
   const getBackendImageUrl = getBackendMediaUrl;
 
   const isRenewalAvailable = authUser?.valid_through 
-    ? (new Date(authUser.valid_through).getTime() - new Date().getTime()) <= 15 * 24 * 60 * 60 * 1000
+    ? (new Date(authUser.valid_through).getTime() - new Date().getTime()) <= 25 * 24 * 60 * 60 * 1000
     : false;
 
   const getImageUrl = (url?: string) => {
@@ -205,29 +205,23 @@ export default function RefereeIdCard() {
           <Download className="w-4 h-4" />
           <span className="text-[10px] font-bold tracking-widest uppercase">DOWNLOAD ID CARD</span>
         </button>
-        {isRenewalAvailable ? (
-          <button 
-            onClick={() => setIsRenewalModalOpen(true)}
-            className="flex-1 bg-white hover:bg-gray-50 text-gray-800 border border-gray-200 flex items-center justify-center gap-2 py-4 rounded-sm transition-colors shadow-sm"
-          >
-            <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-            <span className="text-[10px] font-bold tracking-widest uppercase">RENEW ACCREDITATION</span>
-          </button>
-        ) : (
-          <button 
-            onClick={() => {
-              if (!referee?.paid) {
-                alert("Not approved by Admin. You can download your certificate after your profile is approved.");
-              } else {
-                window.print();
-              }
-            }}
-            className="flex-1 bg-[#111827] hover:bg-[#1f2937] text-white flex items-center justify-center gap-2 py-4 rounded-sm transition-colors shadow-sm"
-          >
-            <Download className="w-4 h-4" />
-            <span className="text-[10px] font-bold tracking-widest uppercase">DOWNLOAD CERTIFICATE</span>
-          </button>
-        )}
+        <button
+          onClick={() => {
+            if (isRenewalAvailable) {
+              setIsRenewalModalOpen(true);
+            } else {
+              alert("Renewal is only available 25 days prior to expiration.");
+            }
+          }}
+          className={`flex-1 flex items-center justify-center gap-2 py-4 rounded-sm transition-colors shadow-sm border ${
+            isRenewalAvailable 
+              ? "bg-white hover:bg-gray-50 text-gray-800 border-gray-200" 
+              : "bg-[#111827] text-gray-500 border-gray-800 cursor-not-allowed"
+          }`}
+        >
+          <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          <span className="text-[10px] font-bold tracking-widest uppercase">RENEW ACCREDITATION</span>
+        </button>
       </div>
 
       <RenewalModal 
