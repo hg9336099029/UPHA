@@ -49,6 +49,7 @@ export default function DigitalIdCard() {
       // 1. Collect all img elements and their current srcs
       const imgEls = Array.from(element.querySelectorAll("img")) as HTMLImageElement[];
       const originalSrcs = imgEls.map(img => img.src);
+      const originalCrossOrigins = imgEls.map(img => img.crossOrigin);
 
       // 2. For each image, fetch as base64 (proxying backend images) and wait for load
       await Promise.all(imgEls.map((img) => new Promise<void>(async (resolve) => {
@@ -70,6 +71,7 @@ export default function DigitalIdCard() {
           img.onload = () => resolve();
           img.onerror = () => resolve();
           img.src = b64;
+          img.removeAttribute("crossOrigin");
           // Safety timeout: resolve after 3s regardless
           setTimeout(resolve, 3000);
         } catch {
@@ -84,12 +86,21 @@ export default function DigitalIdCard() {
       const image = await toPng(element, { backgroundColor: "#111827", pixelRatio: 2 });
 
       // 5. Restore original srcs
-      imgEls.forEach((img, i) => { img.src = originalSrcs[i]; });
+      imgEls.forEach((img, i) => { 
+        img.src = originalSrcs[i]; 
+        if (originalCrossOrigins[i]) {
+          img.crossOrigin = originalCrossOrigins[i];
+        } else {
+          img.removeAttribute("crossOrigin");
+        }
+      });
 
       const link = document.createElement("a");
       link.download = `upha-player-id-${player?.id || 'card'}.png`;
       link.href = image;
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
     } catch (err: any) {
       console.error("Failed to generate image", err);
       alert("Failed to download ID card. Please try again.");
@@ -182,6 +193,7 @@ export default function DigitalIdCard() {
       {/* Actions */}
       <div className="flex gap-4 mt-4 print:hidden">
         <button
+          type="button"
           onClick={() => {
             if (!player?.paid) {
               alert("Not approved by Admin. You can download your ID card after your profile is approved.");
@@ -195,6 +207,7 @@ export default function DigitalIdCard() {
           <span className="text-[10px] font-bold tracking-widest uppercase">DOWNLOAD ID CARD</span>
         </button>
         <button
+          type="button"
           onClick={() => {
             if (isRenewalAvailable) {
               setIsRenewalModalOpen(true);

@@ -47,6 +47,7 @@ export default function CoachIdCard() {
     try {
       const imgEls = Array.from(element.querySelectorAll("img")) as HTMLImageElement[];
       const originalSrcs = imgEls.map(img => img.src);
+      const originalCrossOrigins = imgEls.map(img => img.crossOrigin);
       await Promise.all(imgEls.map((img) => new Promise<void>(async (resolve) => {
         try {
           const src = img.src;
@@ -65,6 +66,7 @@ export default function CoachIdCard() {
           img.onload = () => resolve();
           img.onerror = () => resolve();
           img.src = b64;
+          img.removeAttribute("crossOrigin");
           setTimeout(resolve, 3000);
         } catch { resolve(); }
       })));
@@ -72,12 +74,21 @@ export default function CoachIdCard() {
       await new Promise(r => setTimeout(r, 100));
 
       const image = await toPng(element, { backgroundColor: "#111827", pixelRatio: 2 });
-      imgEls.forEach((img, i) => { img.src = originalSrcs[i]; });
+      imgEls.forEach((img, i) => { 
+        img.src = originalSrcs[i]; 
+        if (originalCrossOrigins[i]) {
+          img.crossOrigin = originalCrossOrigins[i];
+        } else {
+          img.removeAttribute("crossOrigin");
+        }
+      });
 
       const link = document.createElement("a");
       link.download = `upha-coach-id-${coach?.id || 'card'}.png`;
       link.href = image;
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
     } catch (err: any) {
       console.error("Failed to generate image", err);
       alert("Failed to download ID card. Please try again.");
@@ -192,7 +203,8 @@ export default function CoachIdCard() {
 
       {/* Actions */}
       <div className="flex gap-4 mt-4 print:hidden">
-        <button 
+        <button
+          type="button"
           onClick={() => {
             if (!coach?.paid) {
               alert("Not approved by Admin. You can download your ID card after your profile is approved.");
@@ -206,6 +218,7 @@ export default function CoachIdCard() {
           <span className="text-[10px] font-bold tracking-widest uppercase">DOWNLOAD ID CARD</span>
         </button>
         <button
+          type="button"
           onClick={() => {
             if (isRenewalAvailable) {
               setIsRenewalModalOpen(true);
