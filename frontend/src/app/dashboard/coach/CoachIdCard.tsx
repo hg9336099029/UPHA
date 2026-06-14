@@ -39,30 +39,34 @@ export default function CoachIdCard() {
     const element = document.getElementById("id-card-element");
     if (!element) return;
     try {
-      const imgEls = element.querySelectorAll("img");
-      const originalSrcs: string[] = [];
-      await Promise.all(Array.from(imgEls).map(async (img, i) => {
-        originalSrcs[i] = img.src;
+      const imgEls = Array.from(element.querySelectorAll("img")) as HTMLImageElement[];
+      const originalSrcs = imgEls.map(img => img.src);
+      await Promise.all(imgEls.map((img) => new Promise<void>(async (resolve) => {
         try {
           const src = img.src;
-          const proxyUrl = src.includes(window.location.origin)
+          const proxyUrl = src.startsWith(window.location.origin)
             ? src
             : `/api/image-proxy?url=${encodeURIComponent(src)}`;
           const res = await fetch(proxyUrl);
-          if (!res.ok) return;
+          if (!res.ok) { resolve(); return; }
           const blob = await res.blob();
-          const b64 = await new Promise<string>((resolve, reject) => {
+          const b64 = await new Promise<string>((res2, rej2) => {
             const reader = new FileReader();
-            reader.onload = () => resolve(reader.result as string);
-            reader.onerror = reject;
+            reader.onload = () => res2(reader.result as string);
+            reader.onerror = rej2;
             reader.readAsDataURL(blob);
           });
+          img.onload = () => resolve();
+          img.onerror = () => resolve();
           img.src = b64;
-        } catch { /* leave original */ }
-      }));
+          setTimeout(resolve, 3000);
+        } catch { resolve(); }
+      })));
+
+      await new Promise(r => setTimeout(r, 100));
 
       const image = await toPng(element, { backgroundColor: "#111827", pixelRatio: 2 });
-      Array.from(imgEls).forEach((img, i) => { img.src = originalSrcs[i]; });
+      imgEls.forEach((img, i) => { img.src = originalSrcs[i]; });
 
       const link = document.createElement("a");
       link.download = `upha-coach-id-${coach?.id || 'card'}.png`;
