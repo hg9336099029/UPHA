@@ -3,6 +3,7 @@
 import { Download, RefreshCcw } from "lucide-react";
 import Image from "next/image";
 import React from "react";
+import { toPng } from "html-to-image";
 import { useAuth } from "@/context/AuthContext";
 import { AcademyData } from "@/lib/api";
 
@@ -10,22 +11,55 @@ export default function AcademyIdCard() {
   const { authUser, meData, loading } = useAuth();
   const academy = meData as AcademyData | null;
 
+  const getImageUrl = (url?: string) => {
+    if (!url) return "";
+    if (typeof window === "undefined") return url;
+    try {
+      const path = new URL(url).pathname; // Extract just the path
+      return window.location.origin + path; // Reconstruct as absolute URL on current origin
+    } catch {
+      return url.startsWith("/") ? window.location.origin + url : url;
+    }
+  };
+
+  const getBackendImageUrl = (url?: string) => {
+    if (!url) return "";
+    if (url.startsWith("http")) return url;
+    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api", "") || "http://127.0.0.1:8000";
+    return `${baseUrl}${url.startsWith("/") ? "" : "/"}${url}`;
+  };
+
   if (loading) {
     return (
       <div className="bg-gray-200 rounded-sm animate-pulse h-72" />
     );
   }
 
+  const downloadIdCard = async () => {
+    const element = document.getElementById("id-card-element");
+    if (!element) return;
+    try {
+      const image = await toPng(element, { backgroundColor: "#111827", pixelRatio: 2, cacheBust: true });
+      const link = document.createElement("a");
+      link.download = `upha-academy-id-${academy?.id || 'card'}.png`;
+      link.href = image;
+      link.click();
+    } catch (err: any) {
+      console.error("Failed to generate image", err);
+      alert("Failed to download ID card. Error: " + (err?.message || "Unknown error"));
+    }
+  };
+
   return (
     <div className="flex flex-col h-full">
       {/* Digital ID Card Graphics */}
-      <div className="bg-[#111827] rounded-sm overflow-hidden shadow-lg flex-1 flex flex-col relative">
+      <div id="id-card-element" className="bg-[#111827] rounded-sm overflow-hidden shadow-lg flex-1 flex flex-col relative">
 
         {/* Top Header */}
         <div className="p-6 md:p-8 pb-4 flex justify-between items-start border-b border-gray-800/50">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center p-1 shrink-0 shadow-inner">
-              <Image src="/upha.png" alt="UPHA" width={32} height={32} className="object-contain" />
+              <img src={getImageUrl("/upha.png")} alt="UPHA" className="w-8 h-8 object-contain" />
             </div>
             <div>
               <div className="font-heading text-lg font-bold text-white uppercase leading-none tracking-wide">UPHA</div>
@@ -43,7 +77,7 @@ export default function AcademyIdCard() {
           {/* Avatar Block */}
           {academy?.logo ? (
             <div className="w-28 h-28 bg-[#0f172a] border border-gray-800 rounded-sm overflow-hidden shrink-0 z-10 self-center">
-              <Image src={academy.logo} alt="Logo" width={112} height={112} className="object-cover w-full h-full" />
+              <img src={getBackendImageUrl(academy.logo)} alt="Logo" crossOrigin="anonymous" className="object-cover w-full h-full" />
             </div>
           ) : (
             <div className="w-28 h-28 bg-[#1e293b] border border-gray-700 rounded-full flex items-center justify-center shrink-0 shadow-inner z-10 self-center">
@@ -123,13 +157,13 @@ export default function AcademyIdCard() {
       </div>
 
       {/* Actions */}
-      <div className="flex gap-4 mt-4">
+      <div className="flex gap-4 mt-4 print:hidden">
         <button 
           onClick={() => {
             if (!academy?.paid) {
               alert("Not approved by Admin. You can download your ID card after your profile is approved.");
             } else {
-              window.print();
+              downloadIdCard();
             }
           }}
           className="flex-1 bg-[#d97c55] hover:bg-[#c16744] text-white flex items-center justify-center gap-2 py-4 rounded-sm transition-colors shadow-sm"
