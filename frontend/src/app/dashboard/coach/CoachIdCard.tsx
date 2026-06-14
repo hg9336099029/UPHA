@@ -1,32 +1,23 @@
 "use client";
 
 import { Download, RefreshCcw } from "lucide-react";
-import Image from "next/image";
 import React from "react";
 import { toPng } from "html-to-image";
 import { useAuth } from "@/context/AuthContext";
 import { CoachData } from "@/lib/api";
+import { getBackendMediaUrl } from "@/lib/imageUtils";
 
 export default function CoachIdCard() {
   const { authUser, meData, loading } = useAuth();
   const coach = meData as CoachData | null;
 
+  const getBackendImageUrl = getBackendMediaUrl;
+
   const getImageUrl = (url?: string) => {
     if (!url) return "";
     if (typeof window === "undefined") return url;
-    try {
-      const path = new URL(url).pathname; // Extract just the path
-      return window.location.origin + path; // Reconstruct as absolute URL on current origin
-    } catch {
-      return url.startsWith("/") ? window.location.origin + url : url;
-    }
-  };
-
-  const getBackendImageUrl = (url?: string) => {
-    if (!url) return "";
     if (url.startsWith("http")) return url;
-    const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL?.replace("/api", "") || "http://127.0.0.1:8000";
-    return `${baseUrl}${url.startsWith("/") ? "" : "/"}${url}`;
+    return window.location.origin + (url.startsWith("/") ? "" : "/") + url;
   };
 
   const initials = authUser?.name
@@ -48,14 +39,38 @@ export default function CoachIdCard() {
     const element = document.getElementById("id-card-element");
     if (!element) return;
     try {
-      const image = await toPng(element, { backgroundColor: "#111827", pixelRatio: 2, cacheBust: true });
+      const imgEls = element.querySelectorAll("img");
+      const originalSrcs: string[] = [];
+      await Promise.all(Array.from(imgEls).map(async (img, i) => {
+        originalSrcs[i] = img.src;
+        try {
+          const src = img.src;
+          const proxyUrl = src.includes(window.location.origin)
+            ? src
+            : `/api/image-proxy?url=${encodeURIComponent(src)}`;
+          const res = await fetch(proxyUrl);
+          if (!res.ok) return;
+          const blob = await res.blob();
+          const b64 = await new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => resolve(reader.result as string);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+          });
+          img.src = b64;
+        } catch { /* leave original */ }
+      }));
+
+      const image = await toPng(element, { backgroundColor: "#111827", pixelRatio: 2 });
+      Array.from(imgEls).forEach((img, i) => { img.src = originalSrcs[i]; });
+
       const link = document.createElement("a");
       link.download = `upha-coach-id-${coach?.id || 'card'}.png`;
       link.href = image;
       link.click();
     } catch (err: any) {
       console.error("Failed to generate image", err);
-      alert("Failed to download ID card. Error: " + (err?.message || "Unknown error"));
+      alert("Failed to download ID card. Please try again.");
     }
   };
 
