@@ -4,7 +4,7 @@ import AdminDashboardHeader from '@/app/dashboard/admin/AdminDashboardHeader';
 
 describe('AdminDashboardHeader Component', () => {
   it('renders the main title and badge', () => {
-    render(<AdminDashboardHeader />);
+    render(<AdminDashboardHeader activeTab="applications" onTabChange={() => {}} />);
     
     expect(screen.getByText('ADMIN DASHBOARD')).toBeInTheDocument();
     expect(screen.getByText('FEDERATION OFFICE')).toBeInTheDocument();
@@ -13,7 +13,7 @@ describe('AdminDashboardHeader Component', () => {
   });
 
   it('renders all four statistical metric cards', () => {
-    render(<AdminDashboardHeader />);
+    render(<AdminDashboardHeader activeTab="applications" onTabChange={() => {}} />);
     
     expect(screen.getByText('TOTAL PENDING')).toBeInTheDocument();
     expect(screen.getByText('45')).toBeInTheDocument();

@@ -253,4 +253,8 @@ def serialize_system_settings(request, settings):
         'coach_fee': settings.coach_fee,
         'academy_fee': settings.academy_fee,
         'district_fee': settings.district_fee,
+        'facebook_link': settings.facebook_link,
+        'instagram_link': settings.instagram_link,
+        'twitter_link': settings.twitter_link,
+        'youtube_link': settings.youtube_link,
     }

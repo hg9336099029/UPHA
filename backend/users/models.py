@@ -169,6 +169,11 @@ class SystemSettings(models.Model):
     coach_fee = models.IntegerField(default=300)
     academy_fee = models.IntegerField(default=5000)
     district_fee = models.IntegerField(default=5100)
+    
+    facebook_link = models.URLField(blank=True, default='')
+    twitter_link = models.URLField(blank=True, default='')
+    instagram_link = models.URLField(blank=True, default='')
+    youtube_link = models.URLField(blank=True, default='')
 
     def save(self, *args, **kwargs):
         self.pk = 1

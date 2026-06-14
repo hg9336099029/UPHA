@@ -997,6 +997,15 @@ def update_system_settings(request):
 		if 'district_fee' in request.POST:
 			settings.district_fee = int(request.POST['district_fee'])
 			
+		if 'facebook_link' in request.POST:
+			settings.facebook_link = request.POST['facebook_link']
+		if 'twitter_link' in request.POST:
+			settings.twitter_link = request.POST['twitter_link']
+		if 'instagram_link' in request.POST:
+			settings.instagram_link = request.POST['instagram_link']
+		if 'youtube_link' in request.POST:
+			settings.youtube_link = request.POST['youtube_link']
+			
 		# Handle QR code upload
 		if 'payment_qr_code' in request.FILES:
 			if settings.payment_qr_code:

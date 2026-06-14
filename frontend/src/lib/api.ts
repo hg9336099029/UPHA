@@ -271,6 +271,10 @@ export interface SystemSettingsData {
   coach_fee: number;
   academy_fee: number;
   district_fee: number;
+  facebook_link: string;
+  instagram_link: string;
+  twitter_link: string;
+  youtube_link: string;
 }
 
 export async function getSystemSettings() {
