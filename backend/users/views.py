@@ -962,6 +962,7 @@ def get_my_academy_players(request):
 		players=[serialize_player(request, p) for p in players]
 	)
 
+@csrf_exempt
 @require_http_methods(['GET'])
 def get_system_settings(request):
 	try:
@@ -972,6 +973,7 @@ def get_system_settings(request):
 	except Exception as e:
 		return json_error(str(e))
 
+@csrf_exempt
 @require_http_methods(['POST'])
 def update_system_settings(request):
 	user = getattr(request, 'user', None)
