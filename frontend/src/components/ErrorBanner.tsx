@@ -6,13 +6,14 @@ import { AlertTriangle, X } from "lucide-react";
 interface ErrorBannerProps {
   message: string;
   onDismiss?: () => void;
+  className?: string;
 }
 
 /**
  * Prominent error banner that auto-scrolls into view when shown.
  * Parses the error message to highlight the key field/value.
  */
-export default function ErrorBanner({ message, onDismiss }: ErrorBannerProps) {
+export default function ErrorBanner({ message, onDismiss, className = "" }: ErrorBannerProps) {
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -27,7 +28,7 @@ export default function ErrorBanner({ message, onDismiss }: ErrorBannerProps) {
     <div
       ref={ref}
       role="alert"
-      className="rounded-sm border border-red-200 bg-red-50 p-5 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300"
+      className={`rounded-sm border border-red-200 bg-red-50 p-5 shadow-sm animate-in fade-in slide-in-from-top-2 duration-300 ${className}`}
     >
       <div className="flex items-start gap-4">
         {/* Icon */}

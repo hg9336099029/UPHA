@@ -12,6 +12,7 @@ import UploadResultsModal from "./UploadResultsModal";
 import UploadGalleryModal from "./UploadGalleryModal";
 import CouncilMembersTable from "./CouncilMembersTable";
 import ManageAchievements from "./ManageAchievements";
+import SystemSettingsPanel from "./SystemSettingsPanel";
 import { AdminTabType } from "./AdminDashboardHeader";
 
 import { createEvent, CreateEventPayload } from "@/lib/api";
@@ -103,6 +104,7 @@ export default function AdminDashboardPage() {
                   {activeTab === "upload_gallery" && <UploadGalleryModal />}
                   {activeTab === "council_members" && <CouncilMembersTable />}
                   {activeTab === "manage_achievements" && <ManageAchievements />}
+                  {activeTab === "system_settings" && <SystemSettingsPanel />}
                 </div>
               </div>
             </div>

@@ -6,8 +6,11 @@ import { useRouter } from "next/navigation";
 import { registerCoach } from "@/lib/api";
 import { UP_DISTRICTS } from "@/lib/constants";
 import ErrorBanner from "@/components/ErrorBanner";
+import { useSettings } from "@/context/SettingsContext";
 
 export default function CoachCertificationForm() {
+  const { settings } = useSettings();
+  const fee = settings?.coach_fee ?? 300;
   const router = useRouter();
   const [gender, setGender] = useState("");
   const [bloodGroup, setBloodGroup] = useState("");
@@ -84,7 +87,7 @@ export default function CoachCertificationForm() {
           <Clock className="w-4 h-4" /> BEFORE YOU BEGIN
         </div>
         <ul className="space-y-3 text-sm text-gray-600 list-disc list-inside ml-2">
-          <li>Scan the QR code (in the sidebar) and pay the annual coach certification fee of <strong>₹ 300</strong> using any UPI app.</li>
+          <li>Scan the QR code (in the sidebar) and pay the annual coach certification fee of <strong>₹ {fee}</strong> using any UPI app.</li>
           <li>Take a screenshot of the successful payment confirmation — you will need to upload it.</li>
           <li>Note down the UPI transaction ID. You will be asked to enter it in the payment section below.</li>
         </ul>
@@ -336,7 +339,7 @@ export default function CoachCertificationForm() {
           <div className="font-heading text-4xl font-bold text-accent">04</div>
           <div>
             <h2 className="font-heading text-2xl font-bold uppercase tracking-wide text-primary mb-1">PAYMENT CONFIRMATION</h2>
-            <p className="text-sm text-gray-500">After paying ₹ 300 via the QR code in the sidebar, enter your transaction details and upload the receipt.</p>
+            <p className="text-sm text-gray-500">After paying ₹ {fee} via the QR code in the sidebar, enter your transaction details and upload the receipt.</p>
           </div>
         </div>
         

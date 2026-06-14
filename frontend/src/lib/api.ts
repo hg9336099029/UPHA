@@ -264,6 +264,28 @@ export async function markNotificationRead(id: number) {
 
 // ΓöÇΓöÇΓöÇ Settings ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
+export interface SystemSettingsData {
+  payment_qr_code: string | null;
+  player_fee: number;
+  referee_fee: number;
+  coach_fee: number;
+  academy_fee: number;
+  district_fee: number;
+}
+
+export async function getSystemSettings() {
+  return apiFetch<{ success: boolean; settings: SystemSettingsData }>(
+    `${API_BASE}/settings/`
+  );
+}
+
+export async function updateSystemSettings(formData: FormData) {
+  return multipartApiFetch<{ success: boolean; message: string; settings: SystemSettingsData }>(
+    `${ADMIN_BASE}/settings/`,
+    formData
+  );
+}
+
 export async function login(email: string, password: string) {
   return apiFetch<{ success: boolean; message: string; user: UserData }>(
     `${API_BASE}/login/`,

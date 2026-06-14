@@ -161,3 +161,23 @@ class Announcement(models.Model):
 
     def __str__(self):
         return self.title
+
+class SystemSettings(models.Model):
+    payment_qr_code = models.ImageField(upload_to='settings/', null=True, blank=True)
+    player_fee = models.IntegerField(default=111)
+    referee_fee = models.IntegerField(default=300)
+    coach_fee = models.IntegerField(default=300)
+    academy_fee = models.IntegerField(default=5000)
+    district_fee = models.IntegerField(default=5100)
+
+    def save(self, *args, **kwargs):
+        self.pk = 1
+        super().save(*args, **kwargs)
+
+    @classmethod
+    def load(cls):
+        obj, created = cls.objects.get_or_create(pk=1)
+        return obj
+
+    def __str__(self):
+        return "System Settings"

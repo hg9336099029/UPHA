@@ -12,4 +12,5 @@ urlpatterns = [
     path('decisions/', views.get_recent_decisions, name='get_recent_decisions'),
     path('announcements/create/', views.create_announcement, name='create_announcement'),
     path('office-bearers/', views.manage_office_bearers, name='manage_office_bearers'),
+    path('settings/', views.update_system_settings, name='update_system_settings'),
 ]

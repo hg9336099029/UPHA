@@ -1,6 +1,12 @@
+"use client";
+
 import Link from "next/link";
+import { useSettings } from "@/context/SettingsContext";
 
 export default function PlayerRegistrationHero() {
+  const { settings } = useSettings();
+  const fee = settings?.player_fee ?? 111;
+
   return (
     <div className="bg-[#111827] text-white pt-12 pb-16">
       <div className="max-w-7xl mx-auto px-6">
@@ -34,7 +40,7 @@ export default function PlayerRegistrationHero() {
           </div>
           <div>
             <div className="text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">ANNUAL FEE</div>
-            <div className="font-bold font-mono text-sm tracking-wider">₹ 111</div>
+            <div className="font-bold font-mono text-sm tracking-wider">₹ {fee}</div>
           </div>
           <div>
             <div className="text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">ESTIMATED TIME</div>

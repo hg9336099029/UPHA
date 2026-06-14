@@ -2,8 +2,11 @@
 
 import { Phone, Mail, QrCode, Check } from "lucide-react";
 import React, { useState } from "react";
+import { useSettings } from "@/context/SettingsContext";
 
 export default function DistrictAffiliationSidebar() {
+  const { settings } = useSettings();
+  const fee = settings?.district_fee ?? 1100;
   const [checkedDocs, setCheckedDocs] = useState<Record<string, boolean>>({});
 
   const toggleDoc = (doc: string) => {
@@ -28,7 +31,7 @@ export default function DistrictAffiliationSidebar() {
         
         <div className="p-6 text-center border-b border-gray-100">
           <div className="text-[10px] font-bold tracking-widest text-accent uppercase mb-2">ANNUAL UNIT AFFILIATION</div>
-          <div className="font-heading text-5xl font-bold text-primary mb-2">₹ 1,100</div>
+          <div className="font-heading text-5xl font-bold text-primary mb-2">₹ {fee}</div>
           <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">VALID THROUGH 31 MAR 2027</div>
         </div>
         
@@ -45,7 +48,11 @@ export default function DistrictAffiliationSidebar() {
           </div>
           
           <div className="bg-white border border-gray-200 p-6 flex flex-col items-center justify-center rounded-sm">
-            <QrCode className="w-32 h-32 text-gray-800 mb-4 stroke-[1]" />
+            {settings?.payment_qr_code ? (
+              <img src={settings.payment_qr_code} alt="UPI QR Code" className="w-32 h-32 object-contain mb-4" crossOrigin="anonymous" />
+            ) : (
+              <QrCode className="w-32 h-32 text-gray-800 mb-4 stroke-[1]" />
+            )}
             <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">SCAN WITH ANY UPI APP</div>
           </div>
         </div>

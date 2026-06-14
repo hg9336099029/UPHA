@@ -5,8 +5,11 @@ import React, { useState } from "react";
 import { registerAcademy } from "@/lib/api";
 import { UP_DISTRICTS } from "@/lib/constants";
 import ErrorBanner from "@/components/ErrorBanner";
+import { useSettings } from "@/context/SettingsContext";
 
 export default function AcademyAffiliationForm() {
+  const { settings } = useSettings();
+  const fee = settings?.academy_fee ?? 2500;
   const [logoName, setLogoName] = useState("");
   const [logoPreview, setLogoPreview] = useState("");
 
@@ -143,7 +146,7 @@ export default function AcademyAffiliationForm() {
           <li>Keep your academy <strong>logo, address proof, bank details</strong>, and <strong>registration/incorporation certificate</strong> ready to upload.</li>
           <li>The Director&apos;s <strong>Aadhar, photo, and signature</strong> are required for verification by the UPHA office.</li>
           <li>If your Head Coach is already <strong>UPHA-accredited</strong>, enter their Coach ID to speed up review.</li>
-          <li>Pay the affiliation fee of <strong>₹ 2,500</strong> via the QR code in the sidebar, then enter the transaction details below.</li>
+          <li>Pay the affiliation fee of <strong>₹ {fee}</strong> via the QR code in the sidebar, then enter the transaction details below.</li>
           <li>Affiliated academies can register their players, field tournament teams, and apply for equipment grants.</li>
         </ul>
       </div>
@@ -544,7 +547,7 @@ export default function AcademyAffiliationForm() {
           <div className="font-heading text-4xl font-bold text-accent">04</div>
           <div>
             <h2 className="font-heading text-2xl font-bold uppercase tracking-wide text-primary mb-1">PAYMENT CONFIRMATION</h2>
-            <p className="text-sm text-gray-500">After paying the ₹ 2,500 affiliation fee via the QR code in the sidebar, enter your transaction details.</p>
+            <p className="text-sm text-gray-500">After paying the ₹ {fee} affiliation fee via the QR code in the sidebar, enter your transaction details.</p>
           </div>
         </div>
         

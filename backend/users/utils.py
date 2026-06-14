@@ -241,3 +241,16 @@ def serialize_event_result(request, result):
         'player': serialize_player(request, result.player),
         'position': result.position,
     }
+
+
+def serialize_system_settings(request, settings):
+    if not settings:
+        return None
+    return {
+        'payment_qr_code': image_url(request, settings.payment_qr_code),
+        'player_fee': settings.player_fee,
+        'referee_fee': settings.referee_fee,
+        'coach_fee': settings.coach_fee,
+        'academy_fee': settings.academy_fee,
+        'district_fee': settings.district_fee,
+    }

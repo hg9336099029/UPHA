@@ -9,8 +9,8 @@ from django.views.decorators.http import require_http_methods
 # pyrefly: ignore [missing-import]
 from django.db.models import Q
 
-from .models import Coach, Player, Referee, User
-from .utils import admin_required_response, get_request_data, json_error, json_success, serialize_coach, serialize_player, serialize_referee, serialize_user, notify_admins
+from .models import Coach, Player, Referee, User, SystemSettings
+from .utils import admin_required_response, get_request_data, json_error, json_success, serialize_coach, serialize_player, serialize_referee, serialize_user, notify_admins, serialize_system_settings
 
 
 def _create_user_account(request, data, role, is_staff=False):
@@ -961,3 +961,47 @@ def get_my_academy_players(request):
 		'Academy players retrieved successfully.',
 		players=[serialize_player(request, p) for p in players]
 	)
+
+@require_http_methods(['GET'])
+def get_system_settings(request):
+	try:
+		from users.models import SystemSettings
+		from users.utils import serialize_system_settings
+		settings = SystemSettings.load()
+		return json_success('Settings retrieved', settings=serialize_system_settings(request, settings))
+	except Exception as e:
+		return json_error(str(e))
+
+@require_http_methods(['POST'])
+def update_system_settings(request):
+	user = getattr(request, 'user', None)
+	if not user or not user.is_authenticated or user.role != 'admin':
+		return json_error('Only admins can update settings.', status=403)
+		
+	try:
+		from users.models import SystemSettings
+		from users.utils import serialize_system_settings
+		settings = SystemSettings.load()
+		
+		# Update fields
+		if 'player_fee' in request.POST:
+			settings.player_fee = int(request.POST['player_fee'])
+		if 'coach_fee' in request.POST:
+			settings.coach_fee = int(request.POST['coach_fee'])
+		if 'referee_fee' in request.POST:
+			settings.referee_fee = int(request.POST['referee_fee'])
+		if 'academy_fee' in request.POST:
+			settings.academy_fee = int(request.POST['academy_fee'])
+		if 'district_fee' in request.POST:
+			settings.district_fee = int(request.POST['district_fee'])
+			
+		# Handle QR code upload
+		if 'payment_qr_code' in request.FILES:
+			if settings.payment_qr_code:
+				settings.payment_qr_code.delete(save=False)
+			settings.payment_qr_code = request.FILES['payment_qr_code']
+			
+		settings.save()
+		return json_success('Settings updated successfully', settings=serialize_system_settings(request, settings))
+	except Exception as e:
+		return json_error(str(e))

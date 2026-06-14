@@ -5,6 +5,7 @@ import React, { useState } from "react";
 import { registerDistrict } from "@/lib/api";
 import { UP_DISTRICTS } from "@/lib/constants";
 import ErrorBanner from "@/components/ErrorBanner";
+import { useSettings } from "@/context/SettingsContext";
 
 // Helper component for Office Bearer Cards
 const OfficeBearerCard = ({ num, title, subtitle, prefix }: { num: string, title: string, subtitle: string, prefix: string }) => {
@@ -140,6 +141,9 @@ const OfficeBearerCard = ({ num, title, subtitle, prefix }: { num: string, title
 };
 
 export default function DistrictAffiliationForm() {
+  const { settings } = useSettings();
+  const fee = settings?.district_fee ?? 1100;
+  
   const [logoName, setLogoName] = useState("");
   const [logoPreview, setLogoPreview] = useState("");
   const [certName, setCertName] = useState("");
@@ -207,7 +211,7 @@ export default function DistrictAffiliationForm() {
         <ul className="space-y-3 text-sm text-gray-600 list-disc list-inside ml-2">
           <li>Gather Aadhar copies and passport photos for all <strong>three office bearers</strong> (Adhyaksh, Sachiv, Koshadhyaksh).</li>
           <li>Prepare your <strong>unit logo</strong> (PNG or SVG, square aspect) and an <strong>authorization letter</strong> from your district committee.</li>
-          <li>Pay the annual affiliation fee of <strong>₹ 1,100</strong> via the QR code in the sidebar, then enter the transaction details below.</li>
+          <li>Pay the affiliation fee of <strong>₹ {fee}</strong> via the QR code in the sidebar, then enter the transaction details below.</li>
           <li>Use the document checklist on the right to track what&apos;s been uploaded as you fill the form.</li>
         </ul>
       </div>
@@ -407,7 +411,7 @@ export default function DistrictAffiliationForm() {
           <div className="font-heading text-4xl font-bold text-accent">04</div>
           <div>
             <h2 className="font-heading text-2xl font-bold uppercase tracking-wide text-primary mb-1">PAYMENT CONFIRMATION</h2>
-            <p className="text-sm text-gray-500">After paying ₹ 1,100 via the QR code in the sidebar, enter your transaction details and upload the receipt.</p>
+            <p className="text-sm text-gray-500">After paying the ₹ {fee} affiliation fee via the QR code in the sidebar, enter your transaction details and upload the receipt.</p>
           </div>
         </div>
         

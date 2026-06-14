@@ -6,8 +6,11 @@ import { useRouter } from "next/navigation";
 import { registerReferee } from "@/lib/api";
 import { UP_DISTRICTS } from "@/lib/constants";
 import ErrorBanner from "@/components/ErrorBanner";
+import { useSettings } from "@/context/SettingsContext";
 
 export default function RefereeAccreditationForm() {
+  const { settings } = useSettings();
+  const fee = settings?.referee_fee ?? 300;
   const router = useRouter();
   const [gender, setGender] = useState("");
   const [bloodGroup, setBloodGroup] = useState("");
@@ -79,7 +82,7 @@ export default function RefereeAccreditationForm() {
         <ul className="space-y-3 text-sm text-gray-600 list-disc list-inside ml-2">
           <li>Keep your <strong>Aadhar number</strong>, a <strong>passport photo</strong>, and any <strong>officiating certificates</strong> ready to upload.</li>
           <li>Select the <strong>grade you are applying for</strong> honestly — the Referee Board may ask for documentary proof of prior officiating.</li>
-          <li>Pay the accreditation fee of <strong>₹ 300</strong> via the QR code in the sidebar, then enter the transaction details below.</li>
+          <li>Pay the accreditation fee of <strong>₹ {fee}</strong> via the QR code in the sidebar, then enter the transaction details below.</li>
           <li>Applications are reviewed by the <strong>UPHA Referee Board</strong>; you&apos;ll be notified once a decision is made.</li>
         </ul>
       </div>
@@ -333,7 +336,7 @@ export default function RefereeAccreditationForm() {
           <div className="font-heading text-4xl font-bold text-accent">04</div>
           <div>
             <h2 className="font-heading text-2xl font-bold uppercase tracking-wide text-primary mb-1">PAYMENT CONFIRMATION</h2>
-            <p className="text-sm text-gray-500">After paying ₹ 300 via the QR code in the sidebar, enter your transaction details.</p>
+            <p className="text-sm text-gray-500">After paying ₹ {fee} via the QR code in the sidebar, enter your transaction details.</p>
           </div>
         </div>
         
