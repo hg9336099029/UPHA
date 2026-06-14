@@ -172,7 +172,7 @@ export default function SystemSettingsPanel() {
               </h3>
               
               <div className="flex gap-6 items-start">
-                <div className="w-32 h-32 shrink-0 bg-gray-100 border-2 border-dashed border-gray-300 rounded-sm flex items-center justify-center overflow-hidden">
+                <div className="w-48 h-48 shrink-0 bg-gray-100 border-2 border-dashed border-gray-300 rounded-sm flex items-center justify-center overflow-hidden">
                   {qrPreview ? (
                     <img src={qrPreview} alt="QR Preview" className="w-full h-full object-contain" />
                   ) : (

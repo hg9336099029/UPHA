@@ -40,13 +40,15 @@ export default function CoachCertificationSidebar() {
             </button>
           </div>
           
-          <div className="bg-white border border-gray-200 p-6 flex flex-col items-center justify-center rounded-sm">
+          <div className="bg-white border border-gray-200 flex flex-col items-center justify-center rounded-sm overflow-hidden mb-6">
             {settings?.payment_qr_code ? (
-              <img src={settings.payment_qr_code} alt="UPI QR Code" className="w-32 h-32 object-contain mb-4" crossOrigin="anonymous" />
+              <img src={settings.payment_qr_code} alt="UPI QR Code" className="w-full aspect-square object-contain" crossOrigin="anonymous" />
             ) : (
-              <QrCode className="w-32 h-32 text-gray-800 mb-4 stroke-[1]" />
+              <div className="w-full aspect-square flex items-center justify-center bg-gray-50/50">
+                <QrCode className="w-32 h-32 text-gray-800 stroke-[1]" />
+              </div>
             )}
-            <div className="text-[10px] font-bold tracking-widest text-gray-400 uppercase">SCAN WITH ANY UPI APP</div>
+            <div className="w-full text-center py-4 bg-gray-50 border-t border-gray-100 text-[10px] font-bold tracking-widest text-gray-400 uppercase">SCAN WITH ANY UPI APP</div>
           </div>
         </div>
       </div>
