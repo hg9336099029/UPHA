@@ -158,6 +158,11 @@ def update_academy_payment_status(request, academy_id):
 	academy.paid = paid
 	academy.save(update_fields=['paid'])
 	if paid:
+		from django.utils import timezone
+		from datetime import timedelta
+		if academy.director:
+			academy.director.valid_through = timezone.now() + timedelta(days=365)
+			academy.director.save(update_fields=['valid_through'])
 		from users.utils import log_decision, create_user_notification
 		log_decision(
 			request, 'academy', academy.id, 'Approved',

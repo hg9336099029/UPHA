@@ -104,6 +104,7 @@ def serialize_user(request, user):
         'adhar_image': image_url(request, user.adhar_image),
         'passport_image': image_url(request, user.passport_image),
         'created_at': user.created_at,
+        'valid_through': user.valid_through,
     }
 
 

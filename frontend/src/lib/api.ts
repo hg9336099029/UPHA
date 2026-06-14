@@ -3,6 +3,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 const ADMIN_BASE = `${API_BASE}/admin`;
 
 // ΓöÇΓöÇΓöÇ TypeScript Interfaces ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 export interface UserData {
   id: number;
@@ -20,6 +21,7 @@ export interface UserData {
   adhar_number?: string;
   adhar_image?: string | null;
   passport_image?: string | null;
+  valid_through?: string;
 }
 
 export interface PlayerData {
@@ -234,6 +236,13 @@ export async function registerDistrict(formData: FormData) {
 export async function registerAcademy(formData: FormData) {
   return multipartApiFetch<{ success: boolean; message: string; academy: AcademyData }>(
     `${API_BASE}/register/academy/`,
+    formData
+  );
+}
+
+export async function submitRenewal(formData: FormData) {
+  return multipartApiFetch<{ success: boolean; message: string }>(
+    `${API_BASE}/renew/`,
     formData
   );
 }

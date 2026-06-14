@@ -338,6 +338,10 @@ def update_player_payment_status(request, player_id):
 	player.paid = paid
 	player.save(update_fields=['paid'])
 	if paid:
+		from django.utils import timezone
+		from datetime import timedelta
+		player.user.valid_through = timezone.now() + timedelta(days=365)
+		player.user.save(update_fields=['valid_through'])
 		from users.utils import log_decision
 		log_decision(
 			request, 'player', player.id, 'Approved',
@@ -366,6 +370,10 @@ def update_coach_payment_status(request, coach_id):
 	coach.paid = paid
 	coach.save(update_fields=['paid'])
 	if paid:
+		from django.utils import timezone
+		from datetime import timedelta
+		coach.user.valid_through = timezone.now() + timedelta(days=365)
+		coach.user.save(update_fields=['valid_through'])
 		from users.utils import log_decision
 		log_decision(
 			request, 'coach', coach.id, 'Approved',
@@ -394,6 +402,10 @@ def update_referee_payment_status(request, referee_id):
 	referee.paid = paid
 	referee.save(update_fields=['paid'])
 	if paid:
+		from django.utils import timezone
+		from datetime import timedelta
+		referee.user.valid_through = timezone.now() + timedelta(days=365)
+		referee.user.save(update_fields=['valid_through'])
 		from users.utils import log_decision
 		log_decision(
 			request, 'referee', referee.id, 'Approved',
@@ -1014,5 +1026,65 @@ def update_system_settings(request):
 			
 		settings.save()
 		return json_success('Settings updated successfully', settings=serialize_system_settings(request, settings))
+	except Exception as e:
+		return json_error(str(e))
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def submit_renewal(request):
+	user = getattr(request, 'user', None)
+	if not user or not user.is_authenticated:
+		return json_error('Authentication required.', status=401)
+	
+	transaction_id = request.POST.get('transaction_id')
+	transaction_image = request.FILES.get('transaction_image')
+
+	if not transaction_id:
+		return json_error('Transaction ID is required.')
+
+	from users.models import RenewalRequest
+	try:
+		RenewalRequest.objects.create(
+			user=user,
+			transaction_id=transaction_id,
+			transaction_image=transaction_image
+		)
+		
+		# Set user's role profile to not paid
+		if user.role == 'player':
+			profile = Player.objects.filter(user=user).first()
+			if profile:
+				profile.paid = False
+				profile.save(update_fields=['paid'])
+		elif user.role == 'coach':
+			profile = Coach.objects.filter(user=user).first()
+			if profile:
+				profile.paid = False
+				profile.save(update_fields=['paid'])
+		elif user.role == 'referee':
+			profile = Referee.objects.filter(user=user).first()
+			if profile:
+				profile.paid = False
+				profile.save(update_fields=['paid'])
+		elif user.role == 'academy':
+			from academy.models import Academy
+			profile = Academy.objects.filter(director=user).first()
+			if profile:
+				profile.paid = False
+				profile.save(update_fields=['paid'])
+		elif user.role == 'district':
+			from district.models import District
+			profile = District.objects.filter(adhyaksha=user).first()
+			if profile:
+				profile.paid = False
+				profile.save(update_fields=['paid'])
+
+		from users.utils import notify_admins
+		notify_admins(
+			"Renewal Request",
+			f"{user.name} ({user.role.title()}) has submitted a renewal request."
+		)
+		
+		return json_success('Renewal request submitted successfully. Pending admin approval.')
 	except Exception as e:
 		return json_error(str(e))

@@ -64,8 +64,10 @@ class User(AbstractUser):
         default='player',
     )
     created_at = models.DateTimeField(auto_now_add=True)
+    valid_through = models.DateTimeField(null=True, blank=True)
 
     objects = CustomUserManager()
+
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
@@ -186,3 +188,13 @@ class SystemSettings(models.Model):
 
     def __str__(self):
         return "System Settings"
+
+class RenewalRequest(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='renewal_requests')
+    transaction_id = models.CharField(max_length=255, unique=True)
+    transaction_image = models.ImageField(upload_to='renewal_images/')
+    status = models.CharField(max_length=20, choices=[('pending', 'Pending'), ('approved', 'Approved'), ('rejected', 'Rejected')], default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Renewal - {self.user.username} - {self.status}"

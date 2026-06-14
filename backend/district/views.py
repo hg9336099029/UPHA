@@ -146,6 +146,11 @@ def update_district_payment_status(request, district_id):
     district.paid = paid
     district.save(update_fields=['paid'])
     if paid:
+        from django.utils import timezone
+        from datetime import timedelta
+        if district.adhyaksha:
+            district.adhyaksha.valid_through = timezone.now() + timedelta(days=365)
+            district.adhyaksha.save(update_fields=['valid_through'])
         from users.utils import log_decision, create_user_notification
         log_decision(
             request, 'district', district.id, 'Approved',
