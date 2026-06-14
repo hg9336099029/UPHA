@@ -30,6 +30,21 @@ export default function DigitalIdCard() {
       .toUpperCase()
     : "?";
 
+  let category = "—";
+  if (authUser?.date_of_birth && authUser?.gender) {
+    const birthYear = new Date(authUser.date_of_birth).getFullYear();
+    const currentYear = new Date().getFullYear();
+    const age = currentYear - birthYear;
+    const genderStr = authUser.gender.toLowerCase() === 'male' ? 'Men' : 
+                      authUser.gender.toLowerCase() === 'female' ? 'Women' : authUser.gender;
+    if (age >= 19) category = `Senior - ${genderStr}`;
+    else if (age >= 16) category = `Junior - ${genderStr}`;
+    else category = `Sub-Junior - ${genderStr}`;
+  }
+
+  const regYear = authUser?.created_at ? new Date(authUser.created_at).getFullYear() : new Date().getFullYear();
+  const validYear = regYear + 1;
+
   if (loading) {
     return (
       <div className="bg-gray-200 rounded-sm animate-pulse h-72" />
@@ -138,7 +153,7 @@ export default function DigitalIdCard() {
               {player?.id && (
                 <div>
                   <div className="text-[8px] font-bold tracking-widest text-gray-500 uppercase mb-1">PLAYER ID</div>
-                  <div className="text-sm font-medium text-white">UPHA-PLR-{String(player.id).padStart(5, "0")}</div>
+                  <div className="text-sm font-medium text-white">UPHA-PLR-{regYear}-{String(player.id).padStart(5, "0")}</div>
                 </div>
               )}
               {player?.district && (
@@ -150,8 +165,8 @@ export default function DigitalIdCard() {
 
               {authUser?.gender && (
                 <div>
-                  <div className="text-[8px] font-bold tracking-widest text-gray-500 uppercase mb-1">GENDER</div>
-                  <div className="text-sm font-medium text-white capitalize">{authUser.gender}</div>
+                  <div className="text-[8px] font-bold tracking-widest text-gray-500 uppercase mb-1">CATEGORY</div>
+                  <div className="text-sm font-medium text-white capitalize">{category}</div>
                 </div>
               )}
               {authUser?.blood_group && (
@@ -167,6 +182,7 @@ export default function DigitalIdCard() {
         {/* Bottom Strip */}
         <div className="bg-[#0f172a] px-6 md:px-8 py-4 flex justify-between items-center border-t border-gray-800">
           <div className="font-serif italic text-gray-400 text-sm">Khelo India Toh Khilega India</div>
+          <div className="text-[9px] font-bold tracking-widest text-gray-500 uppercase">VALID THROUGH <span className="text-white">31 MAR {validYear}</span></div>
         </div>
 
         {/* Subtle decorative */}
@@ -190,16 +206,12 @@ export default function DigitalIdCard() {
         </button>
         <button 
           onClick={() => {
-            if (!player?.paid) {
-              alert("Not approved by Admin. You can download your certificate after your profile is approved.");
-            } else {
-              window.print();
-            }
+            alert("Membership renewal will be available before your current term expires.");
           }}
-          className="flex-1 bg-[#111827] hover:bg-[#1f2937] text-white flex items-center justify-center gap-2 py-4 rounded-sm transition-colors shadow-sm"
+          className="flex-1 bg-white hover:bg-gray-50 text-gray-800 border border-gray-200 flex items-center justify-center gap-2 py-4 rounded-sm transition-colors shadow-sm"
         >
-          <Download className="w-4 h-4" />
-          <span className="text-[10px] font-bold tracking-widest uppercase">DOWNLOAD CERTIFICATE</span>
+          <svg className="w-4 h-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+          <span className="text-[10px] font-bold tracking-widest uppercase">RENEW MEMBERSHIP</span>
         </button>
       </div>
     </div>
