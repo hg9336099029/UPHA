@@ -55,7 +55,7 @@ export default function DigitalIdCard() {
       await Promise.all(imgEls.map((img) => new Promise<void>(async (resolve) => {
         try {
           const src = img.src;
-          const proxyUrl = src.startsWith(window.location.origin)
+          const proxyUrl = src.startsWith(window.location.origin) || src.startsWith("data:")
             ? src
             : `/api/image-proxy?url=${encodeURIComponent(src)}`;
           const res = await fetch(proxyUrl);
