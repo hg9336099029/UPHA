@@ -1088,3 +1088,64 @@ def submit_renewal(request):
 		return json_success('Renewal request submitted successfully. Pending admin approval.')
 	except Exception as e:
 		return json_error(str(e))
+
+@require_http_methods(['GET'])
+def download_certificate(request, cert_id):
+	user = getattr(request, 'user', None)
+	if not user or not user.is_authenticated:
+		from django.http import JsonResponse
+		return JsonResponse({'success': False, 'message': 'Authentication required.'}, status=401)
+	
+	from users.models import Certificate
+	certificate = Certificate.objects.filter(certificate_id=cert_id, user=user).first()
+	if not certificate:
+		from django.http import JsonResponse
+		return JsonResponse({'success': False, 'message': 'Certificate not found or access denied.'}, status=404)
+	
+	from django.http import HttpResponse
+	import io
+	from reportlab.pdfgen import canvas
+	from reportlab.lib.pagesizes import landscape, A4
+	from reportlab.lib.units import inch
+	
+	buffer = io.BytesIO()
+	p = canvas.Canvas(buffer, pagesize=landscape(A4))
+	width, height = landscape(A4)
+	
+	# Draw basic certificate border
+	p.setStrokeColorRGB(0.85, 0.48, 0.33) # Match accent color (#d97c55 roughly)
+	p.setLineWidth(4)
+	p.rect(0.5*inch, 0.5*inch, width - 1*inch, height - 1*inch)
+	
+	p.setStrokeColorRGB(0.1, 0.1, 0.1)
+	p.setLineWidth(1)
+	p.rect(0.6*inch, 0.6*inch, width - 1.2*inch, height - 1.2*inch)
+	
+	p.setFillColorRGB(0.1, 0.1, 0.1)
+	p.setFont("Helvetica-Bold", 24)
+	p.drawCentredString(width/2.0, height - 2.5*inch, certificate.title.upper())
+	
+	p.setFont("Helvetica", 16)
+	p.drawCentredString(width/2.0, height - 3.5*inch, "This is to certify that")
+	
+	p.setFillColorRGB(0.85, 0.48, 0.33)
+	p.setFont("Helvetica-Bold", 22)
+	p.drawCentredString(width/2.0, height - 4.5*inch, user.name.upper())
+	
+	p.setFillColorRGB(0.3, 0.3, 0.3)
+	p.setFont("Helvetica", 14)
+	p.drawCentredString(width/2.0, height - 5.5*inch, f"Status: {certificate.status}")
+	p.drawCentredString(width/2.0, height - 6*inch, certificate.details)
+	
+	p.setFillColorRGB(0.5, 0.5, 0.5)
+	p.setFont("Helvetica", 10)
+	p.drawString(1*inch, 1*inch, f"Certificate ID: {certificate.certificate_id}")
+	p.drawRightString(width - 1*inch, 1*inch, f"Issued Date: {certificate.created_at.strftime('%d %b %Y')}")
+	
+	p.showPage()
+	p.save()
+	
+	buffer.seek(0)
+	response = HttpResponse(buffer, content_type='application/pdf')
+	response['Content-Disposition'] = f'attachment; filename="certificate_{certificate.certificate_id}.pdf"'
+	return response

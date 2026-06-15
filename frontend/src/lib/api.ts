@@ -697,6 +697,28 @@ export async function getMyCertificates(): Promise<{ success: boolean; message?:
   return apiFetch<{ success: boolean; message?: string; certificates?: CertificateData[] }>(`${API_BASE}/me/certificates/`);
 }
 
+export async function downloadCertificatePdf(certId: string): Promise<Blob> {
+  const url = `${API_BASE}/me/certificates/${certId}/download/`;
+  const res = await fetch(url, {
+    cache: "no-store",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    credentials: "include",
+  });
+
+  if (!res.ok) {
+    let json;
+    try {
+      json = await res.json();
+    } catch (e) {}
+    const rawMsg = json?.message || json?.error || `Error ${res.status}: ${res.statusText}`;
+    throw new Error(rawMsg);
+  }
+
+  return res.blob();
+}
+
 export async function getMyAssignments(): Promise<{ success: boolean; message?: string; assignments?: EventAssignmentData[] }> {
   return apiFetch<{ success: boolean; message?: string; assignments?: EventAssignmentData[] }>(`${API_BASE}/me/assignments/`);
 }

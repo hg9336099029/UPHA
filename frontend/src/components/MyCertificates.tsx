@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { Award, FileText, Star, BookOpen, Download, Clock } from "lucide-react";
-import { getMyCertificates, CertificateData } from "@/lib/api";
+import { Award, FileText, Star, BookOpen, Download, Clock, Loader2 } from "lucide-react";
+import { getMyCertificates, CertificateData, downloadCertificatePdf } from "@/lib/api";
 
 const ICON_MAP: Record<string, React.ReactNode> = {
   Award: <Award className="w-5 h-5" />,
@@ -17,6 +17,27 @@ export default function MyCertificates() {
   const { authUser } = useAuth();
   const [certificates, setCertificates] = useState<CertificateData[]>([]);
   const [loading, setLoading] = useState(true);
+  const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
+  const handleDownload = async (certId: string) => {
+    try {
+      setDownloadingId(certId);
+      const blob = await downloadCertificatePdf(certId);
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `certificate_${certId}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (err: any) {
+      console.error("Failed to download certificate", err);
+      alert(err.message || "Failed to download certificate");
+    } finally {
+      setDownloadingId(null);
+    }
+  };
 
   useEffect(() => {
     async function fetchCertificates() {
@@ -98,9 +119,17 @@ export default function MyCertificates() {
                 <div className="bg-[#fcfbf9] border border-gray-200 px-3 py-1.5 rounded text-[10px] font-bold tracking-widest text-gray-600 uppercase">
                   {cert.certificate_id}
                 </div>
-                <button className="bg-[#111827] text-white px-4 py-2 rounded text-[10px] font-bold tracking-widest uppercase hover:bg-[#1f2937] transition-colors flex items-center gap-2">
-                  <Download className="w-3.5 h-3.5" />
-                  DOWNLOAD
+                <button 
+                  onClick={() => handleDownload(cert.certificate_id)}
+                  disabled={downloadingId === cert.certificate_id}
+                  className="bg-[#111827] text-white px-4 py-2 rounded text-[10px] font-bold tracking-widest uppercase hover:bg-[#1f2937] transition-colors flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {downloadingId === cert.certificate_id ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Download className="w-3.5 h-3.5" />
+                  )}
+                  {downloadingId === cert.certificate_id ? "DOWNLOADING..." : "DOWNLOAD"}
                 </button>
               </div>
             </div>
