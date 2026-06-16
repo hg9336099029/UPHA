@@ -9,10 +9,19 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: "Missing url param" }, { status: 400 });
   }
 
-  // Only allow images from our known backend domain
-  const backendBase = (process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000/api").replace("/api", "");
-  if (!imageUrl.startsWith(backendBase) && !imageUrl.startsWith("http://127.0.0.1") && !imageUrl.startsWith("http://localhost")) {
-    return NextResponse.json({ error: "Forbidden: invalid image origin" }, { status: 403 });
+  try {
+    const parsedImageUrl = new URL(imageUrl);
+    const parsedBackendUrl = new URL(process.env.NEXT_PUBLIC_API_BASE_URL || "http://127.0.0.1:8000/api");
+    
+    const isLocalhost = parsedImageUrl.hostname === "127.0.0.1" || parsedImageUrl.hostname === "localhost";
+    const isBackend = parsedImageUrl.hostname === parsedBackendUrl.hostname;
+    const isRenderOrVercel = parsedImageUrl.hostname.includes("onrender.com") || parsedImageUrl.hostname.includes("vercel.app");
+    
+    if (!isLocalhost && !isBackend && !isRenderOrVercel) {
+      return NextResponse.json({ error: "Forbidden: invalid image origin" }, { status: 403 });
+    }
+  } catch (err) {
+    return NextResponse.json({ error: "Invalid URL parameter" }, { status: 400 });
   }
 
   try {

@@ -14,7 +14,7 @@ export default function LeadershipSection() {
       try {
         const res = await listOfficeBearers();
         if (res.success && res.office_bearers) {
-          setLeaders(res.office_bearers.slice(0, 4));
+          setLeaders(res.office_bearers.slice(0, 5));
         }
       } catch (error) {
         console.error("Failed to load office bearers:", error);
@@ -44,13 +44,13 @@ export default function LeadershipSection() {
         </Link>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 mt-12">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 md:grid-cols-3 gap-6 mt-12">
         {loading ? (
           <div className="col-span-full py-12 flex justify-center items-center">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-accent"></div>
           </div>
         ) : (
-          Array.from({ length: Math.max(4, leaders.length) }).map((_, index) => {
+          Array.from({ length: Math.max(5, leaders.length) }).map((_, index) => {
             const leader = leaders[index];
             if (leader) {
               return (
