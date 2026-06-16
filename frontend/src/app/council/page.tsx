@@ -97,13 +97,13 @@ export default function CouncilPage() {
                       key={idx}
                       className="border border-gray-100 rounded bg-white shadow-sm overflow-hidden flex flex-col hover:-translate-y-1 transition-transform duration-300"
                     >
-                      <div className="h-72 bg-gray-100 w-full relative flex items-center justify-center">
+                      <div className="h-72 bg-gray-50 w-full relative flex items-center justify-center p-4">
                         {member.image ? (
                           <div className="w-full h-full relative">
                             <img
                               src={member.image}
                               alt={member.name}
-                              className="w-full h-full object-cover object-center"
+                              className="w-full h-full object-contain object-center"
                             />
                           </div>
                         ) : (

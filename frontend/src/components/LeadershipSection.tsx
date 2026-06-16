@@ -55,10 +55,10 @@ export default function LeadershipSection() {
             if (leader) {
               return (
                 <div key={index} className="border border-gray-100 rounded bg-white shadow-sm overflow-hidden flex flex-col">
-                  <div className="h-64 bg-gray-200 w-full relative flex items-center justify-center">
+                  <div className="h-64 bg-gray-50 w-full relative flex items-center justify-center p-4">
                     <div className="w-full h-full relative">
                       {leader.image ? (
-                        <img src={leader.image} alt={leader.name} className="w-full h-full object-cover object-center" />
+                        <img src={leader.image} alt={leader.name} className="w-full h-full object-contain object-center" />
                       ) : (
                         <div className="w-full h-full flex items-center justify-center text-gray-400 font-medium">No Image</div>
                       )}
