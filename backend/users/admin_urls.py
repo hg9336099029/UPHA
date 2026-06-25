@@ -13,4 +13,6 @@ urlpatterns = [
     path('announcements/create/', views.create_announcement, name='create_announcement'),
     path('office-bearers/', views.manage_office_bearers, name='manage_office_bearers'),
     path('settings/', views.update_system_settings, name='update_system_settings'),
+    path('events/participants/', views.get_event_participants_for_certificates, name='get_event_participants_for_certificates'),
+    path('events/<int:event_id>/issue-certificates/', views.issue_event_certificates, name='issue_event_certificates'),
 ]

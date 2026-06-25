@@ -13,6 +13,7 @@ import UploadGalleryModal from "./UploadGalleryModal";
 import CouncilMembersTable from "./CouncilMembersTable";
 import ManageAchievements from "./ManageAchievements";
 import SystemSettingsPanel from "./SystemSettingsPanel";
+import IssueCertificatesPanel from "./IssueCertificatesPanel";
 import { AdminTabType } from "./AdminDashboardHeader";
 
 import { createEvent, CreateEventPayload } from "@/lib/api";
@@ -105,6 +106,7 @@ export default function AdminDashboardPage() {
                   {activeTab === "council_members" && <CouncilMembersTable />}
                   {activeTab === "manage_achievements" && <ManageAchievements />}
                   {activeTab === "system_settings" && <SystemSettingsPanel />}
+                  {activeTab === "issue_certificates" && <IssueCertificatesPanel />}
                 </div>
               </div>
             </div>

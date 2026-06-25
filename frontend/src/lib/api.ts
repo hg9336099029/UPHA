@@ -921,3 +921,76 @@ export function deleteFederationAward(id: number) {
     body: JSON.stringify({ id }),
   });
 }
+
+// --- Event Certificates (Admin) ---
+
+export type CertificateType =
+  | '1st Position Certificate'
+  | '2nd Position Certificate'
+  | '3rd Position Certificate'
+  | 'Runner-Up Certificate'
+  | 'Participation Certificate';
+
+export interface EventParticipantCertData {
+  player_id: number;
+  player_name: string;
+  district: string;
+  position: number;
+  cert_already_issued: boolean;
+  cert_type_issued: string | null;
+  cert_id: string | null;
+}
+
+export interface EventWithParticipantsData {
+  id: number;
+  name: string;
+  location: string;
+  start_date: string;
+  end_date: string;
+  category: string;
+  total_participants: number;
+  certs_issued: number;
+  participants: EventParticipantCertData[];
+}
+
+export interface CertificateAssignment {
+  player_id: number;
+  cert_type: CertificateType;
+}
+
+export interface IssuedCertResult {
+  player_id: number;
+  player_name: string;
+  cert_type: string;
+}
+
+export interface SkippedCertResult {
+  player_id: number;
+  player_name?: string;
+  reason: string;
+}
+
+export async function getEventParticipantsForCertificates(): Promise<{
+  success: boolean;
+  message: string;
+  events: EventWithParticipantsData[];
+}> {
+  return apiFetch(`${ADMIN_BASE}/events/participants/`);
+}
+
+export async function issueEventCertificates(
+  eventId: number,
+  assignments: CertificateAssignment[]
+): Promise<{
+  success: boolean;
+  message: string;
+  issued_count: number;
+  skipped_count: number;
+  issued: IssuedCertResult[];
+  skipped: SkippedCertResult[];
+}> {
+  return apiFetch(`${ADMIN_BASE}/events/${eventId}/issue-certificates/`, {
+    method: 'POST',
+    body: JSON.stringify({ assignments }),
+  });
+}

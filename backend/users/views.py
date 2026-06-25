@@ -1089,62 +1089,193 @@ def submit_renewal(request):
 	except Exception as e:
 		return json_error(str(e))
 
+
+@require_http_methods(['GET'])
+def get_event_participants_for_certificates(request):
+	"""Admin: list all events with their participants and cert-issued status."""
+	admin_response = admin_required_response(request)
+	if admin_response:
+		return admin_response
+
+	from events.models import Event, EventResults
+	from users.models import Certificate
+
+	events = Event.objects.all().order_by('-start_date', '-id')
+	result = []
+
+	for event in events:
+		event_results = EventResults.objects.filter(event=event).select_related('player__user').order_by('position')
+		participants = []
+		for er in event_results:
+			player = er.player
+			cert_id_key = f'CERT-PLR-{player.id}-EV-{event.id}'
+			existing_cert = Certificate.objects.filter(certificate_id=cert_id_key).first()
+			participants.append({
+				'player_id': player.id,
+				'player_name': player.user.name,
+				'district': player.district,
+				'position': er.position,
+				'cert_already_issued': existing_cert is not None,
+				'cert_type_issued': existing_cert.title if existing_cert else None,
+				'cert_id': existing_cert.certificate_id if existing_cert else None,
+			})
+
+		total = len(participants)
+		issued_count = sum(1 for p in participants if p['cert_already_issued'])
+		result.append({
+			'id': event.id,
+			'name': event.name,
+			'location': event.location,
+			'start_date': str(event.start_date),
+			'end_date': str(event.end_date),
+			'category': event.category,
+			'total_participants': total,
+			'certs_issued': issued_count,
+			'participants': participants,
+		})
+
+	return json_success('Event participants retrieved successfully.', events=result)
+
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def issue_event_certificates(request, event_id):
+	"""Admin: issue certificates to specific players for a given event with chosen cert types."""
+	admin_response = admin_required_response(request)
+	if admin_response:
+		return admin_response
+
+	from events.models import Event
+	from users.models import Certificate, Player
+
+	event = Event.objects.filter(pk=event_id).first()
+	if not event:
+		return json_error('Event not found.', status=404)
+
+	data = get_request_data(request)
+	assignments = data.get('assignments', [])
+
+	if not assignments:
+		return json_error('assignments list is required.')
+
+	VALID_CERT_TYPES = [
+		'1st Position Certificate',
+		'2nd Position Certificate',
+		'3rd Position Certificate',
+		'Runner-Up Certificate',
+		'Participation Certificate',
+	]
+
+	issued = []
+	skipped = []
+
+	for assignment in assignments:
+		player_id = assignment.get('player_id')
+		cert_type = assignment.get('cert_type', 'Participation Certificate')
+
+		if cert_type not in VALID_CERT_TYPES:
+			cert_type = 'Participation Certificate'
+
+		player = Player.objects.select_related('user').filter(pk=player_id).first()
+		if not player:
+			skipped.append({'player_id': player_id, 'reason': 'Player not found'})
+			continue
+
+		cert_id_key = f'CERT-PLR-{player.id}-EV-{event.id}'
+		if Certificate.objects.filter(certificate_id=cert_id_key).exists():
+			skipped.append({'player_id': player_id, 'player_name': player.user.name, 'reason': 'Already issued'})
+			continue
+
+		try:
+			Certificate.objects.create(
+				user=player.user,
+				title=cert_type,
+				status='Issued',
+				details=f'Participated in {event.name} organized by UPHA',
+				certificate_id=cert_id_key,
+				icon_type='Award',
+			)
+
+			from users.utils import create_user_notification, log_decision
+			create_user_notification(
+				player.user,
+				'Certificate Issued',
+				f'Your {cert_type} for {event.name} has been issued. Download it from your dashboard.'
+			)
+			log_decision(
+				request, 'player', player.id, 'Certificate Issued',
+				f'{player.user.name} (PLR-{player.id:05d})',
+				f'{cert_type} issued for event: {event.name}',
+			)
+			issued.append({'player_id': player.id, 'player_name': player.user.name, 'cert_type': cert_type})
+		except Exception as exc:
+			skipped.append({'player_id': player_id, 'reason': str(exc)})
+
+	return json_success(
+		f'{len(issued)} certificate(s) issued successfully.',
+		issued_count=len(issued),
+		skipped_count=len(skipped),
+		issued=issued,
+		skipped=skipped,
+	)
+
+
 @require_http_methods(['GET'])
 def download_certificate(request, cert_id):
 	user = getattr(request, 'user', None)
 	if not user or not user.is_authenticated:
 		from django.http import JsonResponse
 		return JsonResponse({'success': False, 'message': 'Authentication required.'}, status=401)
-	
+
 	from users.models import Certificate
 	certificate = Certificate.objects.filter(certificate_id=cert_id, user=user).first()
 	if not certificate:
 		from django.http import JsonResponse
 		return JsonResponse({'success': False, 'message': 'Certificate not found or access denied.'}, status=404)
-	
+
 	from django.http import HttpResponse
 	import io
 	from reportlab.pdfgen import canvas
 	from reportlab.lib.pagesizes import landscape, A4
 	from reportlab.lib.units import inch
-	
+
 	buffer = io.BytesIO()
 	p = canvas.Canvas(buffer, pagesize=landscape(A4))
 	width, height = landscape(A4)
-	
+
 	# Draw basic certificate border
-	p.setStrokeColorRGB(0.85, 0.48, 0.33) # Match accent color (#d97c55 roughly)
+	p.setStrokeColorRGB(0.85, 0.48, 0.33)
 	p.setLineWidth(4)
 	p.rect(0.5*inch, 0.5*inch, width - 1*inch, height - 1*inch)
-	
+
 	p.setStrokeColorRGB(0.1, 0.1, 0.1)
 	p.setLineWidth(1)
 	p.rect(0.6*inch, 0.6*inch, width - 1.2*inch, height - 1.2*inch)
-	
+
 	p.setFillColorRGB(0.1, 0.1, 0.1)
 	p.setFont("Helvetica-Bold", 24)
 	p.drawCentredString(width/2.0, height - 2.5*inch, certificate.title.upper())
-	
+
 	p.setFont("Helvetica", 16)
 	p.drawCentredString(width/2.0, height - 3.5*inch, "This is to certify that")
-	
+
 	p.setFillColorRGB(0.85, 0.48, 0.33)
 	p.setFont("Helvetica-Bold", 22)
 	p.drawCentredString(width/2.0, height - 4.5*inch, user.name.upper())
-	
+
 	p.setFillColorRGB(0.3, 0.3, 0.3)
 	p.setFont("Helvetica", 14)
 	p.drawCentredString(width/2.0, height - 5.5*inch, f"Status: {certificate.status}")
 	p.drawCentredString(width/2.0, height - 6*inch, certificate.details)
-	
+
 	p.setFillColorRGB(0.5, 0.5, 0.5)
 	p.setFont("Helvetica", 10)
 	p.drawString(1*inch, 1*inch, f"Certificate ID: {certificate.certificate_id}")
 	p.drawRightString(width - 1*inch, 1*inch, f"Issued Date: {certificate.created_at.strftime('%d %b %Y')}")
-	
+
 	p.showPage()
 	p.save()
-	
+
 	buffer.seek(0)
 	response = HttpResponse(buffer, content_type='application/pdf')
 	response['Content-Disposition'] = f'attachment; filename="certificate_{certificate.certificate_id}.pdf"'
