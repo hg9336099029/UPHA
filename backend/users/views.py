@@ -1092,36 +1092,40 @@ def submit_renewal(request):
 
 @require_http_methods(['GET'])
 def get_event_participants_for_certificates(request):
-	"""Admin: list all events with their participants and cert-issued status."""
+	"""Admin: list all events with already-issued certs. No EventResults dependency."""
 	admin_response = admin_required_response(request)
 	if admin_response:
 		return admin_response
 
-	from events.models import Event, EventResults
+	from events.models import Event
 	from users.models import Certificate
 
 	events = Event.objects.all().order_by('-start_date', '-id')
 	result = []
 
 	for event in events:
-		event_results = EventResults.objects.filter(event=event).select_related('player__user').order_by('position')
-		participants = []
-		for er in event_results:
-			player = er.player
-			cert_id_key = f'CERT-PLR-{player.id}-EV-{event.id}'
-			existing_cert = Certificate.objects.filter(certificate_id=cert_id_key).first()
-			participants.append({
-				'player_id': player.id,
-				'player_name': player.user.name,
-				'district': player.district,
-				'position': er.position,
-				'cert_already_issued': existing_cert is not None,
-				'cert_type_issued': existing_cert.title if existing_cert else None,
-				'cert_id': existing_cert.certificate_id if existing_cert else None,
+		# Only look at certs whose certificate_id matches this event's pattern
+		cert_prefix = f'CERT-PLR-'
+		cert_suffix = f'-EV-{event.id}'
+		issued_certs_qs = Certificate.objects.filter(
+			certificate_id__startswith=cert_prefix,
+			certificate_id__endswith=cert_suffix,
+		).select_related('user')
+
+		issued_certs = []
+		for cert in issued_certs_qs:
+			# Resolve player profile
+			from users.models import Player
+			player = Player.objects.filter(user=cert.user).first()
+			issued_certs.append({
+				'player_id': player.id if player else None,
+				'player_name': cert.user.name,
+				'district': player.district if player else '',
+				'cert_type': cert.title,
+				'cert_id': cert.certificate_id,
+				'issued_at': cert.created_at.isoformat(),
 			})
 
-		total = len(participants)
-		issued_count = sum(1 for p in participants if p['cert_already_issued'])
 		result.append({
 			'id': event.id,
 			'name': event.name,
@@ -1129,12 +1133,45 @@ def get_event_participants_for_certificates(request):
 			'start_date': str(event.start_date),
 			'end_date': str(event.end_date),
 			'category': event.category,
-			'total_participants': total,
-			'certs_issued': issued_count,
-			'participants': participants,
+			'certs_issued': len(issued_certs),
+			'issued_certs': issued_certs,
 		})
 
-	return json_success('Event participants retrieved successfully.', events=result)
+	return json_success('Events retrieved successfully.', events=result)
+
+
+@require_http_methods(['GET'])
+def search_players_for_cert(request):
+	"""Admin: search registered players by name or ID for certificate assignment."""
+	admin_response = admin_required_response(request)
+	if admin_response:
+		return admin_response
+
+	from users.models import Player
+	from django.db.models import Q
+
+	q = request.GET.get('q', '').strip()
+	if not q:
+		return json_error('Query parameter q is required.')
+
+	# Search by name or numeric player ID
+	filters = Q(user__name__icontains=q)
+	if q.isdigit():
+		filters |= Q(id=int(q))
+
+	players = Player.objects.select_related('user').filter(filters).order_by('user__name')[:20]
+
+	data = []
+	for p in players:
+		data.append({
+			'id': p.id,
+			'name': p.user.name,
+			'district': p.district,
+			'club_name': p.club_name,
+			'player_id_str': f'PLR-{p.id:05d}',
+		})
+
+	return json_success('Players found.', players=data)
 
 
 @csrf_exempt

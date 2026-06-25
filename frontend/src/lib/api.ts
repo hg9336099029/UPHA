@@ -931,31 +931,40 @@ export type CertificateType =
   | 'Runner-Up Certificate'
   | 'Participation Certificate';
 
-export interface EventParticipantCertData {
-  player_id: number;
+/** A cert that has already been issued for this event (from the backend) */
+export interface IssuedCertEntry {
+  player_id: number | null;
   player_name: string;
   district: string;
-  position: number;
-  cert_already_issued: boolean;
-  cert_type_issued: string | null;
-  cert_id: string | null;
+  cert_type: string;
+  cert_id: string;
+  issued_at: string;
 }
 
-export interface EventWithParticipantsData {
+/** Event record returned by GET /admin/events/participants/ */
+export interface EventWithCertData {
   id: number;
   name: string;
   location: string;
   start_date: string;
   end_date: string;
   category: string;
-  total_participants: number;
   certs_issued: number;
-  participants: EventParticipantCertData[];
+  issued_certs: IssuedCertEntry[];
 }
 
+/** A player row the admin has manually added to the issue list */
 export interface CertificateAssignment {
   player_id: number;
   cert_type: CertificateType;
+}
+
+export interface PlayerSearchResult {
+  id: number;
+  name: string;
+  district: string;
+  club_name: string;
+  player_id_str: string;
 }
 
 export interface IssuedCertResult {
@@ -973,9 +982,17 @@ export interface SkippedCertResult {
 export async function getEventParticipantsForCertificates(): Promise<{
   success: boolean;
   message: string;
-  events: EventWithParticipantsData[];
+  events: EventWithCertData[];
 }> {
   return apiFetch(`${ADMIN_BASE}/events/participants/`);
+}
+
+export async function searchPlayersForCert(q: string): Promise<{
+  success: boolean;
+  message: string;
+  players: PlayerSearchResult[];
+}> {
+  return apiFetch(`${ADMIN_BASE}/players/search/?q=${encodeURIComponent(q)}`);
 }
 
 export async function issueEventCertificates(
@@ -994,3 +1011,4 @@ export async function issueEventCertificates(
     body: JSON.stringify({ assignments }),
   });
 }
+
