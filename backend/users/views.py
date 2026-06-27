@@ -1272,6 +1272,8 @@ def download_certificate(request, cert_id):
 
 	from django.http import HttpResponse
 	import io
+	import os
+	from django.conf import settings
 	from reportlab.pdfgen import canvas
 	from reportlab.lib.pagesizes import landscape, A4
 	from reportlab.lib.units import inch
