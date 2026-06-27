@@ -64,21 +64,7 @@ export default function ConstitutionPage() {
               </p>
             </div>
           </div>
-          <div className="w-full lg:w-[350px] shrink-0">
-            <div className="bg-white border border-gray-100 p-8 shadow-sm rounded-sm text-center">
-              <div className="w-16 h-16 bg-[#fcfbf9] rounded-full flex items-center justify-center mx-auto mb-6">
-                <FileText className="w-8 h-8 text-[#d97c55]" />
-              </div>
-              <h3 className="font-heading text-xl font-bold uppercase tracking-wide text-[#111827] mb-2">OFFICIAL RULEBOOK</h3>
-              <p className="text-xs text-gray-500 mb-8 leading-relaxed">
-                Download the complete, unabridged version of the UPHA Constitution (PDF format).
-              </p>
-              <button className="w-full inline-flex items-center justify-center gap-3 bg-[#111827] text-white px-6 py-4 text-xs font-bold tracking-widest uppercase hover:bg-gray-800 transition-colors rounded-sm shadow-sm group">
-                <Download className="w-4 h-4 group-hover:-translate-y-1 transition-transform" />
-                DOWNLOAD PDF
-              </button>
-            </div>
-          </div>
+
         </div>
       </section>
 
