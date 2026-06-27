@@ -1,9 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+
+const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL || "";
 
 export default function LoginPage() {
   const { login, authUser, loading } = useAuth();
@@ -12,6 +14,39 @@ export default function LoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [serverWarm, setServerWarm] = useState(false);
+  const [serverChecking, setServerChecking] = useState(true);
+  const pingRef = useRef(false);
+
+  // ── Pre-warm the backend server on page load ─────────────────────────────────
+  // Render free-tier services spin down after 15 min of inactivity and take
+  // 7–30 seconds to wake up. We fire a lightweight ping immediately so the
+  // server is hot by the time the user clicks "Sign In".
+  useEffect(() => {
+    if (pingRef.current) return;
+    pingRef.current = true;
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 20000); // 20s max
+
+    fetch(`${API_BASE}/api/settings/`, {
+      method: "GET",
+      credentials: "include",
+      signal: controller.signal,
+      cache: "no-store",
+    })
+      .then(() => setServerWarm(true))
+      .catch(() => setServerWarm(true)) // still mark warm — let user try
+      .finally(() => {
+        clearTimeout(timeout);
+        setServerChecking(false);
+      });
+
+    return () => {
+      controller.abort();
+      clearTimeout(timeout);
+    };
+  }, []);
 
   // Redirect already-logged-in users to their dashboard
   useEffect(() => {
@@ -33,7 +68,7 @@ export default function LoginPage() {
       await login(email, password);
     } catch (err: unknown) {
       let msg = err instanceof Error ? err.message : "Login failed.";
-      
+
       // Translate technical or generic errors into user-friendly messages
       if (msg.toLowerCase().includes("invalid login credentials") || msg.includes("401")) {
         msg = "The email or password you entered is incorrect. Please try again.";
@@ -42,7 +77,7 @@ export default function LoginPage() {
       } else if (msg.includes("Unexpected token") || msg.includes("500") || msg.includes("SyntaxError")) {
         msg = "We're experiencing technical difficulties. Please try again in a few minutes.";
       }
-      
+
       setError(msg);
     } finally {
       setSubmitting(false);
@@ -71,6 +106,17 @@ export default function LoginPage() {
 
         {/* Card */}
         <div className="bg-white border border-gray-200 shadow-sm rounded-sm p-8">
+
+          {/* Server warm-up status */}
+          {serverChecking && (
+            <div className="mb-5 flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-sm text-xs">
+              <svg className="animate-spin h-3.5 w-3.5 shrink-0" viewBox="0 0 24 24" fill="none">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+              </svg>
+              Connecting to server… this may take a few seconds on first load.
+            </div>
+          )}
 
           {error && (
             <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-sm text-sm">
@@ -110,9 +156,19 @@ export default function LoginPage() {
             <button
               type="submit"
               disabled={submitting}
-              className="w-full bg-[#111827] hover:bg-[#1f2937] disabled:opacity-50 text-white py-4 rounded-sm text-[10px] font-bold tracking-widest uppercase transition-colors shadow-sm mt-2"
+              className="w-full bg-[#111827] hover:bg-[#1f2937] disabled:opacity-50 text-white py-4 rounded-sm text-[10px] font-bold tracking-widest uppercase transition-colors shadow-sm mt-2 flex items-center justify-center gap-2"
             >
-              {submitting ? "SIGNING IN…" : "SIGN IN"}
+              {submitting ? (
+                <>
+                  <svg className="animate-spin h-3.5 w-3.5" viewBox="0 0 24 24" fill="none">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z" />
+                  </svg>
+                  SIGNING IN…
+                </>
+              ) : (
+                "SIGN IN"
+              )}
             </button>
           </form>
 

@@ -21,6 +21,8 @@ import {
 
 export type MePayload = PlayerData | CoachData | RefereeData | AcademyData;
 
+const SESSION_KEY = "upha_auth_user";
+
 interface AuthContextValue {
   authUser: UserData | null;
   meData: MePayload | null;
@@ -45,48 +47,90 @@ function roleToPath(role: string): string {
   }
 }
 
+/** Read cached user from sessionStorage (avoids loading flicker on page load) */
+function readCachedUser(): UserData | null {
+  try {
+    const raw = sessionStorage.getItem(SESSION_KEY);
+    return raw ? (JSON.parse(raw) as UserData) : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Persist user to sessionStorage so next page-load is instant */
+function writeCachedUser(user: UserData | null): void {
+  try {
+    if (user) {
+      sessionStorage.setItem(SESSION_KEY, JSON.stringify(user));
+    } else {
+      sessionStorage.removeItem(SESSION_KEY);
+    }
+  } catch {
+    // sessionStorage unavailable (private mode, etc.) — ignore
+  }
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const [authUser, setAuthUser] = useState<UserData | null>(null);
-  const [meData, setMeData] = useState<MePayload | null>(null);
-  const [loading, setLoading] = useState(true);
 
-  // Rehydrate session on mount
+  // Initialise from cache so the UI renders instantly on every page load
+  const [authUser, setAuthUser] = useState<UserData | null>(readCachedUser);
+  const [meData, setMeData] = useState<MePayload | null>(null);
+  // If we already have a cached user, start as NOT loading so pages render immediately
+  const [loading, setLoading] = useState<boolean>(() => readCachedUser() === null);
+
+  // Silently validate / rehydrate the session in the background on mount
   useEffect(() => {
     getMe()
       .then((res) => {
         const payload = res.user as MePayload;
         setMeData(payload);
-        // For admin: user object is flat (no nested .user)
-        // For player/coach/referee/academy: user is nested inside payload.user
         const user =
-          "user" in payload ? (payload as { user: UserData }).user : (payload as unknown as UserData);
+          "user" in payload
+            ? (payload as { user: UserData }).user
+            : (payload as unknown as UserData);
         setAuthUser(user);
+        writeCachedUser(user);
       })
       .catch(() => {
+        // Session expired or not authenticated — clear cached state
         setAuthUser(null);
         setMeData(null);
+        writeCachedUser(null);
       })
       .finally(() => setLoading(false));
   }, []);
 
   const login = useCallback(
     async (email: string, password: string) => {
+      // ── FIX: Single request only ───────────────────────────────────────────
+      // apiLogin() already returns { user: { id, email, name, role } }.
+      // We do NOT call getMe() here — that was an unnecessary second round-trip
+      // that doubled the perceived latency on every sign-in.
       const res = await apiLogin(email, password);
-      setAuthUser(res.user);
-      // Fetch full profile
-      try {
-        const me = await getMe();
-        const payload = me.user as MePayload;
-        setMeData(payload);
-        // Handle flat admin vs nested player/coach/referee response
-        const user =
-          "user" in payload ? (payload as { user: UserData }).user : (payload as unknown as UserData);
-        setAuthUser(user);
-      } catch {
-        // ok — keep the user from login response
-      }
-      router.push(roleToPath(res.user.role));
+      const user = res.user;
+
+      setAuthUser(user);
+      writeCachedUser(user);
+
+      // Navigate immediately — dashboard will lazily load full profile
+      router.push(roleToPath(user.role));
+
+      // Fetch full profile in the background (non-blocking)
+      getMe()
+        .then((me) => {
+          const payload = me.user as MePayload;
+          setMeData(payload);
+          const fullUser =
+            "user" in payload
+              ? (payload as { user: UserData }).user
+              : (payload as unknown as UserData);
+          setAuthUser(fullUser);
+          writeCachedUser(fullUser);
+        })
+        .catch(() => {
+          // Fine — user is already set from login response
+        });
     },
     [router]
   );
@@ -95,6 +139,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await apiLogout();
     setAuthUser(null);
     setMeData(null);
+    writeCachedUser(null);
     router.push("/");
   }, [router]);
 
