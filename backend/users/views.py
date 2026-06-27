@@ -1364,10 +1364,12 @@ def download_certificate(request, cert_id):
 
 
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
+@require_http_methods(['GET'])
 def download_id_card(request):
-    user = request.user
+    user = getattr(request, 'user', None)
+    if not user or not user.is_authenticated:
+        from django.http import JsonResponse
+        return JsonResponse({'success': False, 'message': 'Authentication required.'}, status=401)
     
     import io
     from django.http import HttpResponse
