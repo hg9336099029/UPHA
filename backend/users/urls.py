@@ -26,6 +26,7 @@ urlpatterns = [
     path('renew/', views.submit_renewal, name='submit_renewal'),
     path('me/certificates/', views.get_my_certificates, name='get_my_certificates'),
     path('me/certificates/<str:cert_id>/download/', views.download_certificate, name='download_certificate'),
+    path('me/idcard/download/', views.download_id_card, name='download_id_card'),
     path('me/assignments/', views.get_my_assignments, name='get_my_assignments'),
     path('me/academy/players/', views.get_my_academy_players, name='get_my_academy_players'),
     path('announcements/', views.get_announcements, name='get_announcements'),

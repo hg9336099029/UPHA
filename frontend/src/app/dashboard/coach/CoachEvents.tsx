@@ -2,6 +2,7 @@
 
 import { MapPin, Clock } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { listEvents, EventData } from "@/lib/api";
 
 export default function CoachEvents() {
@@ -29,13 +30,17 @@ export default function CoachEvents() {
     fetchEvents();
   }, []);
 
+  const formatDate = (date: string) => new Date(date).toLocaleDateString("en-US", { month: 'short', day: 'numeric' });
+  const dayNum = (date: string) => new Date(date).getDate().toString().padStart(2, "0");
+  const monthShort = (date: string) => new Date(date).toLocaleString("en-US", { month: "short" }).toUpperCase();
+
   return (
     <div className="bg-white border border-gray-200 shadow-sm rounded-sm h-full flex flex-col">
       <div className="flex justify-between items-center p-6 md:p-8 border-b border-gray-100">
-        <h3 className="font-heading text-xl font-bold uppercase text-primary">UPCOMING TOURNAMENTS</h3>
-        <button className="text-[9px] font-bold tracking-widest text-[#d97c55] uppercase hover:text-primary transition-colors">
+        <h3 className="font-heading text-xl font-bold uppercase text-primary">UPCOMING EVENTS</h3>
+        <Link href="/calendar" className="text-[9px] font-bold tracking-widest text-[#d97c55] uppercase hover:text-primary transition-colors">
           VIEW ALL
-        </button>
+        </Link>
       </div>
       <div className="flex-1 flex flex-col">
         {loading ? (
@@ -47,33 +52,27 @@ export default function CoachEvents() {
             No upcoming tournaments found.
           </div>
         ) : (
-          events.map((event, idx) => {
-            const dateObj = new Date(event.start_date);
-            const dateDay = dateObj.getDate().toString().padStart(2, "0");
-            const dateMonth = dateObj.toLocaleString("en-IN", { month: "short" }).toUpperCase();
-            
-            return (
-              <div key={event.id} className={`flex gap-5 items-center p-6 md:p-8 ${idx < events.length - 1 ? "border-b border-gray-50" : ""} hover:bg-gray-50/50 transition-colors`}>
-                <div className="w-14 h-14 bg-[#111827] rounded-sm flex flex-col items-center justify-center shrink-0">
-                  <span className="font-heading text-xl font-bold text-white leading-none">{dateDay}</span>
-                  <span className="text-[8px] font-bold tracking-widest text-[#d97c55] uppercase mt-1">
-                    {dateMonth}
-                  </span>
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-heading text-base font-bold text-primary uppercase mb-1">{event.name}</h4>
-                  <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500">
-                    <div className="flex items-center gap-1"><MapPin className="w-3 h-3 text-[#d97c55]" /> {event.location}</div>
-                  </div>
-                </div>
-                <div className="shrink-0 ml-4">
-                  <div className="bg-[#e8c69f] text-[#8e5c2b] px-3 py-1.5 rounded-sm text-[9px] font-bold tracking-widest uppercase">
-                    COACH
-                  </div>
+          events.map((event, idx) => (
+            <Link
+              href="/calendar"
+              key={event.id}
+              className={`flex flex-col sm:flex-row gap-6 items-start sm:items-center p-6 md:p-8 hover:bg-gray-50/50 cursor-pointer transition-colors ${idx < events.length - 1 ? "border-b border-gray-50" : ""}`}
+            >
+              <div className="w-16 h-16 bg-[#111827] rounded-sm flex flex-col items-center justify-center shrink-0">
+                <span className="font-heading text-2xl font-bold text-white leading-none">{dayNum(event.start_date)}</span>
+                <span className="text-[9px] font-bold tracking-widest text-[#d97c55] uppercase mt-1">{monthShort(event.start_date)}</span>
+              </div>
+
+              <div className="flex-1">
+                <h4 className="font-heading text-lg font-bold text-primary uppercase mb-2 group-hover:text-[#d97c55] transition-colors">{event.name}</h4>
+                <div className="flex flex-wrap items-center gap-4 text-xs font-medium text-gray-500">
+                  <div className="flex items-center gap-1.5"><MapPin className="w-3.5 h-3.5 text-[#d97c55]" /> {event.location}</div>
+                  <div className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5 text-gray-400" /> {formatDate(event.start_date)}{event.end_date !== event.start_date ? ` – ${formatDate(event.end_date)}` : ""}</div>
+                  <span className="bg-gray-100 text-gray-500 px-2 py-0.5 rounded-sm text-[9px] font-bold tracking-widest uppercase">{(event as any).category || 'Tournament'}</span>
                 </div>
               </div>
-            );
-          })
+            </Link>
+          ))
         )}
       </div>
     </div>

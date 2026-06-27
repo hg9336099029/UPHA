@@ -1,10 +1,9 @@
 "use client";
 
-import { Download, RefreshCcw } from "lucide-react";
+import { Download, RefreshCcw, Loader2 } from "lucide-react";
 import React, { useState } from "react";
-import { toPng } from "html-to-image";
 import { useAuth } from "@/context/AuthContext";
-import { RefereeData } from "@/lib/api";
+import { RefereeData, downloadIdCardPdf } from "@/lib/api";
 import { getBackendMediaUrl } from "@/lib/imageUtils";
 import RenewalModal from "@/components/RenewalModal";
 
@@ -41,57 +40,25 @@ export default function RefereeIdCard() {
     );
   }
 
+  const [isDownloading, setIsDownloading] = useState(false);
+
   const downloadIdCard = async () => {
-    const element = document.getElementById("id-card-element");
-    if (!element) return;
     try {
-      const imgEls = Array.from(element.querySelectorAll("img")) as HTMLImageElement[];
-      const originalSrcs = imgEls.map(img => img.src);
-      const originalCrossOrigins = imgEls.map(img => img.crossOrigin);
-      await Promise.all(imgEls.map((img) => new Promise<void>(async (resolve) => {
-        try {
-          const src = img.src;
-          const proxyUrl = src.startsWith(window.location.origin) || src.startsWith("data:")
-            ? src
-            : `/api/image-proxy?url=${encodeURIComponent(src)}`;
-          const res = await fetch(proxyUrl);
-          if (!res.ok) { resolve(); return; }
-          const blob = await res.blob();
-          const b64 = await new Promise<string>((res2, rej2) => {
-            const reader = new FileReader();
-            reader.onload = () => res2(reader.result as string);
-            reader.onerror = rej2;
-            reader.readAsDataURL(blob);
-          });
-          img.onload = () => resolve();
-          img.onerror = () => resolve();
-          img.src = b64;
-          img.removeAttribute("crossOrigin");
-          setTimeout(resolve, 3000);
-        } catch { resolve(); }
-      })));
-
-      await new Promise(r => setTimeout(r, 100));
-
-      const image = await toPng(element, { backgroundColor: "#111827", pixelRatio: 2 });
-      imgEls.forEach((img, i) => { 
-        img.src = originalSrcs[i]; 
-        if (originalCrossOrigins[i]) {
-          img.crossOrigin = originalCrossOrigins[i];
-        } else {
-          img.removeAttribute("crossOrigin");
-        }
-      });
-
-      const link = document.createElement("a");
-      link.download = `upha-referee-id-${referee?.id || 'card'}.png`;
-      link.href = image;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+      setIsDownloading(true);
+      const blob = await downloadIdCardPdf();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `upha-referee-id-${referee?.id || 'card'}.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
     } catch (err: any) {
-      console.error("Failed to generate image", err);
+      console.error("Failed to generate PDF", err);
       alert("Failed to download ID card. Please try again.");
+    } finally {
+      setIsDownloading(false);
     }
   };
 
@@ -212,10 +179,11 @@ export default function RefereeIdCard() {
               downloadIdCard();
             }
           }}
-          className="flex-1 bg-[#d97c55] hover:bg-[#c16744] text-white flex items-center justify-center gap-2 py-4 rounded-sm transition-colors shadow-sm border border-[#c16744]"
+          disabled={isDownloading}
+          className="flex-1 bg-[#d97c55] hover:bg-[#c16744] disabled:opacity-50 text-white flex items-center justify-center gap-2 py-4 rounded-sm transition-colors shadow-sm border border-[#c16744]"
         >
-          <Download className="w-4 h-4" />
-          <span className="text-[10px] font-bold tracking-widest uppercase">DOWNLOAD ID CARD</span>
+          {isDownloading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+          <span className="text-[10px] font-bold tracking-widest uppercase">{isDownloading ? "DOWNLOADING..." : "DOWNLOAD ID CARD"}</span>
         </button>
         <button
           type="button"

@@ -2,6 +2,7 @@
 
 import { MapPin, Clock } from "lucide-react";
 import React, { useEffect, useState } from "react";
+import Link from "next/link";
 import { getMyAssignments, EventAssignmentData } from "@/lib/api";
 
 export default function UpcomingAssignments() {
@@ -31,9 +32,9 @@ export default function UpcomingAssignments() {
     <div className="bg-white border border-gray-200 shadow-sm rounded-sm h-full flex flex-col">
       <div className="flex justify-between items-center p-6 md:p-8 border-b border-gray-100">
         <h3 className="font-heading text-xl font-bold uppercase text-primary">UPCOMING MATCH ASSIGNMENTS</h3>
-        <button className="text-[9px] font-bold tracking-widest text-[#d97c55] uppercase hover:text-primary transition-colors">
+        <Link href="/calendar" className="text-[9px] font-bold tracking-widest text-[#d97c55] uppercase hover:text-primary transition-colors">
           VIEW ALL
-        </button>
+        </Link>
       </div>
       <div className="flex-1 flex flex-col">
         {loading ? (
@@ -52,7 +53,7 @@ export default function UpcomingAssignments() {
             const dateMonth = dateObj.toLocaleString("en-IN", { month: "short" }).toUpperCase();
             
             return (
-              <div key={assignment.id} className={`flex flex-col md:flex-row gap-5 items-start md:items-center p-6 md:p-8 ${idx < assignments.length - 1 ? "border-b border-gray-50" : ""} hover:bg-gray-50/50 transition-colors`}>
+              <Link href="/calendar" key={assignment.id} className={`flex flex-col md:flex-row gap-5 items-start md:items-center p-6 md:p-8 ${idx < assignments.length - 1 ? "border-b border-gray-50" : ""} hover:bg-gray-50/50 cursor-pointer transition-colors group`}>
                 
                 <div className="w-14 h-16 bg-[#111827] rounded-sm flex flex-col items-center justify-center shrink-0">
                   <span className="font-heading text-xl font-bold text-white leading-none">{dateDay}</span>
@@ -63,7 +64,7 @@ export default function UpcomingAssignments() {
                 </div>
                 
                 <div className="flex-1">
-                  <h4 className="font-heading text-base font-bold text-primary uppercase mb-1">{event.name}</h4>
+                  <h4 className="font-heading text-base font-bold text-primary uppercase mb-1 group-hover:text-[#d97c55] transition-colors">{event.name}</h4>
                   <div className="text-[10px] text-gray-600 mb-2">{event.category} - {assignment.role}</div>
                   <div className="flex flex-wrap items-center gap-3 text-xs text-gray-500">
                     <div className="flex items-center gap-1"><MapPin className="w-3 h-3 text-[#d97c55]" /> {event.location}</div>
@@ -74,12 +75,12 @@ export default function UpcomingAssignments() {
                   <div className={`bg-[#e8c69f] text-[#8e5c2b] px-3 py-1.5 rounded-sm text-[9px] font-bold tracking-widest uppercase`}>
                     {assignment.status}
                   </div>
-                  <button className="text-[8px] font-bold tracking-widest text-[#d97c55] uppercase hover:text-primary transition-colors">
+                  <button className="text-[8px] font-bold tracking-widest text-[#d97c55] uppercase hover:text-primary transition-colors pointer-events-none">
                     VIEW MATCH BRIEF &rarr;
                   </button>
                 </div>
 
-              </div>
+              </Link>
             );
           })
         )}

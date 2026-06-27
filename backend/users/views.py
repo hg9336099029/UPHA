@@ -1280,31 +1280,75 @@ def download_certificate(request, cert_id):
 	p = canvas.Canvas(buffer, pagesize=landscape(A4))
 	width, height = landscape(A4)
 
-	# Draw basic certificate border
-	p.setStrokeColorRGB(0.85, 0.48, 0.33)
-	p.setLineWidth(4)
-	p.rect(0.5*inch, 0.5*inch, width - 1*inch, height - 1*inch)
+	# Fill background with cream color
+	p.setFillColorRGB(0.99, 0.98, 0.96)
+	p.rect(0, 0, width, height, fill=1)
 
-	p.setStrokeColorRGB(0.1, 0.1, 0.1)
+	# Ornate outer border (Gold)
+	p.setStrokeColorRGB(0.83, 0.68, 0.21) # #d4af37
+	p.setLineWidth(6)
+	p.rect(0.5*inch, 0.5*inch, width - 1*inch, height - 1*inch)
+	
+	# Ornate inner border (Gold double line)
 	p.setLineWidth(1)
 	p.rect(0.6*inch, 0.6*inch, width - 1.2*inch, height - 1.2*inch)
+	p.rect(0.65*inch, 0.65*inch, width - 1.3*inch, height - 1.3*inch)
 
-	p.setFillColorRGB(0.1, 0.1, 0.1)
-	p.setFont("Helvetica-Bold", 24)
+	# Federation Header
+	p.setFillColorRGB(0.06, 0.09, 0.16) # Dark navy
+	p.setFont("Helvetica-Bold", 14)
+	p.drawCentredString(width/2.0, height - 1.2*inch, "UTTAR PRADESH HANDBALL ASSOCIATION")
+	
+	p.setStrokeColorRGB(0.83, 0.68, 0.21)
+	p.line(width/2.0 - 2.5*inch, height - 1.35*inch, width/2.0 + 2.5*inch, height - 1.35*inch)
+
+	# Certificate Title
+	p.setFillColorRGB(0.83, 0.68, 0.21)
+	p.setFont("Times-BoldItalic", 36)
 	p.drawCentredString(width/2.0, height - 2.5*inch, certificate.title.upper())
 
-	p.setFont("Helvetica", 16)
-	p.drawCentredString(width/2.0, height - 3.5*inch, "This is to certify that")
+	# Subtext
+	p.setFillColorRGB(0.3, 0.3, 0.3)
+	p.setFont("Times-Italic", 18)
+	p.drawCentredString(width/2.0, height - 3.5*inch, "This is proudly presented to")
 
-	p.setFillColorRGB(0.85, 0.48, 0.33)
-	p.setFont("Helvetica-Bold", 22)
+	# Recipient Name
+	p.setFillColorRGB(0.06, 0.09, 0.16)
+	p.setFont("Times-Bold", 32)
 	p.drawCentredString(width/2.0, height - 4.5*inch, user.name.upper())
 
-	p.setFillColorRGB(0.3, 0.3, 0.3)
-	p.setFont("Helvetica", 14)
-	p.drawCentredString(width/2.0, height - 5.5*inch, f"Status: {certificate.status}")
-	p.drawCentredString(width/2.0, height - 6*inch, certificate.details)
+	p.setStrokeColorRGB(0.8, 0.8, 0.8)
+	p.setLineWidth(1)
+	p.line(width/2.0 - 3*inch, height - 4.65*inch, width/2.0 + 3*inch, height - 4.65*inch)
 
+	# Details
+	p.setFillColorRGB(0.2, 0.2, 0.2)
+	p.setFont("Times-Roman", 16)
+	p.drawCentredString(width/2.0, height - 5.5*inch, certificate.details)
+	if certificate.status != 'issued':
+		p.setFont("Helvetica", 12)
+		p.drawCentredString(width/2.0, height - 6*inch, f"Status: {certificate.status}")
+
+	# Signatures (mock)
+	p.setStrokeColorRGB(0.3, 0.3, 0.3)
+	p.line(1.5*inch, 2*inch, 3.5*inch, 2*inch)
+	p.setFillColorRGB(0.3, 0.3, 0.3)
+	p.setFont("Helvetica", 10)
+	p.drawCentredString(2.5*inch, 1.8*inch, "Secretary General")
+
+	p.line(width - 3.5*inch, 2*inch, width - 1.5*inch, 2*inch)
+	p.drawCentredString(width - 2.5*inch, 1.8*inch, "President")
+
+	# Seal placeholder
+	p.setFillColorRGB(0.83, 0.68, 0.21)
+	p.circle(width/2.0, 2*inch, 0.8*inch, fill=1)
+	p.setFillColorRGB(0.99, 0.98, 0.96)
+	p.circle(width/2.0, 2*inch, 0.7*inch, fill=0, stroke=1)
+	p.setFont("Helvetica-Bold", 10)
+	p.drawCentredString(width/2.0, 2*inch, "OFFICIAL")
+	p.drawCentredString(width/2.0, 1.8*inch, "SEAL")
+
+	# Footer IDs
 	p.setFillColorRGB(0.5, 0.5, 0.5)
 	p.setFont("Helvetica", 10)
 	p.drawString(1*inch, 1*inch, f"Certificate ID: {certificate.certificate_id}")
@@ -1317,3 +1361,90 @@ def download_certificate(request, cert_id):
 	response = HttpResponse(buffer, content_type='application/pdf')
 	response['Content-Disposition'] = f'attachment; filename="certificate_{certificate.certificate_id}.pdf"'
 	return response
+
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def download_id_card(request):
+    user = request.user
+    
+    import io
+    from django.http import HttpResponse
+    from reportlab.pdfgen import canvas
+    from reportlab.lib.pagesizes import landscape
+    from reportlab.lib.units import inch
+    import os
+    from django.conf import settings
+
+    width = 2.125 * inch
+    height = 3.375 * inch
+
+    buffer = io.BytesIO()
+    p = canvas.Canvas(buffer, pagesize=(width, height))
+
+    # Background
+    p.setFillColorRGB(0.07, 0.09, 0.15) # Dark #111827
+    p.rect(0, 0, width, height, fill=1)
+    
+    # Header
+    p.setFillColorRGB(0.85, 0.48, 0.33) # d97c55
+    p.setFont("Helvetica-Bold", 14)
+    p.drawCentredString(width/2.0, height - 0.35*inch, "UPHA")
+    p.setFont("Helvetica-Bold", 6)
+    p.setFillColorRGB(0.6, 0.6, 0.6)
+    p.drawCentredString(width/2.0, height - 0.45*inch, "UTTAR PRADESH HANDBALL ASSN.")
+
+    # Role badge
+    role_str = str(user.role).upper()
+    if role_str == 'PLAYER':
+        role_str = 'PLAYER MEMBERSHIP'
+    p.setFillColorRGB(0.85, 0.48, 0.33)
+    p.rect(width/2.0 - 0.6*inch, height - 0.65*inch, 1.2*inch, 0.15*inch, stroke=1, fill=0)
+    p.setFont("Helvetica-Bold", 6)
+    p.drawCentredString(width/2.0, height - 0.6*inch, role_str)
+
+    # Photo
+    photo_y = height - 1.6*inch
+    p.setFillColorRGB(0.06, 0.09, 0.16)
+    p.rect(width/2.0 - 0.4*inch, photo_y, 0.8*inch, 0.8*inch, fill=1)
+    
+    has_photo = False
+    if user.passport_image and hasattr(user.passport_image, 'path') and os.path.exists(user.passport_image.path):
+        try:
+            p.drawImage(user.passport_image.path, width/2.0 - 0.4*inch, photo_y, width=0.8*inch, height=0.8*inch)
+            has_photo = True
+        except Exception as e:
+            pass
+            
+    if not has_photo:
+        p.setFillColorRGB(1, 1, 1)
+        p.setFont("Helvetica-Bold", 16)
+        initials = "".join([n[0] for n in user.name.split() if n])[:2].upper() if user.name else "??"
+        p.drawCentredString(width/2.0, photo_y + 0.3*inch, initials)
+
+    # Details
+    p.setFillColorRGB(1, 1, 1)
+    p.setFont("Helvetica-Bold", 10)
+    p.drawCentredString(width/2.0, photo_y - 0.2*inch, user.name.upper() if user.name else "")
+    
+    p.setFont("Helvetica-Bold", 6)
+    p.setFillColorRGB(0.6, 0.6, 0.6)
+    p.drawCentredString(width/2.0, photo_y - 0.35*inch, "ID NUMBER")
+    p.setFillColorRGB(1, 1, 1)
+    role_prefix = user.role[:3].upper() if user.role else "MEM"
+    p.drawCentredString(width/2.0, photo_y - 0.45*inch, f"UPHA-{role_prefix}-{str(user.id).zfill(5)}")
+
+    # Footer
+    p.setFillColorRGB(0.6, 0.6, 0.6)
+    p.setFont("Helvetica-Oblique", 5)
+    p.drawCentredString(width/2.0, 0.15*inch, "Khelo India Toh Khilega India")
+
+    p.showPage()
+    p.save()
+
+    buffer.seek(0)
+    response = HttpResponse(buffer, content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="upha_{user.role}_id_{user.id}.pdf"'
+    return response
+
