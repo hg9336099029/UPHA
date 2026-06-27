@@ -31,7 +31,7 @@ export default function DashboardNotices() {
       <div className="flex justify-between items-center p-6 md:p-8 border-b border-gray-100">
         <h3 className="font-heading text-xl font-bold uppercase text-primary">ANNOUNCEMENTS</h3>
         <button className="text-[9px] font-bold tracking-widest text-accent uppercase hover:text-primary transition-colors">
-          ALL NOTICES &nearr;
+          ALL NOTICES
         </button>
       </div>
 

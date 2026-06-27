@@ -45,7 +45,7 @@ export default function DashboardEvents() {
       <div className="flex justify-between items-center p-6 md:p-8 border-b border-gray-100">
         <h3 className="font-heading text-xl font-bold uppercase text-primary">UPCOMING EVENTS</h3>
         <button className="text-[9px] font-bold tracking-widest text-accent uppercase hover:text-primary transition-colors">
-          VIEW ALL &nearr;
+          VIEW ALL
         </button>
       </div>
 
@@ -86,9 +86,6 @@ export default function DashboardEvents() {
               </div>
             </div>
 
-            <button className="w-full sm:w-auto shrink-0 bg-white border border-gray-200 text-[10px] font-bold tracking-widest text-gray-800 uppercase px-6 py-3 rounded-sm hover:border-gray-300 transition-colors">
-              REGISTER
-            </button>
           </div>
         ))}
 

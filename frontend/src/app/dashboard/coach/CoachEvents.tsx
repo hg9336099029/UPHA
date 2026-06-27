@@ -34,7 +34,7 @@ export default function CoachEvents() {
       <div className="flex justify-between items-center p-6 md:p-8 border-b border-gray-100">
         <h3 className="font-heading text-xl font-bold uppercase text-primary">UPCOMING TOURNAMENTS</h3>
         <button className="text-[9px] font-bold tracking-widest text-[#d97c55] uppercase hover:text-primary transition-colors">
-          VIEW ALL &nearr;
+          VIEW ALL
         </button>
       </div>
       <div className="flex-1 flex flex-col">

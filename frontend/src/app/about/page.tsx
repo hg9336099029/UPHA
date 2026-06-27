@@ -14,7 +14,7 @@ export default function AboutPage() {
       try {
         const res = await listOfficeBearers();
         if (res.success && res.office_bearers) {
-          setLeaders(res.office_bearers.slice(0, 4));
+          setLeaders(res.office_bearers.slice(0, 5));
         }
       } catch (error) {
         console.error("Failed to load office bearers:", error);
@@ -278,7 +278,7 @@ export default function AboutPage() {
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#d97c55]"></div>
               </div>
             ) : (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-8">
                 {leaders.map((ldr, idx) => {
                   const colors = [
                     "bg-[#1e3a5f] text-white",
@@ -300,10 +300,10 @@ export default function AboutPage() {
                           <span className="font-heading text-5xl md:text-6xl font-bold tracking-widest">{initials}</span>
                         </div>
                       )}
-                      <div className="p-5 flex flex-col flex-1">
-                        <div className="text-[8px] font-bold tracking-widest text-[#d97c55] uppercase mb-1">{ldr.role}</div>
-                        <div className="font-heading text-lg font-bold uppercase tracking-wide text-[#111827] mb-3">{ldr.name}</div>
-                        <div className="text-[9px] font-mono tracking-widest text-gray-400 uppercase mt-auto">Term: 2024 - 2027</div>
+                      <div className="p-4 flex flex-col flex-1">
+                        <div className="text-[8px] font-bold tracking-widest text-[#d97c55] uppercase mb-1.5">{ldr.role}</div>
+                        <div className="font-heading text-base font-bold uppercase tracking-wide text-[#111827] mb-3 leading-tight">{ldr.name}</div>
+                        <div className="text-[9px] font-mono tracking-widest text-gray-400 uppercase mt-auto pt-3 border-t border-gray-100">Term: 2024 – 2027</div>
                       </div>
                     </div>
                   );
