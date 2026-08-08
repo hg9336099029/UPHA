@@ -16,4 +16,6 @@ urlpatterns = [
     path('settings/', views.update_system_settings, name='update_system_settings'),
     path('events/participants/', views.get_event_participants_for_certificates, name='get_event_participants_for_certificates'),
     path('events/<int:event_id>/issue-certificates/', views.issue_event_certificates, name='issue_event_certificates'),
+    path('agm-letters/', views.create_agm_letter, name='create_agm_letter'),
+    path('agm-letters/<int:letter_id>/delete/', views.delete_agm_letter, name='delete_agm_letter'),
 ]

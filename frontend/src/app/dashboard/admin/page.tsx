@@ -14,6 +14,7 @@ import CouncilMembersTable from "./CouncilMembersTable";
 import ManageAchievements from "./ManageAchievements";
 import SystemSettingsPanel from "./SystemSettingsPanel";
 import IssueCertificatesPanel from "./IssueCertificatesPanel";
+import ManageAGMLetters from "./ManageAGMLetters";
 import { AdminTabType } from "./AdminDashboardHeader";
 
 import { createEvent, CreateEventPayload } from "@/lib/api";
@@ -107,6 +108,7 @@ export default function AdminDashboardPage() {
                   {activeTab === "manage_achievements" && <ManageAchievements />}
                   {activeTab === "system_settings" && <SystemSettingsPanel />}
                   {activeTab === "issue_certificates" && <IssueCertificatesPanel />}
+                  {activeTab === "manage_agm" && <ManageAGMLetters />}
                 </div>
               </div>
             </div>

@@ -129,6 +129,7 @@ export default function Navbar() {
               <Link href="/database" className={getNavClass("/database")}>Database</Link>
               <Link href="/achievements" className={getNavClass("/achievements")}>Achievements</Link>
               <Link href="/gallery" className={getNavClass("/gallery")}>Gallery</Link>
+              <Link href="/agm" className={getNavClass("/agm")}>AGM</Link>
               <Link href="/#contact" className={getNavClass("/#contact")}>Contact</Link>
             </nav>
 

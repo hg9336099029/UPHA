@@ -9,7 +9,7 @@ from django.views.decorators.http import require_http_methods
 # pyrefly: ignore [missing-import]
 from django.db.models import Q
 
-from .models import Coach, Player, Referee, User, SystemSettings
+from .models import Coach, Player, Referee, User, SystemSettings, AGMLetter
 from .utils import admin_required_response, get_request_data, json_error, json_success, serialize_coach, serialize_player, serialize_referee, serialize_user, notify_admins, serialize_system_settings
 
 
@@ -1471,3 +1471,94 @@ def download_id_card(request):
     response['Content-Disposition'] = f'attachment; filename="upha_{user.role}_id_{user.id}.pdf"'
     return response
 
+
+# ─── AGM Letters ──────────────────────────────────────────────────────────────
+
+def _serialize_agm_letter(request, letter):
+    return {
+        'id': letter.id,
+        'title': letter.title,
+        'description': letter.description,
+        'letter_date': str(letter.letter_date),
+        'letter_type': letter.letter_type,
+        'file': request.build_absolute_uri(letter.file.url) if letter.file else None,
+        'created_at': letter.created_at.isoformat(),
+    }
+
+
+@require_http_methods(['GET'])
+def list_agm_letters(request):
+    """Public endpoint — list all AGM letters ordered by date desc."""
+    letters = AGMLetter.objects.all()
+    return json_success(
+        'AGM letters retrieved successfully.',
+        letters=[_serialize_agm_letter(request, l) for l in letters],
+    )
+
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def create_agm_letter(request):
+    """Admin only — create a text letter or upload a PDF document."""
+    guard = admin_required_response(request)
+    if guard:
+        return guard
+
+    title = request.POST.get('title', '').strip()
+    letter_date = request.POST.get('letter_date', '').strip()
+    letter_type = request.POST.get('letter_type', 'text').strip()
+    description = request.POST.get('description', '').strip()
+    pdf_file = request.FILES.get('file')
+
+    if not title:
+        return json_error('Title is required.')
+    if not letter_date:
+        return json_error('Letter date is required.')
+    if letter_type not in ('text', 'pdf'):
+        return json_error('letter_type must be "text" or "pdf".')
+    if letter_type == 'pdf' and not pdf_file:
+        return json_error('A PDF file is required for PDF document type.')
+    if letter_type == 'text' and not description:
+        return json_error('Body text is required for a text letter.')
+
+    try:
+        letter = AGMLetter.objects.create(
+            title=title,
+            description=description,
+            letter_date=letter_date,
+            letter_type=letter_type,
+            file=pdf_file,
+            created_by=request.user if request.user.is_authenticated else None,
+        )
+    except Exception as exc:
+        return json_error(str(exc))
+
+    return json_success(
+        'AGM letter created successfully.',
+        letter=_serialize_agm_letter(request, letter),
+    )
+
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def delete_agm_letter(request, letter_id):
+    """Admin only — delete an AGM letter and its associated file."""
+    guard = admin_required_response(request)
+    if guard:
+        return guard
+
+    from django.shortcuts import get_object_or_404
+    import os
+
+    letter = get_object_or_404(AGMLetter, pk=letter_id)
+
+    # Remove the physical file from disk if it exists
+    if letter.file:
+        try:
+            if os.path.isfile(letter.file.path):
+                os.remove(letter.file.path)
+        except Exception:
+            pass
+
+    letter.delete()
+    return json_success('AGM letter deleted successfully.')

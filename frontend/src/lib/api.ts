@@ -390,6 +390,38 @@ export async function listEventResults() {
   );
 }
 
+// ─── AGM Letters ──────────────────────────────────────────────────────────────
+
+export interface AGMLetterData {
+  id: number;
+  title: string;
+  description: string;
+  letter_date: string;
+  letter_type: 'text' | 'pdf';
+  file: string | null;
+  created_at: string;
+}
+
+export async function getAGMLetters() {
+  return apiFetch<{ success: boolean; letters: AGMLetterData[] }>(
+    `${API_BASE}/agm-letters/`
+  );
+}
+
+export async function createAGMLetter(formData: FormData) {
+  return multipartApiFetch<{ success: boolean; message: string; letter: AGMLetterData }>(
+    `${ADMIN_BASE}/agm-letters/`,
+    formData
+  );
+}
+
+export async function deleteAGMLetter(id: number) {
+  return apiFetch<{ success: boolean; message: string }>(
+    `${ADMIN_BASE}/agm-letters/${id}/delete/`,
+    { method: 'POST' }
+  );
+}
+
 // ΓöÇΓöÇΓöÇ Admin: Payment Approvals ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
 
 export async function approvePlayerPayment(playerId: number | string, notes?: string) {

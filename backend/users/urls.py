@@ -31,4 +31,5 @@ urlpatterns = [
     path('me/academy/players/', views.get_my_academy_players, name='get_my_academy_players'),
     path('announcements/', views.get_announcements, name='get_announcements'),
     path('settings/', views.get_system_settings, name='get_system_settings'),
+    path('agm-letters/', views.list_agm_letters, name='list_agm_letters'),
 ]

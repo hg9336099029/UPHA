@@ -198,3 +198,33 @@ class RenewalRequest(models.Model):
 
     def __str__(self):
         return f"Renewal - {self.user.username} - {self.status}"
+
+
+class AGMLetter(models.Model):
+    LETTER_TYPE_CHOICES = [
+        ('text', 'Text Letter'),
+        ('pdf', 'PDF Document'),
+    ]
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True, default='')
+    letter_date = models.DateField()
+    letter_type = models.CharField(
+        max_length=10,
+        choices=LETTER_TYPE_CHOICES,
+        default='text',
+    )
+    file = models.FileField(upload_to='agm_letters/', null=True, blank=True)
+    created_by = models.ForeignKey(
+        User,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='agm_letters',
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('-letter_date', '-created_at')
+
+    def __str__(self):
+        return f"{self.title} ({self.letter_date})"
