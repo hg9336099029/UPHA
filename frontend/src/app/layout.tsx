@@ -18,6 +18,9 @@ const oswald = Oswald({
 export const metadata: Metadata = {
   title: "UPHA | Uttar Pradesh Handball Association",
   description: "Official roster of Uttar Pradesh's handball community.",
+  icons: {
+    icon: "/upha.png",
+  },
 };
 
 export default function RootLayout({

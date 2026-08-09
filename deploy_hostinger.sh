@@ -73,6 +73,7 @@ DEBUG=False
 SECRET_KEY=${DJANGO_SECRET}
 DATABASE_URL=postgres://${DB_USER}:${DB_PASS}@127.0.0.1:5432/${DB_NAME}
 FRONTEND_URL=https://${DOMAIN}
+BACKEND_URL=https://${DOMAIN}
 EOF
 
 python manage.py migrate

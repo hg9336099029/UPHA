@@ -10,7 +10,7 @@ from django.views.decorators.http import require_http_methods
 from django.db.models import Q
 
 from .models import Coach, Player, Referee, User, SystemSettings, AGMLetter
-from .utils import admin_required_response, get_request_data, json_error, json_success, serialize_coach, serialize_player, serialize_referee, serialize_user, notify_admins, serialize_system_settings
+from .utils import admin_required_response, get_request_data, image_url, json_error, json_success, serialize_coach, serialize_player, serialize_referee, serialize_user, notify_admins, serialize_system_settings
 
 
 def _create_user_account(request, data, role, is_staff=False):
@@ -498,29 +498,7 @@ def get_my_certificate(request):
 		'Player certificate retrieved successfully.',
 		certificate={
 			'player_id': player.id,
-			'certificate_image': request.build_absolute_uri(player.certificate_image.url),
-		},
-	)
-
-@require_http_methods(['GET'])
-def get_my_certificate(request):
-	user = getattr(request, 'user', None)
-	if not user or not user.is_authenticated:
-		return json_error('Authentication required.', status=401)
-	if user.role != 'player':
-		return json_error('Only player accounts can access this endpoint.', status=403)
-
-	player = Player.objects.select_related('user').filter(user=user).first()
-	if not player:
-		return json_error('Player profile not found.', status=404)
-	if not player.certificate_image:
-		return json_error('Certificate not uploaded yet.', status=404)
-
-	return json_success(
-		'Player certificate retrieved successfully.',
-		certificate={
-			'player_id': player.id,
-			'certificate_image': request.build_absolute_uri(player.certificate_image.url),
+			'certificate_image': image_url(request, player.certificate_image),
 		},
 	)
 
@@ -728,7 +706,7 @@ def list_office_bearers(request):
 				'id': b.id,
 				'name': b.name,
 				'role': b.role,
-				'image': request.build_absolute_uri(b.image.url) if b.image else None,
+				'image': image_url(request, b.image) if b.image else None,
 				'order': b.order
 			})
 		return json_success('Office bearers retrieved successfully.', office_bearers=bearer_list)
@@ -897,7 +875,7 @@ def manage_office_bearers(request):
 					'name': bearer.name,
 					'role': bearer.role,
 					'order': bearer.order,
-					'image': request.build_absolute_uri(bearer.image.url) if bearer.image else None
+					'image': image_url(request, bearer.image) if bearer.image else None
 				})
 
 		elif request.method == 'DELETE':
@@ -1481,7 +1459,7 @@ def _serialize_agm_letter(request, letter):
         'description': letter.description,
         'letter_date': str(letter.letter_date),
         'letter_type': letter.letter_type,
-        'file': request.build_absolute_uri(letter.file.url) if letter.file else None,
+        'file': image_url(request, letter.file) if letter.file else None,
         'created_at': letter.created_at.isoformat(),
     }
 

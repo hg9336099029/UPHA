@@ -12,6 +12,7 @@ import SettingsModal from "@/components/SettingsModal";
 export default function Navbar() {
   const pathname = usePathname();
   const { authUser, logout, loading } = useAuth();
+  const [mounted, setMounted] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -19,6 +20,10 @@ export default function Navbar() {
   const [notifDropdownOpen, setNotifDropdownOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
   const notifRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   useEffect(() => {
     if (authUser) {
@@ -94,7 +99,7 @@ export default function Navbar() {
               <span className="text-gray-600 text-[10px]">■</span>
               <Link href="/announcements" className="hover:text-white transition-colors tracking-wide">Announcements</Link>
               <span className="text-gray-600 text-[10px]">■</span>
-              {loading ? (
+              {!mounted || loading ? (
                 <div className="w-24 h-4 bg-gray-700 animate-pulse rounded-sm"></div>
               ) : authUser ? (
                 <span className="text-gray-300 tracking-wide font-bold">
@@ -135,7 +140,7 @@ export default function Navbar() {
 
             {/* CTA / User actions */}
             <div className="hidden sm:flex items-center gap-3">
-              {loading ? (
+              {!mounted || loading ? (
                 <div className="w-[140px] h-[36px] bg-gray-200 animate-pulse rounded-sm"></div>
               ) : authUser ? (
                 <div className="flex items-center gap-2">

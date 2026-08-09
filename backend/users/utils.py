@@ -1,3 +1,4 @@
+import os
 from django.http import JsonResponse
 
 from events.models import EventResults
@@ -61,7 +62,14 @@ def image_url(request, file_field):
     if not file_field:
         return None
     try:
-        return request.build_absolute_uri(file_field.url)
+        relative_url = file_field.url
+        # In production behind Nginx, request.build_absolute_uri() may return
+        # the internal address (http://127.0.0.1:8000). Use BACKEND_URL env var
+        # (e.g. https://upha.in) to build the correct public URL instead.
+        backend_url = os.environ.get('BACKEND_URL', '').rstrip('/')
+        if backend_url:
+            return f"{backend_url}{relative_url}"
+        return request.build_absolute_uri(relative_url)
     except ValueError:
         return None
 

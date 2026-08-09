@@ -29,6 +29,11 @@ export default function AdminDashboardPage() {
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<AdminTabType>("applications");
   const [toast, setToast] = useState<string | null>(null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   const handleTabChange = (tab: AdminTabType) => {
     setActiveTab(tab);
@@ -51,7 +56,7 @@ export default function AdminDashboardPage() {
     }
   }, [loading, authUser, router]);
 
-  if (loading || !authUser || authUser.role !== "admin") {
+  if (!mounted || loading || !authUser || authUser.role !== "admin") {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#fcfbf9]">
         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#d97c55]"></div>
