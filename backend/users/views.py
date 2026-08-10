@@ -1002,6 +1002,17 @@ def update_system_settings(request):
 				settings.payment_qr_code.delete(save=False)
 			settings.payment_qr_code = request.FILES['payment_qr_code']
 			
+		# Handle Affiliation Letters
+		if 'hai_affiliation_letter' in request.FILES:
+			if settings.hai_affiliation_letter:
+				settings.hai_affiliation_letter.delete(save=False)
+			settings.hai_affiliation_letter = request.FILES['hai_affiliation_letter']
+			
+		if 'up_olympic_letter' in request.FILES:
+			if settings.up_olympic_letter:
+				settings.up_olympic_letter.delete(save=False)
+			settings.up_olympic_letter = request.FILES['up_olympic_letter']
+			
 		settings.save()
 		return json_success('Settings updated successfully', settings=serialize_system_settings(request, settings))
 	except Exception as e:
@@ -1540,3 +1551,55 @@ def delete_agm_letter(request, letter_id):
 
     letter.delete()
     return json_success('AGM letter deleted successfully.')
+@require_http_methods(['GET'])
+def list_upha_forms(request):
+    from .models import UPHAForm
+    forms = UPHAForm.objects.all()
+    data = []
+    for form in forms:
+        data.append({
+            'id': form.id,
+            'title': form.title,
+            'file': image_url(request, form.file) if form.file else None,
+            'created_at': form.created_at.isoformat(),
+        })
+    return json_success('Forms retrieved', forms=data)
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def create_upha_form(request):
+    guard = admin_required_response(request)
+    if guard: return guard
+    
+    title = request.POST.get('title')
+    file = request.FILES.get('file')
+    if not title or not file:
+        return json_error('Title and file are required')
+        
+    from .models import UPHAForm
+    form = UPHAForm.objects.create(title=title, file=file)
+    return json_success('Form created', form={
+        'id': form.id,
+        'title': form.title,
+        'file': image_url(request, form.file) if form.file else None,
+        'created_at': form.created_at.isoformat(),
+    })
+
+@csrf_exempt
+@require_http_methods(['POST', 'DELETE'])
+def delete_upha_form(request, form_id):
+    guard = admin_required_response(request)
+    if guard: return guard
+    
+    from django.shortcuts import get_object_or_404
+    from .models import UPHAForm
+    import os
+    form = get_object_or_404(UPHAForm, pk=form_id)
+    if form.file:
+        try:
+            if os.path.isfile(form.file.path):
+                os.remove(form.file.path)
+        except Exception:
+            pass
+    form.delete()
+    return json_success('Form deleted')

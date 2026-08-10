@@ -40,6 +40,7 @@ def serialize_album(request, album):
         'category': album.category,
         'description': album.description,
         'date': album.date,
+        'youtube_link': album.youtube_link,
         'event': event_data,
         'cover_photo': image_url(request, cover_photo.image) if cover_photo else None,
         'photo_count': album.photos.count(),
@@ -141,6 +142,7 @@ def create_album(request):
     description = request.POST.get('description', '').strip()
     category = request.POST.get('category', '').strip()
     date_str = request.POST.get('date', '').strip()
+    youtube_link = request.POST.get('youtube_link', '').strip()
     event_id = request.POST.get('event_id')
     cover_index = request.POST.get('cover_index', '0')
     try:
@@ -163,6 +165,7 @@ def create_album(request):
         category=category,
         description=description,
         date=date_str if date_str else None,
+        youtube_link=youtube_link,
         event=event
     )
 

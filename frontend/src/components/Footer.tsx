@@ -44,7 +44,7 @@ export default function Footer() {
               </div>
             </div>
             <p className="text-sm leading-relaxed mb-6">
-              The Uttar Pradesh Handball Association is the recognized governing body for handball across Uttar Pradesh — affiliated with the Handball Association of India and the UP Olympic Association.
+              The Uttar Pradesh Handball Association is the recognized governing body for handball across Uttar Pradesh — affiliated with the Handball Association India and the UP Olympic Association.
             </p>
             <div className="flex gap-4">
               {settings?.facebook_link && (
@@ -118,7 +118,7 @@ export default function Footer() {
 
         <div className="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center text-xs">
           <p>&copy; 2026 Uttar Pradesh Handball Association. All rights reserved.</p>
-          <p className="mt-4 md:mt-0">Affiliated with Handball Association of India · UP Olympic Association</p>
+          <p className="mt-4 md:mt-0">Affiliated with Handball Association India · UP Olympic Association</p>
         </div>
       </div>
     </footer>

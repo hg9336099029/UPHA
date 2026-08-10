@@ -177,6 +177,9 @@ class SystemSettings(models.Model):
     instagram_link = models.URLField(blank=True, default='')
     youtube_link = models.URLField(blank=True, default='')
 
+    hai_affiliation_letter = models.FileField(upload_to='settings/affiliation/', null=True, blank=True)
+    up_olympic_letter = models.FileField(upload_to='settings/affiliation/', null=True, blank=True)
+
     def save(self, *args, **kwargs):
         self.pk = 1
         super().save(*args, **kwargs)
@@ -228,3 +231,14 @@ class AGMLetter(models.Model):
 
     def __str__(self):
         return f"{self.title} ({self.letter_date})"
+
+class UPHAForm(models.Model):
+    title = models.CharField(max_length=255)
+    file = models.FileField(upload_to='upha_forms/')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ('-created_at',)
+
+    def __str__(self):
+        return self.title

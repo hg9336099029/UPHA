@@ -10,6 +10,8 @@ export default function UploadGalleryModal() {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [date, setDate] = useState("");
+  const [youtubeLink, setYoutubeLink] = useState("");
+  const [albumType, setAlbumType] = useState<"PHOTOS" | "VIDEO">("PHOTOS");
   const [category, setCategory] = useState("TOURNAMENT");
   const [eventId, setEventId] = useState("");
   
@@ -57,8 +59,16 @@ export default function UploadGalleryModal() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title || photos.length === 0) {
-      alert("Please provide a title and at least one photo.");
+    if (!title) {
+      alert("Please provide a title.");
+      return;
+    }
+    if (albumType === "PHOTOS" && photos.length === 0) {
+      alert("Please provide at least one photo.");
+      return;
+    }
+    if (albumType === "VIDEO" && !youtubeLink) {
+      alert("Please provide a YouTube video link.");
       return;
     }
     
@@ -69,6 +79,7 @@ export default function UploadGalleryModal() {
       formData.append("title", title);
       formData.append("description", description);
       if (date) formData.append("date", date);
+      if (youtubeLink) formData.append("youtube_link", youtubeLink);
       formData.append("category", category);
       if (eventId) formData.append("event_id", eventId);
       formData.append("cover_index", coverIndex.toString());
@@ -84,6 +95,7 @@ export default function UploadGalleryModal() {
         setTitle("");
         setDescription("");
         setDate("");
+        setYoutubeLink("");
         setCategory("TOURNAMENT");
         setEventId("");
         setPhotos([]);
@@ -125,6 +137,22 @@ export default function UploadGalleryModal() {
             </div>
             
             <div className="space-y-6">
+              <div>
+                <label className="block text-[9px] font-bold tracking-widest text-[#111827] uppercase mb-2 font-mono">
+                  ALBUM TYPE <span className="text-[#d97c55]">*</span>
+                </label>
+                <div className="flex gap-6">
+                  <label className="flex items-center gap-2 text-sm text-gray-800 cursor-pointer">
+                    <input type="radio" checked={albumType === "PHOTOS"} onChange={() => { setAlbumType("PHOTOS"); setYoutubeLink(""); }} className="accent-[#d97c55]" />
+                    Photos
+                  </label>
+                  <label className="flex items-center gap-2 text-sm text-gray-800 cursor-pointer">
+                    <input type="radio" checked={albumType === "VIDEO"} onChange={() => { setAlbumType("VIDEO"); setPhotos([]); setPhotoPreviews([]); }} className="accent-[#d97c55]" />
+                    YouTube Video
+                  </label>
+                </div>
+              </div>
+
               <div>
                 <label className="block text-[9px] font-bold tracking-widest text-[#111827] uppercase mb-2 font-mono">
                   TOURNAMENT <span className="text-gray-400 lowercase font-mono">(optional)</span>
@@ -204,10 +232,27 @@ export default function UploadGalleryModal() {
                   className="w-full bg-[#fcfbf9] border border-gray-100 rounded-sm px-4 py-2 text-sm text-gray-800 focus:outline-none focus:border-[#d97c55]"
                 />
               </div>
+
+              {albumType === "VIDEO" && (
+                <div>
+                  <label className="block text-[9px] font-bold tracking-widest text-[#111827] uppercase mb-2 font-mono">
+                    YOUTUBE VIDEO LINK <span className="text-[#d97c55]">*</span>
+                  </label>
+                  <input
+                    type="url"
+                    value={youtubeLink}
+                    onChange={(e) => setYoutubeLink(e.target.value)}
+                    required={albumType === "VIDEO"}
+                    placeholder="https://www.youtube.com/watch?v=..."
+                    className="w-full bg-[#fcfbf9] border border-gray-100 rounded-sm px-4 py-2.5 text-sm text-gray-800 focus:outline-none focus:border-[#d97c55]"
+                  />
+                </div>
+              )}
             </div>
           </section>
 
           {/* 02 PHOTOS */}
+          {albumType === "PHOTOS" && (
           <section>
             <div className="flex items-center gap-2 mb-6 border-b border-dashed border-gray-200 pb-3">
               <span className="text-[10px] font-bold text-[#d97c55] font-mono">02</span>
@@ -264,6 +309,7 @@ export default function UploadGalleryModal() {
               onChange={handleFileChange}
             />
           </section>
+          )}
 
           {/* 03 PUBLICATION */}
           <section>

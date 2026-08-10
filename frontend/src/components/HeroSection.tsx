@@ -44,7 +44,7 @@ export default function HeroSection() {
           <div className="flex items-start gap-12">
             <div>
               <div className="text-[10px] text-gray-500 font-bold tracking-widest uppercase mb-3">AFFILIATED WITH</div>
-              <div className="font-bold text-sm">Handball Association of India</div>
+              <div className="font-bold text-sm">Handball Association India</div>
               {/* HAI Logo */}
               <div className="mt-2 text-accent text-xl font-heading flex items-center gap-2">
                 <Image src="/HAI.png" alt="HAI Logo" width={80} height={80} className="object-contain" />

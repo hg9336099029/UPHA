@@ -63,7 +63,7 @@ export default function AboutSection() {
               
               <div className="flex flex-col sm:flex-row border-b border-gray-200 p-4">
                 <div className="sm:w-1/3 text-[10px] text-gray-500 font-bold tracking-widest uppercase mb-1 sm:mb-0">RECOGNISED BY</div>
-                <div className="sm:w-2/3 font-medium text-sm">Handball Association of India</div>
+                <div className="sm:w-2/3 font-medium text-sm">Handball Association India</div>
               </div>
               
               <div className="flex flex-col sm:flex-row p-4">

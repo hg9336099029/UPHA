@@ -21,10 +21,10 @@ export default function CTABanner() {
             Whether you&apos;re a player, coach, or referee, your journey with UPHA starts with a single registration.
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
-            <Link href="/register" className="bg-white text-primary px-8 py-4 text-sm font-bold tracking-widest uppercase hover:bg-gray-100 transition-colors inline-flex items-center justify-center rounded-sm">
+            <Link href="#/register" className="bg-white text-primary px-8 py-4 text-sm font-bold tracking-widest uppercase hover:bg-gray-100 transition-colors inline-flex items-center justify-center rounded-sm">
               REGISTER NOW &rarr;
             </Link>
-            <Link href="/contact" className="bg-transparent border border-white text-white px-8 py-4 text-sm font-bold tracking-widest uppercase hover:bg-white/10 transition-colors inline-flex items-center justify-center rounded-sm">
+            <Link href="#contact" className="bg-transparent border border-white text-white px-8 py-4 text-sm font-bold tracking-widest uppercase hover:bg-white/10 transition-colors inline-flex items-center justify-center rounded-sm">
               CONTACT US
             </Link>
           </div>

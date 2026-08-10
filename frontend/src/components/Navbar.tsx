@@ -16,7 +16,7 @@ export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  
+
   const [notifDropdownOpen, setNotifDropdownOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
   const notifRef = useRef<HTMLDivElement>(null);
@@ -46,20 +46,20 @@ export default function Navbar() {
   const unreadCount = notifications.filter(n => !n.is_read).length;
 
   const getNavClass = (path: string) => {
-    if (path.includes("#")) return "hover:text-accent transition-colors";
+    if (path.includes("#")) return "hover:text-accent transition-colors whitespace-nowrap";
     return pathname === path
-      ? "text-accent border-b-2 border-accent pb-1"
-      : "hover:text-accent transition-colors";
+      ? "text-accent border-b-2 border-accent pb-1 whitespace-nowrap"
+      : "hover:text-accent transition-colors whitespace-nowrap";
   };
 
   const dashboardPath =
     authUser?.role === "admin"
       ? "/dashboard/admin"
       : authUser?.role === "coach"
-      ? "/dashboard/coach"
-      : authUser?.role === "referee"
-      ? "/dashboard/player"
-      : "/dashboard/player";
+        ? "/dashboard/coach"
+        : authUser?.role === "referee"
+          ? "/dashboard/player"
+          : "/dashboard/player";
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -92,7 +92,7 @@ export default function Navbar() {
                 <span className="tracking-wide">upha2024@gmail.com</span>
               </div>
             </div>
-            
+
             {/* Right: Links */}
             <div className="flex items-center gap-4">
               <Link href="/database" className="hover:text-white transition-colors tracking-wide">Affiliated Districts</Link>
@@ -122,12 +122,14 @@ export default function Navbar() {
               </div>
               <div>
                 <h1 className="font-heading text-2xl font-bold tracking-wide leading-none text-primary">UPHA</h1>
-                <div className="text-[9px] tracking-widest text-gray-500 uppercase mt-1">UTTAR PRADESH HANDBALL ASSN.</div>
+                <div className="text-[9px] tracking-widest text-gray-500 uppercase mt-1 leading-tight">
+                  UTTAR PRADESH<br />HANDBALL ASSN.
+                </div>
               </div>
             </Link>
 
             {/* Nav Links */}
-            <nav className="hidden md:flex items-center gap-8 text-sm font-semibold text-primary">
+            <nav className="hidden md:flex items-center gap-6 xl:gap-8 text-sm font-semibold text-primary">
               <Link href="/" className={getNavClass("/")}>Home</Link>
               <Link href="/about" className={getNavClass("/about")}>About</Link>
               <Link href="/calendar" className={getNavClass("/calendar")}>Events</Link>
@@ -135,6 +137,7 @@ export default function Navbar() {
               <Link href="/achievements" className={getNavClass("/achievements")}>Achievements</Link>
               <Link href="/gallery" className={getNavClass("/gallery")}>Gallery</Link>
               <Link href="/agm" className={getNavClass("/agm")}>AGM</Link>
+              <Link href="/more-links" className={getNavClass("/more-links")}>More Links</Link>
               <Link href="/#contact" className={getNavClass("/#contact")}>Contact</Link>
             </nav>
 
@@ -187,101 +190,101 @@ export default function Navbar() {
                       )}
                     </div>
                   )}
-                  
+
                   {/* ── Logged-in: Dashboard dropdown ── */}
                   <div className="relative" ref={dropdownRef}>
-                  <div className="flex items-center border border-gray-200 bg-white rounded-full transition-colors hover:bg-gray-50">
-                    <Link
-                      href={dashboardPath}
-                      className="flex items-center gap-3 pl-1.5 pr-2 py-1.5 rounded-l-full"
-                    >
-                      <div className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-[11px] font-bold tracking-wider">
-                        {authUser?.name ? authUser.name.split(' ').map((n: string) => n[0]).join('').substring(0,2).toUpperCase() : 'U'}
-                      </div>
-                      <div className="flex flex-col items-start text-left">
-                        <span className="text-xs font-bold text-primary leading-none">{authUser?.name || authUser?.email}</span>
-                        <span className="text-[9px] font-mono text-gray-400 font-medium uppercase tracking-widest leading-none mt-1">
-                          UPHA-{authUser?.role ? authUser.role.substring(0,3).toUpperCase() : 'USR'}-{(authUser?.id || 0).toString().padStart(5, '0')}
-                        </span>
-                      </div>
-                    </Link>
-                    <button
-                      type="button"
-                      onClick={() => setDropdownOpen((o) => !o)}
-                      className="pr-4 pl-2 py-1.5 rounded-r-full outline-none flex items-center h-full"
-                    >
-                      <ChevronDown
-                        className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`}
-                      />
-                    </button>
-                  </div>
-
-                  {/* Dropdown panel */}
-                  {dropdownOpen && (
-                    <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-sm shadow-lg py-1 z-50">
-                      {/* User info pill */}
-                      <div className="px-4 py-2.5 border-b border-gray-100">
-                        <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Signed in as</p>
-                        <p className="text-xs font-semibold text-primary truncate mt-0.5">{authUser.name || authUser.email}</p>
-                        <p className="text-[10px] text-gray-400 capitalize">{authUser.role}</p>
-                      </div>
-
-                      {/* Admin Dashboard shortcut — only for admins */}
-                      {authUser.role === "admin" && (
-                        <Link
-                          href="/dashboard/admin"
-                          onClick={() => setDropdownOpen(false)}
-                          className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-[#d97c55] hover:bg-orange-50 transition-colors"
-                        >
-                          <ShieldCheck className="w-3.5 h-3.5" />
-                          Admin Dashboard
-                        </Link>
-                      )}
-
-                      {/* My Dashboard — for all non-admin roles */}
-                      {authUser.role !== "admin" && (
-                        <Link
-                          href={dashboardPath}
-                          onClick={() => setDropdownOpen(false)}
-                          className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 hover:text-accent transition-colors"
-                        >
-                          <LayoutDashboard className="w-3.5 h-3.5" />
-                          My Dashboard
-                        </Link>
-                      )}
-
-                      {/* Settings Modal Trigger */}
+                    <div className="flex items-center border border-gray-200 bg-white rounded-full transition-colors hover:bg-gray-50">
+                      <Link
+                        href={dashboardPath}
+                        className="flex items-center gap-3 pl-1.5 pr-2 py-1.5 rounded-l-full"
+                      >
+                        <div className="w-8 h-8 bg-primary text-white rounded-full flex items-center justify-center text-[11px] font-bold tracking-wider">
+                          {authUser?.name ? authUser.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() : 'U'}
+                        </div>
+                        <div className="flex flex-col items-start text-left">
+                          <span className="text-xs font-bold text-primary leading-none">{authUser?.name || authUser?.email}</span>
+                          <span className="text-[9px] font-mono text-gray-400 font-medium uppercase tracking-widest leading-none mt-1">
+                            UPHA-{authUser?.role ? authUser.role.substring(0, 3).toUpperCase() : 'USR'}-{(authUser?.id || 0).toString().padStart(5, '0')}
+                          </span>
+                        </div>
+                      </Link>
                       <button
                         type="button"
-                        onClick={() => {
-                          setDropdownOpen(false);
-                          setSettingsOpen(true);
-                        }}
-                        className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 hover:text-accent transition-colors"
+                        onClick={() => setDropdownOpen((o) => !o)}
+                        className="pr-4 pl-2 py-1.5 rounded-r-full outline-none flex items-center h-full"
                       >
-                        <Key className="w-3.5 h-3.5" />
-                        Account Settings
-                      </button>
-
-                      {/* Divider */}
-                      <div className="border-t border-gray-100 my-1" />
-
-                      {/* Logout */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setDropdownOpen(false);
-                          logout();
-                        }}
-                        className="flex items-center gap-2.5 w-full text-left px-4 py-2.5 text-xs font-semibold text-red-500 hover:bg-red-50 transition-colors"
-                      >
-                        <LogOut className="w-3.5 h-3.5" />
-                        Logout
+                        <ChevronDown
+                          className={`w-3.5 h-3.5 text-gray-400 transition-transform duration-200 ${dropdownOpen ? "rotate-180" : ""}`}
+                        />
                       </button>
                     </div>
-                  )}
+
+                    {/* Dropdown panel */}
+                    {dropdownOpen && (
+                      <div className="absolute right-0 mt-2 w-48 bg-white border border-gray-100 rounded-sm shadow-lg py-1 z-50">
+                        {/* User info pill */}
+                        <div className="px-4 py-2.5 border-b border-gray-100">
+                          <p className="text-[10px] text-gray-400 uppercase tracking-widest font-bold">Signed in as</p>
+                          <p className="text-xs font-semibold text-primary truncate mt-0.5">{authUser.name || authUser.email}</p>
+                          <p className="text-[10px] text-gray-400 capitalize">{authUser.role}</p>
+                        </div>
+
+                        {/* Admin Dashboard shortcut — only for admins */}
+                        {authUser.role === "admin" && (
+                          <Link
+                            href="/dashboard/admin"
+                            onClick={() => setDropdownOpen(false)}
+                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-[#d97c55] hover:bg-orange-50 transition-colors"
+                          >
+                            <ShieldCheck className="w-3.5 h-3.5" />
+                            Admin Dashboard
+                          </Link>
+                        )}
+
+                        {/* My Dashboard — for all non-admin roles */}
+                        {authUser.role !== "admin" && (
+                          <Link
+                            href={dashboardPath}
+                            onClick={() => setDropdownOpen(false)}
+                            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 hover:text-accent transition-colors"
+                          >
+                            <LayoutDashboard className="w-3.5 h-3.5" />
+                            My Dashboard
+                          </Link>
+                        )}
+
+                        {/* Settings Modal Trigger */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setDropdownOpen(false);
+                            setSettingsOpen(true);
+                          }}
+                          className="w-full flex items-center gap-2.5 px-4 py-2.5 text-xs font-semibold text-gray-700 hover:bg-gray-50 hover:text-accent transition-colors"
+                        >
+                          <Key className="w-3.5 h-3.5" />
+                          Account Settings
+                        </button>
+
+                        {/* Divider */}
+                        <div className="border-t border-gray-100 my-1" />
+
+                        {/* Logout */}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setDropdownOpen(false);
+                            logout();
+                          }}
+                          className="flex items-center gap-2.5 w-full text-left px-4 py-2.5 text-xs font-semibold text-red-500 hover:bg-red-50 transition-colors"
+                        >
+                          <LogOut className="w-3.5 h-3.5" />
+                          Logout
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
               ) : (
                 /* ── Logged-out: Register Now button ── */
                 <Link
@@ -301,3 +304,4 @@ export default function Navbar() {
     </>
   );
 }
+

@@ -5,7 +5,7 @@ import { getAdminStats, AdminStatsData } from "@/lib/api";
 import { useAuth } from "@/context/AuthContext";
 import { CheckSquare, CalendarDays, Trophy, Image as ImageIcon, UserPlus, Megaphone, Users, Award, FileBadge, FileText } from "lucide-react";
 
-export type AdminTabType = "applications" | "create_event" | "upload_results" | "upload_gallery" | "invite_admin" | "publish_notice" | "council_members" | "manage_achievements" | "system_settings" | "issue_certificates" | "manage_agm";
+export type AdminTabType = "applications" | "create_event" | "upload_results" | "upload_gallery" | "invite_admin" | "publish_notice" | "council_members" | "manage_achievements" | "system_settings" | "issue_certificates" | "manage_agm" | "manage_forms";
 
 export default function AdminDashboardHeader({
   activeTab,
@@ -313,6 +313,29 @@ export default function AdminDashboardHeader({
               </div>
               <div className={`text-[9px] font-bold tracking-widest uppercase flex items-center gap-1 ${activeTab === "manage_agm" ? "text-[#d97c55]" : "text-[#111827] group-hover:text-[#d97c55]"}`}>
                 {activeTab === "manage_agm" ? "ACTIVE TAB" : "OPEN ↘"}
+              </div>
+            </div>
+          </div>
+          
+          {/* Card — Manage Forms */}
+          <div
+            onClick={() => onTabChange("manage_forms")}
+            className={`cursor-pointer border rounded shadow-sm p-6 flex flex-col justify-between group transition-colors ${activeTab === "manage_forms" ? "bg-[#fff8f6] border-[#d97c55]" : "bg-white border-gray-200 hover:border-gray-300"}`}
+          >
+            <div>
+              <div className="w-10 h-10 rounded-full bg-[#d97c55]/10 flex items-center justify-center mb-4 text-[#d97c55]">
+                <FileText className="w-5 h-5" />
+              </div>
+              <h3 className="font-bold text-sm tracking-widest uppercase text-[#111827] mb-2">FORMS & AFFILIATION LETTERS</h3>
+              <p className="text-xs text-gray-500 mb-6">Upload official UPHA forms, affiliation letters, and documents.</p>
+            </div>
+            <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+              <div className="flex items-center gap-1.5 text-[9px] font-bold tracking-widest uppercase text-gray-500">
+                <span className="w-1.5 h-1.5 rounded-full bg-gray-400"></span>
+                PUBLIC FORMS
+              </div>
+              <div className={`text-[9px] font-bold tracking-widest uppercase flex items-center gap-1 ${activeTab === "manage_forms" ? "text-[#d97c55]" : "text-[#111827] group-hover:text-[#d97c55]"}`}>
+                {activeTab === "manage_forms" ? "ACTIVE TAB" : "OPEN ↘"}
               </div>
             </div>
           </div>

@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { FileText, Download, BookOpen, CalendarDays, Filter } from "lucide-react";
+import { FileText, Download, BookOpen, CalendarDays, Filter, Eye } from "lucide-react";
 import { getAGMLetters, AGMLetterData } from "@/lib/api";
 
 type FilterType = "all" | "text" | "pdf";
@@ -218,13 +218,20 @@ export default function AGMPage() {
                       )}
                     </div>
 
-                    {/* Download button for PDFs */}
+                    {/* View and Download buttons for PDFs */}
                     {isPdf && letter.file && (
-                      <div>
+                      <div className="flex items-center gap-3 mt-4 md:mt-0">
                         <a
                           href={letter.file}
                           target="_blank"
                           rel="noopener noreferrer"
+                          className="inline-flex items-center gap-2 bg-gray-100 text-gray-700 text-[10px] font-bold tracking-widest uppercase px-5 py-2.5 rounded-sm hover:bg-gray-200 transition-colors"
+                        >
+                          <Eye className="w-3.5 h-3.5" />
+                          VIEW
+                        </a>
+                        <a
+                          href={letter.file}
                           download
                           className="inline-flex items-center gap-2 bg-[#111827] text-white text-[10px] font-bold tracking-widest uppercase px-5 py-2.5 rounded-sm hover:bg-[#d97c55] transition-colors"
                         >

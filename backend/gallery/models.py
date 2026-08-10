@@ -41,6 +41,7 @@ class GalleryAlbum(models.Model):
     title = models.CharField(max_length=255)
     category = models.CharField(max_length=255, blank=True, default='')
     date = models.DateField(null=True, blank=True)
+    youtube_link = models.URLField(blank=True, default='')
     description = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

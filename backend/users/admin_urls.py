@@ -18,4 +18,6 @@ urlpatterns = [
     path('events/<int:event_id>/issue-certificates/', views.issue_event_certificates, name='issue_event_certificates'),
     path('agm-letters/', views.create_agm_letter, name='create_agm_letter'),
     path('agm-letters/<int:letter_id>/delete/', views.delete_agm_letter, name='delete_agm_letter'),
+    path('upha-forms/create/', views.create_upha_form, name='create_upha_form'),
+    path('upha-forms/<int:form_id>/delete/', views.delete_upha_form, name='delete_upha_form'),
 ]

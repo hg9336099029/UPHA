@@ -153,7 +153,7 @@ export type MeData =
 
 function getFriendlyErrorMessage(errorMsg: string): string {
   if (!errorMsg) return "An unknown error occurred.";
-  
+
   const msg = errorMsg.toLowerCase();
   if (msg.includes("duplicate key value violates unique constraint")) {
     if (msg.includes("email")) return "This email address is already registered.";
@@ -163,7 +163,7 @@ function getFriendlyErrorMessage(errorMsg: string): string {
     if (msg.includes("transaction_id")) return "This Payment Transaction ID has already been used.";
     return "A record with this information already exists. Please check your details and try again.";
   }
-  
+
   return errorMsg;
 }
 
@@ -284,6 +284,8 @@ export interface SystemSettingsData {
   instagram_link: string;
   twitter_link: string;
   youtube_link: string;
+  hai_affiliation_letter?: string | null;
+  up_olympic_letter?: string | null;
 }
 
 export async function getSystemSettings() {
@@ -561,6 +563,7 @@ export interface AlbumData {
   description?: string;
   date?: string | null;
   event: { id: number; name: string; location: string; category: string; } | null;
+  youtube_link?: string;
   cover_photo: string | null;
   photo_count: number;
   photos: string[];
@@ -743,7 +746,7 @@ export async function downloadCertificatePdf(certId: string): Promise<Blob> {
     let json;
     try {
       json = await res.json();
-    } catch (e) {}
+    } catch (e) { }
     const rawMsg = json?.message || json?.error || `Error ${res.status}: ${res.statusText}`;
     throw new Error(rawMsg);
   }
@@ -765,7 +768,7 @@ export async function downloadIdCardPdf(): Promise<Blob> {
     let json;
     try {
       json = await res.json();
-    } catch (e) {}
+    } catch (e) { }
     const rawMsg = json?.message || json?.error || `Error ${res.status}: ${res.statusText}`;
     throw new Error(rawMsg);
   }
@@ -1064,5 +1067,26 @@ export async function issueEventCertificates(
     method: 'POST',
     body: JSON.stringify({ assignments }),
   });
+}
+
+// ─── UPHA Forms ────────────────────────────────────────────────────────────────
+
+export interface UPHAFormData {
+  id: number;
+  title: string;
+  file: string;
+  created_at: string;
+}
+
+export async function getUPHAForms() {
+  return apiFetch<{ success: boolean; forms: UPHAFormData[] }>(`${API_BASE}/upha-forms/`);
+}
+
+export async function createUPHAForm(formData: FormData) {
+  return multipartApiFetch<{ success: boolean; form: UPHAFormData }>(`${ADMIN_BASE}/upha-forms/create/`, formData);
+}
+
+export async function deleteUPHAForm(id: number) {
+  return apiFetch<{ success: boolean }>(`${ADMIN_BASE}/upha-forms/${id}/delete/`, { method: "DELETE" });
 }
 

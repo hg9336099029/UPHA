@@ -2,7 +2,15 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import { AlbumData, listAlbums } from "@/lib/api";
-import { Image as ImageIcon, Search, X, ChevronLeft, ChevronRight, ZoomIn } from "lucide-react";
+import { Image as ImageIcon, Search, X, ChevronLeft, ChevronRight, ZoomIn, Play } from "lucide-react";
+
+function getYouTubeThumbnail(url: string) {
+  const videoIdMatch = url.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&]{11})/);
+  if (videoIdMatch && videoIdMatch[1]) {
+    return `https://img.youtube.com/vi/${videoIdMatch[1]}/maxresdefault.jpg`;
+  }
+  return null;
+}
 
 export default function GalleryPage() {
   const [albums, setAlbums] = useState<AlbumData[]>([]);
@@ -29,10 +37,10 @@ export default function GalleryPage() {
   const latestAlbum = albums.length > 0 ? albums[0] : null;
   const latestDateStr = latestAlbum?.date
     ? new Date(latestAlbum.date).toLocaleDateString("en-IN", {
-        day: "2-digit",
-        month: "short",
-        year: "numeric",
-      })
+      day: "2-digit",
+      month: "short",
+      year: "numeric",
+    })
     : "—";
 
   const albumsByCat = albums.reduce((acc, a) => {
@@ -65,20 +73,20 @@ export default function GalleryPage() {
       return searchMatch;
     });
 
-  // Only albums that have a visible cover photo (for lightbox cycling)
+  // Only albums that have a visible cover photo or video (for lightbox cycling)
   const photoAlbums = filteredAlbums.filter(
-    (a) => a.cover_photo && !imageErrors[a.id]
+    (a) => (a.cover_photo || a.youtube_link) && !imageErrors[a.id]
   );
 
   const openLightbox = (filteredIdx: number) => {
     const album = filteredAlbums[filteredIdx];
-    
+
     // Fallback to cover_photo if the backend hasn't been updated to return the 'photos' array yet
-    const photos = album.photos && album.photos.length > 0 
-      ? album.photos 
+    const photos = album.photos && album.photos.length > 0
+      ? album.photos
       : (album.cover_photo ? [album.cover_photo] : []);
 
-    if (photos.length === 0) return;
+    if (photos.length === 0 && !album.youtube_link) return;
 
     setActiveAlbum({ ...album, photos });
     setLightboxIndex(0);
@@ -120,7 +128,7 @@ export default function GalleryPage() {
     <div className="flex-1 flex flex-col bg-[#fcfbf9] w-full">
 
       {/* ── LIGHTBOX POPUP ── */}
-      {lightboxOpen && activeAlbum && activeAlbum.photos && (
+      {lightboxOpen && activeAlbum && (
         <div
           className="fixed inset-0 z-[9999] bg-black/92 backdrop-blur-md flex items-center justify-center"
           onClick={closeLightbox}
@@ -135,9 +143,11 @@ export default function GalleryPage() {
           </button>
 
           {/* Counter */}
-          <div className="absolute top-6 left-1/2 -translate-x-1/2 text-white/50 text-[11px] font-mono tracking-widest select-none">
-            {lightboxIndex + 1} / {activeAlbum.photos.length}
-          </div>
+          {!activeAlbum.youtube_link && (
+            <div className="absolute top-6 left-1/2 -translate-x-1/2 text-white/50 text-[11px] font-mono tracking-widest select-none">
+              {lightboxIndex + 1} / {activeAlbum.photos.length}
+            </div>
+          )}
 
           {/* Prev arrow */}
           {activeAlbum.photos.length > 1 && (
@@ -161,17 +171,30 @@ export default function GalleryPage() {
             </button>
           )}
 
-          {/* Image + caption — click stops propagation so clicking image doesn't close */}
+          {/* Image/Video + caption */}
           <div
             className="flex flex-col items-center gap-5 max-w-[90vw]"
             onClick={(e) => e.stopPropagation()}
           >
-            <img
-              src={activeAlbum.photos[lightboxIndex]}
-              alt={activeAlbum.title}
-              className="max-w-[88vw] max-h-[76vh] w-auto h-auto object-contain rounded-sm shadow-2xl select-none"
-              draggable={false}
-            />
+            {activeAlbum.youtube_link ? (
+              <div className="w-full max-w-5xl aspect-video bg-black rounded-sm shadow-2xl overflow-hidden mt-8 md:mt-0" style={{ width: '85vw', maxWidth: '1000px' }}>
+                <iframe
+                  src={`https://www.youtube.com/embed/${activeAlbum.youtube_link.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|watch\?.+&v=))([^&]{11})/)?.[1]}?autoplay=1`}
+                  title="YouTube video player"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                ></iframe>
+              </div>
+            ) : (
+              <img
+                src={activeAlbum.photos[lightboxIndex]}
+                alt={activeAlbum.title}
+                className="max-w-[88vw] max-h-[76vh] w-auto h-auto object-contain rounded-sm shadow-2xl select-none"
+                draggable={false}
+              />
+            )}
             {/* Caption */}
             <div className="text-center">
               <div className="text-white font-heading font-bold uppercase tracking-wider text-xl">
@@ -198,8 +221,12 @@ export default function GalleryPage() {
                     </span>
                   </>
                 )}
-                <span>·</span>
-                <span>{activeAlbum.photos.length} photos</span>
+                {!activeAlbum.youtube_link && (
+                  <>
+                    <span>·</span>
+                    <span>{activeAlbum.photos.length} photos</span>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -258,17 +285,15 @@ export default function GalleryPage() {
                 <button
                   key={cat}
                   onClick={() => setFilter(cat)}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-sm text-[10px] font-bold tracking-widest uppercase transition-colors whitespace-nowrap ${
-                    isActive
+                  className={`flex items-center gap-2 px-4 py-2 rounded-sm text-[10px] font-bold tracking-widest uppercase transition-colors whitespace-nowrap ${isActive
                       ? "bg-[#111827] text-white"
                       : "text-gray-500 hover:text-gray-900 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   {cat}
                   <span
-                    className={`px-1.5 py-0.5 rounded-full text-[8px] ${
-                      isActive ? "bg-white/20 text-white" : "bg-orange-50 text-orange-600"
-                    }`}
+                    className={`px-1.5 py-0.5 rounded-full text-[8px] ${isActive ? "bg-white/20 text-white" : "bg-orange-50 text-orange-600"
+                      }`}
                   >
                     {count}
                   </span>
@@ -325,30 +350,30 @@ export default function GalleryPage() {
 
               const formattedDate = album.date
                 ? new Date(album.date).toLocaleDateString("en-IN", {
-                    day: "2-digit",
-                    month: "short",
-                    year: "numeric",
-                  })
+                  day: "2-digit",
+                  month: "short",
+                  year: "numeric",
+                })
                 : "TBD";
 
-              const hasPhoto = album.cover_photo && !imageErrors[album.id];
+              const hasContent = (album.cover_photo || album.youtube_link) && !imageErrors[album.id];
+              const displayImage = album.cover_photo || (album.youtube_link ? getYouTubeThumbnail(album.youtube_link) : null);
 
               return (
                 <div
                   key={album.id}
-                  className={`bg-white border border-gray-200 shadow-sm rounded-sm overflow-hidden group flex flex-col transition-colors ${
-                    hasPhoto
+                  className={`bg-white border border-gray-200 shadow-sm rounded-sm overflow-hidden group flex flex-col transition-colors ${hasContent
                       ? "cursor-pointer hover:border-[#d97c55]"
                       : "cursor-default"
-                  }`}
-                  onClick={() => hasPhoto && openLightbox(filteredIdx)}
+                    }`}
+                  onClick={() => hasContent && openLightbox(filteredIdx)}
                 >
                   {/* Image Area */}
                   <div className="relative aspect-[4/3] bg-gray-100 overflow-hidden">
-                    {hasPhoto ? (
+                    {displayImage ? (
                       <>
                         <img
-                          src={album.cover_photo!}
+                          src={displayImage}
                           alt={album.title}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                           onError={() =>
@@ -358,7 +383,7 @@ export default function GalleryPage() {
                         {/* Hover zoom overlay */}
                         <div className="absolute inset-0 bg-black/0 group-hover:bg-black/35 transition-colors duration-300 flex items-center justify-center">
                           <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 w-14 h-14 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/30">
-                            <ZoomIn className="w-6 h-6 text-white" />
+                            {album.youtube_link ? <Play className="w-6 h-6 text-white ml-1" /> : <ZoomIn className="w-6 h-6 text-white" />}
                           </div>
                         </div>
                       </>
@@ -377,8 +402,17 @@ export default function GalleryPage() {
 
                     {/* Photo count badge */}
                     <div className="absolute bottom-4 right-4 bg-black/70 backdrop-blur-sm text-white px-2 py-1 text-[9px] font-bold tracking-widest uppercase rounded-sm flex items-center gap-1.5">
-                      <ImageIcon className="w-3 h-3" />
-                      {album.photo_count} PHOTOS
+                      {album.youtube_link ? (
+                        <>
+                          <Play className="w-3 h-3" />
+                          VIDEO
+                        </>
+                      ) : (
+                        <>
+                          <ImageIcon className="w-3 h-3" />
+                          {album.photo_count} PHOTOS
+                        </>
+                      )}
                     </div>
                   </div>
 

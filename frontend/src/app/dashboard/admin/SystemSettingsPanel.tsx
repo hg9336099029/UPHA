@@ -30,6 +30,8 @@ export default function SystemSettingsPanel() {
   const [qrPreview, setQrPreview] = useState<string | null>(null);
   const qrInputRef = useRef<HTMLInputElement>(null);
 
+
+
   useEffect(() => {
     if (settings) {
       setFees({
@@ -48,6 +50,7 @@ export default function SystemSettingsPanel() {
       if (settings.payment_qr_code) {
         setQrPreview(settings.payment_qr_code);
       }
+
     }
   }, [settings]);
 
@@ -93,6 +96,7 @@ export default function SystemSettingsPanel() {
     if (qrInputRef.current?.files?.[0]) {
       formData.append("payment_qr_code", qrInputRef.current.files[0]);
     }
+
 
     try {
       const res = await updateSystemSettings(formData);
@@ -226,6 +230,8 @@ export default function SystemSettingsPanel() {
                 </div>
               </div>
             </div>
+
+
 
             <div className="space-y-6 pt-6 border-t border-gray-100">
               <h3 className="text-[10px] font-bold tracking-widest text-gray-400 uppercase border-b border-gray-100 pb-2">

@@ -32,4 +32,5 @@ urlpatterns = [
     path('announcements/', views.get_announcements, name='get_announcements'),
     path('settings/', views.get_system_settings, name='get_system_settings'),
     path('agm-letters/', views.list_agm_letters, name='list_agm_letters'),
+    path('upha-forms/', views.list_upha_forms, name='list_upha_forms'),
 ]
