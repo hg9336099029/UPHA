@@ -36,7 +36,8 @@ export default function Footer() {
                 <Image
                   src="/upha.png"
                   alt="UPHA Logo"
-                  fill
+                  width={72}
+                  height={72}
                   className="object-contain"
                 />
               </div>
