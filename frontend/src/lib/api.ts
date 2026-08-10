@@ -286,6 +286,9 @@ export interface SystemSettingsData {
   youtube_link: string;
   hai_affiliation_letter?: string | null;
   up_olympic_letter?: string | null;
+  contact_email?: string;
+  contact_mobile?: string;
+  contact_address?: string;
 }
 
 export async function getSystemSettings() {

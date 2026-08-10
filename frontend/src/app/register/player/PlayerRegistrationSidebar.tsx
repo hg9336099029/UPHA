@@ -66,22 +66,15 @@ export default function PlayerRegistrationSidebar() {
           <li className="flex gap-3 items-start">
             <Phone className="w-4 h-4 text-accent shrink-0 mt-0.5" />
             <div>
-              <div className="text-xs font-bold text-gray-800 uppercase tracking-wide mb-1">HEAD OFFICE (LUCKNOW)</div>
-              <div className="text-sm text-gray-500">+91 98397 70123</div>
-            </div>
-          </li>
-          <li className="flex gap-3 items-start">
-            <Phone className="w-4 h-4 text-accent shrink-0 mt-0.5" />
-            <div>
-              <div className="text-xs font-bold text-gray-800 uppercase tracking-wide mb-1">BRANCH (VARANASI)</div>
-              <div className="text-sm text-gray-500">+91 70849 00009</div>
+              <div className="text-xs font-bold text-gray-800 uppercase tracking-wide mb-1">PHONE</div>
+              <div className="text-sm text-gray-500">{settings?.contact_mobile || "+91 75700 99990"}</div>
             </div>
           </li>
           <li className="flex gap-3 items-start">
             <Mail className="w-4 h-4 text-accent shrink-0 mt-0.5" />
             <div>
               <div className="text-xs font-bold text-gray-800 uppercase tracking-wide mb-1">EMAIL</div>
-              <div className="text-sm text-gray-500">upha2024@gmail.com</div>
+              <div className="text-sm text-gray-500">{settings?.contact_email || "upha2024@gmail.com"}</div>
             </div>
           </li>
         </ul>

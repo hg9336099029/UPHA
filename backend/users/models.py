@@ -179,6 +179,9 @@ class SystemSettings(models.Model):
 
     hai_affiliation_letter = models.FileField(upload_to='settings/affiliation/', null=True, blank=True)
     up_olympic_letter = models.FileField(upload_to='settings/affiliation/', null=True, blank=True)
+    contact_email = models.EmailField(blank=True, default='upha2024@gmail.com')
+    contact_mobile = models.CharField(max_length=255, blank=True, default='+91 75700 99990')
+    contact_address = models.TextField(blank=True, default='K.D. Singh Babu Stadium, Lucknow\n(Branch: Chandpur, Varanasi)')
 
     def save(self, *args, **kwargs):
         self.pk = 1

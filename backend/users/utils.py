@@ -268,4 +268,7 @@ def serialize_system_settings(request, settings):
         'youtube_link': settings.youtube_link,
         'hai_affiliation_letter': image_url(request, settings.hai_affiliation_letter),
         'up_olympic_letter': image_url(request, settings.up_olympic_letter),
+        'contact_email': settings.contact_email,
+        'contact_mobile': settings.contact_mobile,
+        'contact_address': settings.contact_address,
     }

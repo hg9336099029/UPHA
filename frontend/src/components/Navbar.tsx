@@ -8,14 +8,19 @@ import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
 import { getNotifications, markNotificationRead, NotificationData } from "@/lib/api";
 import SettingsModal from "@/components/SettingsModal";
+import { useSettings } from "@/context/SettingsContext";
 
 export default function Navbar() {
   const pathname = usePathname();
   const { authUser, logout, loading } = useAuth();
+  const { settings } = useSettings();
   const [mounted, setMounted] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+
+  const contactMobile = settings?.contact_mobile || "+91 75700 99990";
+  const contactEmail = settings?.contact_email || "upha2024@gmail.com";
 
   const [notifDropdownOpen, setNotifDropdownOpen] = useState(false);
   const [notifications, setNotifications] = useState<NotificationData[]>([]);
@@ -85,11 +90,11 @@ export default function Navbar() {
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer">
                 <Phone className="w-3.5 h-3.5 text-gray-400" />
-                <span className="tracking-wide">+91 75700 99990</span>
+                <span className="tracking-wide">{contactMobile}</span>
               </div>
               <div className="flex items-center gap-1.5 hover:text-white transition-colors cursor-pointer">
                 <Mail className="w-3.5 h-3.5 text-gray-400" />
-                <span className="tracking-wide">upha2024@gmail.com</span>
+                <span className="tracking-wide">{contactEmail}</span>
               </div>
             </div>
 

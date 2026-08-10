@@ -22,6 +22,8 @@ const Twitter = (props: React.SVGProps<SVGSVGElement>) => (
 export default function Footer() {
   const { settings } = useSettings();
 
+  const address = settings?.contact_address || "K.D. Singh Babu Stadium, Lucknow\n(Branch: Chandpur, Varanasi)";
+
   return (
     <footer id="contact" className="bg-primary text-gray-400 py-16">
       <div className="max-w-7xl mx-auto px-6">
@@ -101,15 +103,17 @@ export default function Footer() {
             <ul className="space-y-4 text-sm">
               <li className="flex gap-3">
                 <MapPin className="w-5 h-5 text-accent shrink-0" />
-                <span>K.D. Singh Babu Stadium, Lucknow<br />(Branch: Chandpur, Varanasi)</span>
+                <span className="whitespace-pre-line">{address}</span>
               </li>
               <li className="flex gap-3 items-center">
                 <Phone className="w-5 h-5 text-accent shrink-0" />
-                <span>+91 75700 99990</span>
+                <span>{settings?.contact_mobile || "+91 75700 99990"}</span>
               </li>
               <li className="flex gap-3 items-center">
                 <Mail className="w-5 h-5 text-accent shrink-0" />
-                <a href="mailto:upha2024@gmail.com" className="hover:text-accent transition-colors">upha2024@gmail.com</a>
+                <a href={`mailto:${settings?.contact_email || "upha2024@gmail.com"}`} className="hover:text-accent transition-colors">
+                  {settings?.contact_email || "upha2024@gmail.com"}
+                </a>
               </li>
             </ul>
           </div>

@@ -27,6 +27,12 @@ export default function SystemSettingsPanel() {
     youtube_link: "",
   });
 
+  const [contacts, setContacts] = useState({
+    contact_email: "",
+    contact_mobile: "",
+    contact_address: "",
+  });
+
   const [qrPreview, setQrPreview] = useState<string | null>(null);
   const qrInputRef = useRef<HTMLInputElement>(null);
 
@@ -47,6 +53,11 @@ export default function SystemSettingsPanel() {
         twitter_link: settings.twitter_link || "",
         youtube_link: settings.youtube_link || "",
       });
+      setContacts({
+        contact_email: settings.contact_email || "upha2024@gmail.com",
+        contact_mobile: settings.contact_mobile || "+91 75700 99990",
+        contact_address: settings.contact_address || "K.D. Singh Babu Stadium, Lucknow\n(Branch: Chandpur, Varanasi)",
+      });
       if (settings.payment_qr_code) {
         setQrPreview(settings.payment_qr_code);
       }
@@ -66,6 +77,11 @@ export default function SystemSettingsPanel() {
   const handleSocialChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setSocialLinks((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleContactChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setContacts((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleQrChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -92,6 +108,10 @@ export default function SystemSettingsPanel() {
     formData.append("instagram_link", socialLinks.instagram_link);
     formData.append("twitter_link", socialLinks.twitter_link);
     formData.append("youtube_link", socialLinks.youtube_link);
+
+    formData.append("contact_email", contacts.contact_email);
+    formData.append("contact_mobile", contacts.contact_mobile);
+    formData.append("contact_address", contacts.contact_address);
 
     if (qrInputRef.current?.files?.[0]) {
       formData.append("payment_qr_code", qrInputRef.current.files[0]);
@@ -279,6 +299,47 @@ export default function SystemSettingsPanel() {
                     value={socialLinks.youtube_link}
                     onChange={handleSocialChange}
                     placeholder="https://youtube.com/..."
+                    className="w-full bg-gray-50 border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-accent"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-6 pt-6 border-t border-gray-100">
+              <h3 className="text-[10px] font-bold tracking-widest text-gray-400 uppercase border-b border-gray-100 pb-2">
+                Contact Information
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Contact Email</label>
+                  <input
+                    type="email"
+                    name="contact_email"
+                    value={contacts.contact_email}
+                    onChange={handleContactChange}
+                    placeholder="upha2024@gmail.com"
+                    className="w-full bg-gray-50 border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-accent"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Contact Mobile</label>
+                  <input
+                    type="text"
+                    name="contact_mobile"
+                    value={contacts.contact_mobile}
+                    onChange={handleContactChange}
+                    placeholder="+91 75700 99990"
+                    className="w-full bg-gray-50 border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-accent"
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-xs font-bold text-gray-700 uppercase mb-1">Contact Address</label>
+                  <textarea
+                    name="contact_address"
+                    value={contacts.contact_address}
+                    onChange={handleContactChange}
+                    placeholder="K.D. Singh Babu Stadium, Lucknow..."
+                    rows={3}
                     className="w-full bg-gray-50 border border-gray-200 px-3 py-2 text-sm focus:outline-none focus:border-accent"
                   />
                 </div>

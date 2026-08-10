@@ -1,6 +1,10 @@
+"use client";
+
 import Link from "next/link";
+import { useSettings } from "@/context/SettingsContext";
 
 export default function AboutSection() {
+  const { settings } = useSettings();
   return (
     <section id="about" className="py-24 px-6 max-w-7xl mx-auto">
       <div className="flex flex-col lg:flex-row gap-16 lg:gap-24">
@@ -47,13 +51,8 @@ export default function AboutSection() {
               </div>
               
               <div className="flex flex-col sm:flex-row border-b border-gray-200 p-4">
-                <div className="sm:w-1/3 text-[10px] text-gray-500 font-bold tracking-widest uppercase mb-1 sm:mb-0">HEADQUARTERS</div>
-                <div className="sm:w-2/3 font-medium text-sm">K.D. Singh Babu Stadium, Lucknow</div>
-              </div>
-              
-              <div className="flex flex-col sm:flex-row border-b border-gray-200 p-4">
-                <div className="sm:w-1/3 text-[10px] text-gray-500 font-bold tracking-widest uppercase mb-1 sm:mb-0">BRANCH OFFICE</div>
-                <div className="sm:w-2/3 font-medium text-sm">Chandpur, Varanasi</div>
+                <div className="sm:w-1/3 text-[10px] text-gray-500 font-bold tracking-widest uppercase mb-1 sm:mb-0">ADDRESS</div>
+                <div className="sm:w-2/3 font-medium text-sm whitespace-pre-line">{settings?.contact_address || "K.D. Singh Babu Stadium, Lucknow\n(Branch: Chandpur, Varanasi)"}</div>
               </div>
               
               <div className="flex flex-col sm:flex-row border-b border-gray-200 p-4">

@@ -94,16 +94,8 @@ export default function CoachCertificationSidebar() {
           <div className="flex items-start gap-3">
             <Phone className="w-3.5 h-3.5 text-accent mt-0.5" />
             <div>
-              <div className="text-[10px] font-bold tracking-widest text-primary uppercase">HEAD OFFICE (LUCKNOW)</div>
-              <div className="text-xs text-gray-500 mt-0.5">+91 98397 70123</div>
-            </div>
-          </div>
-          
-          <div className="flex items-start gap-3">
-            <Phone className="w-3.5 h-3.5 text-accent mt-0.5" />
-            <div>
-              <div className="text-[10px] font-bold tracking-widest text-primary uppercase">BRANCH (VARANASI)</div>
-              <div className="text-xs text-gray-500 mt-0.5">+91 70849 00009</div>
+              <div className="text-[10px] font-bold tracking-widest text-primary uppercase">PHONE</div>
+              <div className="text-xs text-gray-500 mt-0.5">{settings?.contact_mobile || "+91 75700 99990"}</div>
             </div>
           </div>
           
@@ -111,7 +103,7 @@ export default function CoachCertificationSidebar() {
             <Mail className="w-3.5 h-3.5 text-accent mt-0.5" />
             <div>
               <div className="text-[10px] font-bold tracking-widest text-primary uppercase">EMAIL</div>
-              <div className="text-xs text-gray-500 mt-0.5">upha2024@gmail.com</div>
+              <div className="text-xs text-gray-500 mt-0.5">{settings?.contact_email || "upha2024@gmail.com"}</div>
             </div>
           </div>
         </div>

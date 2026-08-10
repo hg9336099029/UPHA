@@ -986,7 +986,6 @@ def update_system_settings(request):
 			settings.academy_fee = int(request.POST['academy_fee'])
 		if 'district_fee' in request.POST:
 			settings.district_fee = int(request.POST['district_fee'])
-			
 		if 'facebook_link' in request.POST:
 			settings.facebook_link = request.POST['facebook_link']
 		if 'twitter_link' in request.POST:
@@ -995,6 +994,12 @@ def update_system_settings(request):
 			settings.instagram_link = request.POST['instagram_link']
 		if 'youtube_link' in request.POST:
 			settings.youtube_link = request.POST['youtube_link']
+		if 'contact_email' in request.POST:
+			settings.contact_email = request.POST['contact_email']
+		if 'contact_mobile' in request.POST:
+			settings.contact_mobile = request.POST['contact_mobile']
+		if 'contact_address' in request.POST:
+			settings.contact_address = request.POST['contact_address']
 			
 		# Handle QR code upload
 		if 'payment_qr_code' in request.FILES:
