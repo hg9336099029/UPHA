@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { LayoutDashboard, ChevronDown, LogOut, User, Phone, Mail, Key, Bell, ShieldCheck } from "lucide-react";
+import { LayoutDashboard, ChevronDown, LogOut, User, Phone, Mail, Key, Bell, ShieldCheck, Menu, X } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
@@ -17,6 +17,7 @@ export default function Navbar() {
   const [mounted, setMounted] = useState(false);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   const contactMobile = settings?.contact_mobile || "+91 75700 99990";
@@ -78,6 +79,17 @@ export default function Navbar() {
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Close mobile menu on resize to larger screens
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 768) {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, []);
 
   return (
@@ -147,7 +159,7 @@ export default function Navbar() {
             </nav>
 
             {/* CTA / User actions */}
-            <div className="hidden sm:flex items-center gap-3">
+            <div className="hidden md:flex items-center gap-3">
               {!mounted || loading ? (
                 <div className="w-[140px] h-[36px] bg-gray-200 animate-pulse rounded-sm"></div>
               ) : authUser ? (
@@ -300,8 +312,117 @@ export default function Navbar() {
                 </Link>
               )}
             </div>
+
+            {/* Mobile Menu Toggle */}
+            <div className="md:hidden flex items-center gap-3">
+              {/* Notifications for mobile */}
+              {authUser && (
+                <div className="relative" ref={notifRef}>
+                  <button
+                    type="button"
+                    onClick={() => setNotifDropdownOpen((o) => !o)}
+                    className="relative border border-gray-200 rounded-full w-9 h-9 flex items-center justify-center text-primary hover:bg-gray-50 transition-colors"
+                  >
+                    <Bell className="w-4 h-4" />
+                    {unreadCount > 0 && (
+                      <span className="absolute top-[8px] right-[8px] w-2 h-2 bg-accent rounded-full border-[1.5px] border-white box-content"></span>
+                    )}
+                  </button>
+                  {notifDropdownOpen && (
+                    <div className="absolute right-0 mt-2 w-72 bg-white border border-gray-100 rounded-sm shadow-lg overflow-hidden z-50">
+                      <div className="px-4 py-3 border-b border-gray-100 bg-gray-50 text-xs font-bold uppercase tracking-widest text-primary">
+                        Notifications
+                      </div>
+                      <div className="max-h-80 overflow-y-auto">
+                        {notifications.length === 0 ? (
+                          <div className="px-4 py-6 text-center text-sm text-gray-500">
+                            No new notifications
+                          </div>
+                        ) : (
+                          notifications.map(notif => (
+                            <div
+                              key={notif.id}
+                              onClick={() => handleNotificationClick(notif)}
+                              className={`px-4 py-3 border-b border-gray-50 cursor-pointer transition-colors ${notif.is_read ? 'opacity-60 bg-white hover:bg-gray-50' : 'bg-orange-50 hover:bg-orange-100'}`}
+                            >
+                              <div className="text-sm font-semibold text-primary mb-1">{notif.title}</div>
+                              <div className="text-xs text-gray-600 line-clamp-2">{notif.message}</div>
+                              <div className="text-[10px] text-gray-400 mt-2">
+                                {new Date(notif.created_at).toLocaleDateString()}
+                              </div>
+                            </div>
+                          ))
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              <button
+                type="button"
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="text-primary p-1 focus:outline-none"
+              >
+                {mobileMenuOpen ? <X className="w-7 h-7" /> : <Menu className="w-7 h-7" />}
+              </button>
+            </div>
           </div>
         </div>
+
+        {/* Mobile Menu */}
+        {mobileMenuOpen && (
+          <div className="md:hidden bg-white border-b border-gray-100 shadow-sm absolute w-full left-0 z-40">
+            <div className="flex flex-col px-6 py-4 space-y-4 text-sm font-semibold text-primary">
+              <Link href="/" className={getNavClass("/")} onClick={() => setMobileMenuOpen(false)}>Home</Link>
+              <Link href="/about" className={getNavClass("/about")} onClick={() => setMobileMenuOpen(false)}>About</Link>
+              <Link href="/calendar" className={getNavClass("/calendar")} onClick={() => setMobileMenuOpen(false)}>Events</Link>
+              <Link href="/database" className={getNavClass("/database")} onClick={() => setMobileMenuOpen(false)}>Database</Link>
+              <Link href="/achievements" className={getNavClass("/achievements")} onClick={() => setMobileMenuOpen(false)}>Achievements</Link>
+              <Link href="/gallery" className={getNavClass("/gallery")} onClick={() => setMobileMenuOpen(false)}>Gallery</Link>
+              <Link href="/agm" className={getNavClass("/agm")} onClick={() => setMobileMenuOpen(false)}>AGM</Link>
+              <Link href="/more-links" className={getNavClass("/more-links")} onClick={() => setMobileMenuOpen(false)}>More Links</Link>
+              <Link href="/#contact" className={getNavClass("/#contact")} onClick={() => setMobileMenuOpen(false)}>Contact</Link>
+              
+              <div className="border-t border-gray-100 pt-4 mt-2">
+                {!mounted || loading ? (
+                  <div className="w-full h-8 bg-gray-200 animate-pulse rounded-sm"></div>
+                ) : authUser ? (
+                  <div className="flex flex-col space-y-4">
+                    <div className="text-xs font-bold text-gray-400 uppercase tracking-widest">
+                      Logged in as <span className="text-primary">{authUser.name || authUser.email}</span>
+                    </div>
+                    {authUser.role === "admin" && (
+                      <Link href="/dashboard/admin" onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 hover:text-accent">
+                        <ShieldCheck className="w-4 h-4" /> Admin Dashboard
+                      </Link>
+                    )}
+                    {authUser.role !== "admin" && (
+                      <Link href={dashboardPath} onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-3 hover:text-accent">
+                        <LayoutDashboard className="w-4 h-4" /> My Dashboard
+                      </Link>
+                    )}
+                    <button onClick={() => { setMobileMenuOpen(false); setSettingsOpen(true); }} className="flex items-center gap-3 text-left hover:text-accent">
+                      <Key className="w-4 h-4" /> Account Settings
+                    </button>
+                    <button onClick={() => { setMobileMenuOpen(false); logout(); }} className="flex items-center gap-3 text-left text-red-500 hover:text-red-600">
+                      <LogOut className="w-4 h-4" /> Logout
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex flex-col space-y-3">
+                    <Link href="/login" onClick={() => setMobileMenuOpen(false)} className="font-bold flex items-center justify-center gap-2 border border-gray-200 py-2.5 rounded-sm hover:bg-gray-50">
+                      <LogOut className="w-4 h-4 rotate-180" /> Login
+                    </Link>
+                    <Link href="/register" onClick={() => setMobileMenuOpen(false)} className="bg-accent text-white text-center py-2.5 rounded-sm font-bold uppercase tracking-widest">
+                      Register Now
+                    </Link>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
       </header>
 
       {/* Settings Modal */}

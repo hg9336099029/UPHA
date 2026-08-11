@@ -17,7 +17,6 @@ export default function LoginPage() {
   const [serverWarm, setServerWarm] = useState(false);
   const [serverChecking, setServerChecking] = useState(true);
   const pingRef = useRef(false);
-
   // ── Pre-warm the backend server on page load ─────────────────────────────────
   // Render free-tier services spin down after 15 min of inactivity and take
   // 7–30 seconds to wake up. We fire a lightweight ping immediately so the
@@ -47,7 +46,6 @@ export default function LoginPage() {
       clearTimeout(timeout);
     };
   }, []);
-
   // Redirect already-logged-in users to their dashboard
   useEffect(() => {
     if (!loading && authUser) {
@@ -106,7 +104,6 @@ export default function LoginPage() {
 
         {/* Card */}
         <div className="bg-white border border-gray-200 shadow-sm rounded-sm p-8">
-
           {/* Server warm-up status */}
           {serverChecking && (
             <div className="mb-5 flex items-center gap-2 bg-amber-50 border border-amber-200 text-amber-700 px-4 py-3 rounded-sm text-xs">
@@ -117,7 +114,6 @@ export default function LoginPage() {
               Connecting to server… this may take a few seconds on first load.
             </div>
           )}
-
           {error && (
             <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-sm text-sm">
               {error}
