@@ -6,9 +6,9 @@ export default function CTABanner() {
     <section className="py-16 px-6 max-w-7xl mx-auto">
       <div className="bg-[#cd8562] rounded-md overflow-hidden flex flex-col lg:flex-row">
         {/* Left Side: Graphic */}
-        <div className="lg:w-1/2 p-8 lg:p-12 relative flex items-center justify-center min-h-[400px]">
-          <div className="bg-[#fdfaf5] w-full max-w-md rounded-sm shadow-xl p-4 relative flex flex-col items-center justify-center overflow-hidden border border-gray-200">
-            <Image src="/handball-ground.png" alt="Handball Ground Schematic" width={600} height={600} className="w-full h-auto object-contain" />
+        <div className="lg:w-1/2 p-8 lg:p-12 relative flex items-center justify-center min-h-[400px] min-w-0">
+          <div className="bg-[#fdfaf5] w-full max-w-md rounded-sm shadow-xl p-4 relative flex flex-col items-center justify-center overflow-hidden border border-gray-200 min-w-0">
+            <Image src="/handball-ground.png" alt="Handball Ground Schematic" width={600} height={600} className="w-full h-auto object-contain min-w-0" />
           </div>
         </div>
 

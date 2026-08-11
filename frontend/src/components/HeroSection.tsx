@@ -62,10 +62,10 @@ export default function HeroSection() {
         </div>
 
         {/* Right Content / Graphic */}
-        <div className="w-full lg:w-1/2 mt-8 lg:mt-0 relative flex justify-center lg:justify-end opacity-90 z-10">
+        <div className="w-full lg:w-1/2 mt-8 lg:mt-0 relative flex justify-center lg:justify-end opacity-90 z-10 min-w-0">
           {/* Abstract silhouette of handball player */}
-          <div className="relative w-full max-w-xl lg:max-w-2xl flex justify-center lg:justify-end items-end">
-            <Image src="/hero-section.png" alt="Handball Player Silhouette" width={800} height={800} className="object-contain object-bottom w-full h-auto max-h-[500px] lg:max-h-[750px]" priority />
+          <div className="relative w-full max-w-xl lg:max-w-2xl flex justify-center lg:justify-end items-end min-w-0">
+            <Image src="/hero-section.png" alt="Handball Player Silhouette" width={800} height={800} className="object-contain object-bottom w-full h-auto max-h-[500px] lg:max-h-[750px] min-w-0" priority />
           </div>
         </div>
       </div>

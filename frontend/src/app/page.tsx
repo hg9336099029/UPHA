@@ -10,7 +10,7 @@ import CTABanner from "@/components/CTABanner";
 
 export default function Home() {
   return (
-    <main className="flex-1 bg-background text-foreground flex flex-col">
+    <main className="flex-1 bg-background text-foreground flex flex-col min-w-0 overflow-hidden">
 
       <HeroSection />
       <StatsBanner />
