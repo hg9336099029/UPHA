@@ -2,7 +2,7 @@
 
 import { UploadCloud, Check } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
-import { listEvents, EventData, createAlbum } from "@/lib/api";
+import { listEvents, EventData, createAlbum, listAlbums, deleteAlbum, AlbumData } from "@/lib/api";
 
 export default function UploadGalleryModal() {
   const [loading, setLoading] = useState(false);
@@ -23,6 +23,18 @@ export default function UploadGalleryModal() {
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const [albums, setAlbums] = useState<AlbumData[]>([]);
+  const [deleting, setDeleting] = useState<number | null>(null);
+
+  const fetchAlbums = async () => {
+    try {
+      const res = await listAlbums();
+      if (res.success) setAlbums(res.albums);
+    } catch (e) {
+      console.error("Failed to load albums", e);
+    }
+  };
+
   useEffect(() => {
     async function fetchEvents() {
       try {
@@ -35,6 +47,7 @@ export default function UploadGalleryModal() {
       }
     }
     fetchEvents();
+    fetchAlbums();
   }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -101,11 +114,28 @@ export default function UploadGalleryModal() {
         setPhotos([]);
         setPhotoPreviews([]);
         setCoverIndex(0);
+        fetchAlbums();
       }
     } catch (error: any) {
       alert(error.message || "Failed to publish album.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDelete = async (albumId: number, title: string) => {
+    if (!window.confirm(`Are you sure you want to delete the album "${title}"?`)) return;
+    setDeleting(albumId);
+    try {
+      const res = await deleteAlbum(albumId);
+      if (res.success) {
+        alert("Album deleted successfully.");
+        fetchAlbums();
+      }
+    } catch (err: any) {
+      alert(err?.message || "Failed to delete album.");
+    } finally {
+      setDeleting(null);
     }
   };
 
@@ -367,6 +397,54 @@ export default function UploadGalleryModal() {
           </div>
         </div>
       </form>
+
+      {/* RECENT ALBUMS (DELETE SECTION) */}
+      <div className="p-8 border-t border-gray-100 bg-[#fcfbf9] rounded-b-sm">
+        <div className="flex items-center gap-2 mb-6 border-b border-dashed border-gray-200 pb-3">
+          <span className="text-[10px] font-bold text-[#d97c55] font-mono">04</span>
+          <h3 className="text-xs font-bold tracking-widest uppercase text-[#111827]">
+            PUBLISHED ALBUMS
+          </h3>
+        </div>
+        
+        <div className="space-y-3">
+          {albums.length === 0 ? (
+            <div className="text-center py-6 text-gray-400 text-xs border border-dashed border-gray-200 rounded">
+              No albums have been published yet.
+            </div>
+          ) : (
+            albums.map((album) => (
+              <div key={album.id} className="flex justify-between items-center bg-white p-4 border border-gray-200 rounded shadow-sm">
+                <div className="flex items-center gap-4">
+                  {album.cover_photo && (
+                    <div 
+                      className="w-12 h-12 rounded bg-gray-200"
+                      style={{ backgroundImage: `url(${album.cover_photo})`, backgroundSize: 'cover', backgroundPosition: 'center' }}
+                    />
+                  )}
+                  {!album.cover_photo && album.youtube_link && (
+                    <div className="w-12 h-12 rounded bg-gray-200 flex items-center justify-center text-red-500">
+                      ▶
+                    </div>
+                  )}
+                  <div>
+                    <div className="font-bold text-sm text-[#111827]">{album.title}</div>
+                    <div className="text-xs text-gray-500">{album.category} &middot; {album.photo_count > 0 ? `${album.photo_count} photos` : "Video"}</div>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(album.id, album.title)}
+                  disabled={deleting === album.id}
+                  className="border border-red-200 text-red-500 hover:bg-red-50 disabled:opacity-50 px-4 py-2 rounded text-[10px] font-bold tracking-widest uppercase transition-colors"
+                >
+                  {deleting === album.id ? "DELETING..." : "DELETE"}
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
     </div>
   );
 }

@@ -316,7 +316,7 @@ export default function Navbar() {
             {/* Mobile Menu Toggle */}
             <div className="md:hidden flex items-center gap-3">
               {/* Notifications for mobile */}
-              {authUser && (
+              {mounted && authUser && (
                 <div className="relative" ref={notifRef}>
                   <button
                     type="button"

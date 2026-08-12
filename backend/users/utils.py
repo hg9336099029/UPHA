@@ -236,6 +236,7 @@ def serialize_event(request, event):
         'registration_end_date': event.registration_end_date,
         'category': event.category,
         'created_at': event.created_at,
+        'has_tournament_result': hasattr(event, 'result'),
         'results': [serialize_event_result(request, result) for result in results],
     }
 

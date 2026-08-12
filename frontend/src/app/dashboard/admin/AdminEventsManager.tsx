@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Plus, Trash2, Trophy } from "lucide-react";
+import { Plus, Trash2, Trophy, X } from "lucide-react";
 import {
   listEvents,
   createEvent,
   deleteEvent,
   addEventResult,
+  deleteEventResult,
   listPlayers,
   EventData,
   PlayerData,
@@ -107,6 +108,23 @@ export default function AdminEventsManager() {
       showToast(`Error: ${err instanceof Error ? err.message : "Could not add result"}`);
     } finally {
       setAddingResult(false);
+    }
+  }
+
+  async function handleDeleteResult(eventId: number, resultId: number) {
+    if (!window.confirm("Delete this result?")) return;
+    try {
+      await deleteEventResult(eventId, resultId);
+      setEvents((prev) =>
+        prev.map((ev) =>
+          ev.id === eventId
+            ? { ...ev, results: ev.results.filter((r) => r.id !== resultId) }
+            : ev
+        )
+      );
+      showToast("Result deleted.");
+    } catch (err) {
+      showToast(`Error: ${err instanceof Error ? err.message : "Could not delete result"}`);
     }
   }
 
@@ -267,9 +285,16 @@ export default function AdminEventsManager() {
                   </td>
                   <td className="py-4 px-6">
                     <div className="text-sm text-gray-700">{event.results.length} result{event.results.length !== 1 ? "s" : ""}</div>
-                    {event.results.slice(0, 2).map((r) => (
-                      <div key={r.id} className="text-[10px] text-gray-400 font-mono">
-                        #{r.position} {r.player.user.name}
+                    {event.results.map((r) => (
+                      <div key={r.id} className="text-[10px] text-gray-400 font-mono flex items-center justify-between group">
+                        <span>#{r.position} {r.player.user.name}</span>
+                        <button
+                          onClick={() => handleDeleteResult(event.id, r.id)}
+                          className="opacity-0 group-hover:opacity-100 text-red-500 hover:text-red-700 ml-2 transition-opacity"
+                          title="Delete Result"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
                       </div>
                     ))}
                   </td>

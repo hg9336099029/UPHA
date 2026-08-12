@@ -76,6 +76,11 @@ def create_event(request):
 @csrf_exempt
 @require_http_methods(['POST'])
 def delete_event(request, event_id):
+	from users.utils import admin_required_response
+	guard = admin_required_response(request)
+	if guard:
+		return guard
+
 	event = get_object_or_404(Event, pk=event_id)
 	event.delete()
 	return json_success('Event deleted successfully.')
@@ -172,3 +177,37 @@ def upload_tournament_results(request, event_id):
 		event_name=event.name,
 		standings_saved=TournamentStanding.objects.filter(event=event).count(),
 	)
+
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def delete_event_result(request, event_id, result_id):
+	from users.utils import admin_required_response
+	guard = admin_required_response(request)
+	if guard:
+		return guard
+
+	event = get_object_or_404(Event, pk=event_id)
+	result = get_object_or_404(EventResults, pk=result_id, event=event)
+	result.delete()
+	return json_success('Event result deleted successfully.')
+
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def delete_tournament_result(request, event_id):
+	from users.utils import admin_required_response
+	guard = admin_required_response(request)
+	if guard:
+		return guard
+
+	event = get_object_or_404(Event, pk=event_id)
+	
+	try:
+		if hasattr(event, 'result'):
+			event.result.delete()
+		TournamentStanding.objects.filter(event=event).delete()
+	except Exception as exc:
+		return json_error(str(exc))
+
+	return json_success('Tournament result deleted successfully.')

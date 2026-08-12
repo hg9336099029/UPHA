@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { CreateEventPayload } from "@/lib/api";
+import { useEffect, useState } from "react";
+import { CreateEventPayload, EventData, listEvents, deleteEvent } from "@/lib/api";
 
 const UP_DISTRICTS = [
   "Agra", "Aligarh", "Ambedkar Nagar", "Amethi", "Amroha", "Auraiya", "Ayodhya", "Azamgarh", "Baghpat", "Bahraich",
@@ -36,7 +36,40 @@ export default function CreateEventModal({
     const finalForm = { ...form, category: `${eventType} - ${form.category}` };
     await onSubmit(finalForm);
     setLoading(false);
+    fetchEvents();
   }
+
+  const [events, setEvents] = useState<EventData[]>([]);
+  const [deleting, setDeleting] = useState<number | null>(null);
+
+  const fetchEvents = async () => {
+    try {
+      const res = await listEvents();
+      if (res.success) setEvents(res.events);
+    } catch (e) {
+      console.error("Failed to load events", e);
+    }
+  };
+
+  useEffect(() => {
+    fetchEvents();
+  }, []);
+
+  const handleDelete = async (eventId: number, eventName: string) => {
+    if (!window.confirm(`Are you sure you want to delete the event "${eventName}"? This cannot be undone.`)) return;
+    setDeleting(eventId);
+    try {
+      const res = await deleteEvent(eventId);
+      if (res.success) {
+        alert("Event deleted successfully.");
+        fetchEvents();
+      }
+    } catch (err: any) {
+      alert(err?.message || "Failed to delete event.");
+    } finally {
+      setDeleting(null);
+    }
+  };
 
   return (
     <div className="bg-white w-full rounded shadow-sm border border-gray-200 relative mb-12">
@@ -219,6 +252,42 @@ export default function CreateEventModal({
           </div>
         </div>
       </form>
+
+      {/* 04 PUBLISHED EVENTS (DELETE SECTION) */}
+      <div className="p-6 border-t border-gray-100 bg-[#fcfbf9] rounded-b">
+        <div className="flex items-center gap-2 mb-4 pb-2 border-b border-dashed border-gray-200">
+          <span className="text-[10px] font-bold text-[#d97c55]">04</span>
+          <h3 className="text-xs font-bold tracking-widest uppercase text-[#111827]">
+            PUBLISHED EVENTS
+          </h3>
+        </div>
+        
+        <div className="space-y-3">
+          {events.length === 0 ? (
+            <div className="text-center py-6 text-gray-400 text-xs border border-dashed border-gray-200 rounded">
+              No events have been published yet.
+            </div>
+          ) : (
+            events.map((ev) => (
+              <div key={ev.id} className="flex justify-between items-center bg-white p-4 border border-gray-200 rounded shadow-sm">
+                <div>
+                  <div className="font-bold text-sm text-[#111827]">{ev.name}</div>
+                  <div className="text-xs text-gray-500">{ev.location} &middot; {ev.category.toUpperCase()}</div>
+                  <div className="text-[10px] text-gray-400 mt-1">{ev.start_date} to {ev.end_date}</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(ev.id, ev.name)}
+                  disabled={deleting === ev.id}
+                  className="border border-red-200 text-red-500 hover:bg-red-50 disabled:opacity-50 px-4 py-2 rounded text-[10px] font-bold tracking-widest uppercase transition-colors"
+                >
+                  {deleting === ev.id ? "DELETING..." : "DELETE EVENT"}
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
     </div>
   );
 }

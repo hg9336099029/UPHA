@@ -179,3 +179,15 @@ def create_album(request):
         )
 
     return json_success('Album created successfully.', album=serialize_album(request, album))
+
+
+@csrf_exempt
+@require_http_methods(['POST'])
+def delete_album(request, album_id):
+    admin_response = admin_required_response(request)
+    if admin_response:
+        return admin_response
+
+    album = get_object_or_404(GalleryAlbum, pk=album_id)
+    album.delete()
+    return json_success('Album deleted successfully.')

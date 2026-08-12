@@ -131,6 +131,7 @@ export interface EventData {
   registration_end_date: string;
   category: string;
   created_at: string;
+  has_tournament_result?: boolean;
   results: EventResultData[];
 }
 
@@ -547,17 +548,31 @@ export interface AddEventResultPayload {
   position: number;
 }
 
-export async function addEventResult(
-  eventId: number | string,
-  payload: AddEventResultPayload
-) {
+export async function addEventResult(eventId: number, payload: { player_id: number; position: number }) {
   return apiFetch<{ success: boolean; message: string; result: EventResultData }>(
     `${ADMIN_BASE}/events/${eventId}/results/`,
-    { method: "POST", body: JSON.stringify(payload) }
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    }
   );
 }
 
-// ΓöÇΓöÇΓöÇ Albums ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+export async function deleteEventResult(eventId: number, resultId: number) {
+  return apiFetch<{ success: boolean; message: string }>(
+    `${ADMIN_BASE}/events/${eventId}/results/${resultId}/delete/`,
+    { method: "POST" }
+  );
+}
+
+export async function deleteTournamentResult(eventId: number) {
+  return apiFetch<{ success: boolean; message: string }>(
+    `${ADMIN_BASE}/events/${eventId}/upload-results/delete/`,
+    { method: "POST" }
+  );
+}
+
+// ─── Albums ──────────────────────────────────────────────────────────────────
 
 export interface AlbumData {
   id: number;
@@ -583,6 +598,13 @@ export async function createAlbum(formData: FormData) {
   return multipartApiFetch<{ success: boolean; message: string; album: AlbumData }>(
     `${API_BASE}/gallery/albums/create/`,
     formData
+  );
+}
+
+export async function deleteAlbum(albumId: number) {
+  return apiFetch<{ success: boolean; message: string }>(
+    `${ADMIN_BASE}/gallery/albums/${albumId}/delete/`,
+    { method: "POST" }
   );
 }
 

@@ -2,7 +2,7 @@
 
 import { X, Upload, FileText, CheckCircle, AlertCircle } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
-import { EventData, listEvents, uploadTournamentResults } from "@/lib/api";
+import { EventData, listEvents, uploadTournamentResults, deleteTournamentResult } from "@/lib/api";
 
 export default function UploadResultsModal() {
   const [loading, setLoading] = useState(false);
@@ -28,10 +28,16 @@ export default function UploadResultsModal() {
   const bestGoalkeeperRef = useRef<HTMLInputElement>(null);
   const mostPromisingJuniorRef = useRef<HTMLInputElement>(null);
 
-  useEffect(() => {
+  const [deleting, setDeleting] = useState<number | null>(null);
+
+  const fetchEvents = () => {
     listEvents().then((res) => {
       if (res.success) setEvents(res.events);
     });
+  };
+
+  useEffect(() => {
+    fetchEvents();
   }, []);
 
   async function handleSubmit(e: React.FormEvent) {
@@ -74,10 +80,27 @@ export default function UploadResultsModal() {
       if (bestPlayerRef.current) bestPlayerRef.current.value = "";
       if (bestGoalkeeperRef.current) bestGoalkeeperRef.current.value = "";
       if (mostPromisingJuniorRef.current) mostPromisingJuniorRef.current.value = "";
+      fetchEvents();
     } catch (err: any) {
       setErrorMsg(err?.message || "Something went wrong. Please try again.");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleDelete(eventId: number, eventName: string) {
+    if (!window.confirm(`Are you sure you want to delete the uploaded results for "${eventName}"?`)) return;
+    setDeleting(eventId);
+    try {
+      const res = await deleteTournamentResult(eventId);
+      if (res.success) {
+        setSuccessMsg(`Results for "${eventName}" deleted successfully.`);
+        fetchEvents();
+      }
+    } catch (err: any) {
+      setErrorMsg(err?.message || "Failed to delete results.");
+    } finally {
+      setDeleting(null);
     }
   }
 
@@ -445,6 +468,41 @@ export default function UploadResultsModal() {
           </div>
         </div>
       </form>
+
+      {/* 05 PUBLISHED RESULTS (DELETE SECTION) */}
+      <div className="p-6 border-t border-gray-100 bg-[#fcfbf9] rounded-b">
+        <div className="flex items-center gap-2 mb-4 pb-2 border-b border-dashed border-gray-200">
+          <span className="text-[10px] font-bold text-[#d97c55]">05</span>
+          <h3 className="text-xs font-bold tracking-widest uppercase text-[#111827]">
+            PUBLISHED RESULTS
+          </h3>
+        </div>
+        
+        <div className="space-y-3">
+          {events.filter(ev => ev.has_tournament_result).length === 0 ? (
+            <div className="text-center py-6 text-gray-400 text-xs border border-dashed border-gray-200 rounded">
+              No tournament results have been published yet.
+            </div>
+          ) : (
+            events.filter(ev => ev.has_tournament_result).map(ev => (
+              <div key={ev.id} className="flex justify-between items-center bg-white p-4 border border-gray-200 rounded shadow-sm">
+                <div>
+                  <div className="font-bold text-sm text-[#111827]">{ev.name}</div>
+                  <div className="text-xs text-gray-500">{ev.location} &middot; {ev.category.toUpperCase()}</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => handleDelete(ev.id, ev.name)}
+                  disabled={deleting === ev.id}
+                  className="border border-red-200 text-red-500 hover:bg-red-50 disabled:opacity-50 px-4 py-2 rounded text-[10px] font-bold tracking-widest uppercase transition-colors"
+                >
+                  {deleting === ev.id ? "DELETING..." : "DELETE RESULTS"}
+                </button>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
     </div>
   );
 }
