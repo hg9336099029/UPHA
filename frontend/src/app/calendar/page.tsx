@@ -85,7 +85,7 @@ export default function CalendarPage() {
             EVENTS <span className="text-[#d97c55]">CALENDAR</span>
           </h1>
           <p className="text-gray-400 font-serif italic text-lg max-w-2xl mb-12">
-            The complete schedule for upcoming selections, district trials, state championships, and federation meetings.
+            The complete schedule for upcoming selections, district trials, state championships, and association meetings.
           </p>
 
           <div className="flex flex-wrap gap-12 border-t border-gray-800 pt-8">

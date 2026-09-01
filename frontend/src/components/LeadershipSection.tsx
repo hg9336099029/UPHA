@@ -69,8 +69,8 @@ export default function LeadershipSection() {
                       <div className="text-accent text-[10px] font-bold tracking-widest uppercase mb-1">{leader.role}</div>
                       <h3 className="font-heading text-lg font-bold uppercase tracking-wide leading-tight mb-4">{leader.name}</h3>
                     </div>
-                    <div className="text-gray-500 text-xs opacity-0">
-                      &nbsp;
+                    <div className="text-[9px] font-mono tracking-widest text-gray-400 uppercase mt-auto pt-3 border-t border-gray-100">
+                      Term: {leader.term || '2023 - 2027'}
                     </div>
                   </div>
                 </div>

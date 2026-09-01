@@ -345,6 +345,7 @@ export interface OfficeBearerData {
   role: string;
   image: string | null;
   order: number;
+  term: string;
 }
 
 export async function listOfficeBearers() {

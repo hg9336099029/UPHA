@@ -41,7 +41,7 @@ export default function AboutSection() {
             
             <div className="bg-primary text-white p-4 flex items-center gap-3">
                <span className="w-2 h-2 rounded-full bg-accent"></span>
-               <h3 className="font-heading text-sm tracking-widest uppercase font-bold">FEDERATION PROFILE</h3>
+               <h3 className="font-heading text-sm tracking-widest uppercase font-bold">ASSOCIATION PROFILE</h3>
             </div>
             
             <div className="bg-[#fcfbf9]">
@@ -57,7 +57,7 @@ export default function AboutSection() {
               
               <div className="flex flex-col sm:flex-row border-b border-gray-200 p-4">
                 <div className="sm:w-1/3 text-[10px] text-gray-500 font-bold tracking-widest uppercase mb-1 sm:mb-0">JURISDICTION</div>
-                <div className="sm:w-2/3 font-medium text-sm">State of Uttar Pradesh</div>
+                <div className="sm:w-2/3 font-medium text-sm">State of Uttar Pradesh -- Affiliated to Sports Directorate, Govt of Uttar Pradesh</div>
               </div>
               
               <div className="flex flex-col sm:flex-row border-b border-gray-200 p-4">

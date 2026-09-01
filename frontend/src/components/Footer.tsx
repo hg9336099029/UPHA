@@ -75,7 +75,7 @@ export default function Footer() {
 
           {/* Federation Links */}
           <div>
-            <h4 className="text-white font-heading text-lg font-bold tracking-widest uppercase mb-6">FEDERATION</h4>
+            <h4 className="text-white font-heading text-lg font-bold tracking-widest uppercase mb-6">ASSOCIATION</h4>
             <ul className="space-y-4 text-sm">
               <li><Link href="/#about" className="hover:text-accent transition-colors">About UPHA</Link></li>
               <li><Link href="/council" className="hover:text-accent transition-colors">Office Bearers</Link></li>

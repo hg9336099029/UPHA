@@ -47,7 +47,7 @@ export default function AchievementsPage() {
           </div>
 
           <h1 className="font-heading text-5xl md:text-7xl font-bold uppercase tracking-wide text-white mb-6">
-            FEDERATION <span className="text-[#d97c55]">ACHIEVEMENTS</span>
+            ASSOCIATION <span className="text-[#d97c55]">ACHIEVEMENTS</span>
           </h1>
 
           <p className="text-gray-400 font-serif italic text-xl md:text-2xl max-w-3xl leading-relaxed">

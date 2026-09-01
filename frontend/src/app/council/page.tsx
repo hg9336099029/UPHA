@@ -121,6 +121,9 @@ export default function CouncilPage() {
                             {member.name}
                           </h3>
                         </div>
+                        <div className="text-[9px] font-mono tracking-widest text-gray-400 uppercase mt-auto pt-3 border-t border-gray-100">
+                          Term: {member.term || '2023 - 2027'}
+                        </div>
                       </div>
                     </div>
                   ))}

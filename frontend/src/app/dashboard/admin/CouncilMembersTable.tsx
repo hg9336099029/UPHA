@@ -15,6 +15,7 @@ export default function CouncilMembersTable() {
   const [name, setName] = useState("");
   const [role, setRole] = useState("");
   const [order, setOrder] = useState("0");
+  const [term, setTerm] = useState("2023 - 2027");
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -51,6 +52,7 @@ export default function CouncilMembersTable() {
       setName(member.name);
       setRole(member.role);
       setOrder(member.order.toString());
+      setTerm(member.term || "2023 - 2027");
       setImagePreview(member.image);
       setImageFile(null);
     } else {
@@ -58,6 +60,7 @@ export default function CouncilMembersTable() {
       setName("");
       setRole("");
       setOrder("0");
+      setTerm("2023 - 2027");
       setImagePreview(null);
       setImageFile(null);
     }
@@ -89,6 +92,7 @@ export default function CouncilMembersTable() {
       formData.append("name", name);
       formData.append("role", role);
       formData.append("order", order);
+      formData.append("term", term);
       if (imageFile) {
         formData.append("image", imageFile);
       }
@@ -167,6 +171,7 @@ export default function CouncilMembersTable() {
                   <th className="p-4">Name</th>
                   <th className="p-4">Role</th>
                   <th className="p-4 w-24">Order</th>
+                  <th className="p-4">Term</th>
                   <th className="p-4 pr-6 w-32 text-right">Actions</th>
                 </tr>
               </thead>
@@ -186,6 +191,7 @@ export default function CouncilMembersTable() {
                     <td className="p-4 font-bold text-gray-800">{member.name}</td>
                     <td className="p-4 text-gray-600">{member.role}</td>
                     <td className="p-4 text-gray-500 font-mono">{member.order}</td>
+                    <td className="p-4 text-gray-500 font-mono text-xs">{member.term || '2023 - 2027'}</td>
                     <td className="p-4 pr-6 text-right">
                       <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
                         <button
@@ -268,6 +274,18 @@ export default function CouncilMembersTable() {
                     placeholder="0"
                   />
                   <p className="text-[9px] text-gray-400 mt-1">Lower numbers appear first</p>
+                </div>
+
+                <div>
+                  <label className="block text-[10px] font-bold tracking-widest text-gray-500 uppercase mb-2">TERM *</label>
+                  <input
+                    type="text"
+                    required
+                    value={term}
+                    onChange={(e) => setTerm(e.target.value)}
+                    className="w-full border border-gray-200 rounded-sm p-3 text-sm focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition"
+                    placeholder="e.g. 2023 - 2027"
+                  />
                 </div>
 
                 <div className="col-span-2">

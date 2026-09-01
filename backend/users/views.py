@@ -707,7 +707,8 @@ def list_office_bearers(request):
 				'name': b.name,
 				'role': b.role,
 				'image': image_url(request, b.image) if b.image else None,
-				'order': b.order
+				'order': b.order,
+				'term': b.term
 			})
 		return json_success('Office bearers retrieved successfully.', office_bearers=bearer_list)
 	except Exception as e:
@@ -847,6 +848,7 @@ def manage_office_bearers(request):
 			name = request.POST.get('name')
 			role = request.POST.get('role')
 			order = request.POST.get('order', 0)
+			term = request.POST.get('term', '2023 - 2027')
 			image = request.FILES.get('image')
 			
 			if not name or not role:
@@ -858,6 +860,7 @@ def manage_office_bearers(request):
 				bearer.name = name
 				bearer.role = role
 				bearer.order = int(order)
+				bearer.term = term
 				if image:
 					bearer.image = image
 				bearer.save()
@@ -868,6 +871,7 @@ def manage_office_bearers(request):
 					name=name,
 					role=role,
 					order=int(order),
+					term=term,
 					image=image
 				)
 				return json_success('Office bearer added successfully.', bearer={
@@ -875,6 +879,7 @@ def manage_office_bearers(request):
 					'name': bearer.name,
 					'role': bearer.role,
 					'order': bearer.order,
+					'term': bearer.term,
 					'image': image_url(request, bearer.image) if bearer.image else None
 				})
 

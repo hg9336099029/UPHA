@@ -135,6 +135,7 @@ class OfficeBearer(models.Model):
     role = models.CharField(max_length=255)
     image = models.ImageField(upload_to='office_bearers/', null=True, blank=True)
     order = models.IntegerField(default=0)
+    term = models.CharField(max_length=50, blank=True, default='2023 - 2027')
     
     class Meta:
         ordering = ['order']

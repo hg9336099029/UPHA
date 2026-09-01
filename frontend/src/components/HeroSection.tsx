@@ -41,10 +41,10 @@ export default function HeroSection() {
           <div className="w-full max-w-lg h-[1px] bg-white/10 mt-8 mb-6"></div>
 
           {/* Affiliations */}
-          <div className="flex items-start gap-12">
+          <div className="flex items-start gap-4 lg:gap-6 w-full">
             <div>
               <div className="text-[10px] text-gray-500 font-bold tracking-widest uppercase mb-3">AFFILIATED WITH</div>
-              <div className="font-bold text-sm">Handball Association India</div>
+              <div className="font-bold text-sm whitespace-nowrap">Handball Association India</div>
               {/* HAI Logo */}
               <div className="mt-2 text-accent text-xl font-heading flex items-center gap-2">
                 <Image src="/HAI.png" alt="HAI Logo" width={80} height={80} className="object-contain" />
@@ -52,10 +52,18 @@ export default function HeroSection() {
             </div>
             <div>
               <div className="text-[10px] text-gray-500 font-bold tracking-widest uppercase mb-3">RECOGNIZED BY</div>
-              <div className="font-bold text-sm">UP Olympic Association</div>
+              <div className="font-bold text-sm whitespace-nowrap">UP Olympic Association</div>
               {/* UPOA Logo */}
               <div className="mt-2 text-blue-400 text-xl font-heading flex items-center gap-2">
                 <Image src="/UPOA.png" alt="UPOA Logo" width={80} height={80} className="object-contain" />
+              </div>
+            </div>
+            <div>
+              <div className="text-[10px] text-gray-500 font-bold tracking-widest uppercase mb-3">AFFILIATED TO</div>
+              <div className="font-bold text-sm whitespace-nowrap">Sports Directorate, Govt of Uttar Pradesh</div>
+              {/* UP Gov Logo */}
+              <div className="mt-2 flex justify-center w-full">
+                <Image src="/up-gov.png" alt="UP Govt Logo" width={88} height={88} className="object-contain" />
               </div>
             </div>
           </div>

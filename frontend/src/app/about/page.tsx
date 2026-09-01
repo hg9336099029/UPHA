@@ -57,7 +57,7 @@ export default function AboutPage() {
             </div>
             <div>
               <div className="text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-1">RECOGNISED BY</div>
-              <div className="text-white font-bold text-sm font-mono tracking-wide">Handball Association of India</div>
+              <div className="text-white font-bold text-sm font-mono tracking-wide">Handball Association India</div>
             </div>
             <div>
               <div className="text-[9px] font-bold tracking-widest text-gray-500 uppercase mb-1">HEADQUARTERS</div>
@@ -88,8 +88,8 @@ export default function AboutPage() {
               </p>
               <p>
                 From a small founding committee of physical education teachers and athletes, UPHA has
-                grown into the state's <strong>recognised governing body</strong> for handball, affiliated to the Handball
-                Association of India and the U.P. Olympic Association. Today, the federation oversees 60
+                grown into the state's <strong>recognised governing body</strong> for handball, affiliated to Handball
+                Association India, the U.P. Olympic Association, and the Sports Directorate, Govt of Uttar Pradesh. Today, the federation oversees 60
                 district units, accredits coaches and referees, and conducts the official state championship
                 pathway — from sub-junior trials to senior national selection.
               </p>
@@ -215,8 +215,8 @@ export default function AboutPage() {
             {[
               {
                 year: "1972",
-                title: "FEDERATION FOUNDED",
-                desc: "The Uttar Pradesh Handball Association is established in Lucknow by a group of physical education teachers and Olympic federation officials, recognised by the Handball Association of India in its founding year."
+                title: "ASSOCIATION FOUNDED",
+                desc: "The Uttar Pradesh Handball Association is established in Lucknow by a group of physical education teachers and Olympic federation officials, recognised by Handball Association India in its founding year."
               },
               {
                 year: "1981",
@@ -267,7 +267,7 @@ export default function AboutPage() {
               </div>
             </div>
             <h2 className="font-heading text-4xl md:text-5xl font-bold uppercase tracking-wide mb-4 text-[#111827]">
-              FEDERATION <span className="text-[#d97c55]">LEADERSHIP</span>
+              ASSOCIATION <span className="text-[#d97c55]">LEADERSHIP</span>
             </h2>
             <p className="text-gray-500 font-serif italic text-lg max-w-3xl mb-12">
               The current executive committee of the Uttar Pradesh Handball Association, elected for the 2024-2027 term.
@@ -303,7 +303,7 @@ export default function AboutPage() {
                       <div className="p-4 flex flex-col flex-1">
                         <div className="text-[8px] font-bold tracking-widest text-[#d97c55] uppercase mb-1.5">{ldr.role}</div>
                         <div className="font-heading text-base font-bold uppercase tracking-wide text-[#111827] mb-3 leading-tight">{ldr.name}</div>
-                        <div className="text-[9px] font-mono tracking-widest text-gray-400 uppercase mt-auto pt-3 border-t border-gray-100">Term: 2024 – 2027</div>
+                        <div className="text-[9px] font-mono tracking-widest text-gray-400 uppercase mt-auto pt-3 border-t border-gray-100">Term: {ldr.term || '2023 - 2027'}</div>
                       </div>
                     </div>
                   );
@@ -326,9 +326,9 @@ export default function AboutPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               {[
-                { icon: "HAI", title: "HANDBALL ASSOCIATION OF INDIA", desc: "National governing body • Affiliated since 1972", color: "bg-[#111827]" },
+                { icon: "HAI", title: "HANDBALL ASSOCIATION INDIA", desc: "National governing body • Affiliated since 1972", color: "bg-[#111827]" },
                 { icon: "UPO", title: "U.P. OLYMPIC ASSOCIATION", desc: "State Olympic body • Affiliated since 1975", color: "bg-[#d97c55]" },
-                { icon: "DSY", title: "DEPT. OF SPORTS & YOUTH WELFARE, U.P.", desc: "State govt. recognition • Grants & infrastructure", color: "bg-[#c88d68]" }
+                { icon: "SD", title: "SPORTS DIRECTORATE", desc: "Govt of Uttar Pradesh • Affiliated", color: "bg-[#c88d68]" }
               ].map((aff, idx) => (
                 <div key={idx} className="bg-white border border-gray-100 p-6 rounded-sm shadow-sm flex items-center gap-5 hover:shadow transition-shadow">
                   <div className={`${aff.color} w-14 h-14 rounded-full text-white text-xs font-bold tracking-widest flex items-center justify-center shrink-0`}>
